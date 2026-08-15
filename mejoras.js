@@ -72,11 +72,26 @@
     var res = { prev: null, next: null };
     [].slice.call(cont.querySelectorAll('button,div,span')).forEach(function (e) {
       if (e.children.length !== 0) return;
+      if (visor && visor.contains(e)) return;   // no confundir con las del visor
       var t = (e.textContent || '').trim();
       if (t === '‹' || t === '<') res.prev = res.prev || e;
       if (t === '›' || t === '>') res.next = res.next || e;
     });
     return res;
+  }
+
+  /* Las flechas suelen estar FUERA del contenedor con las fotos: galeriaDe()
+     devuelve el mas interno que tiene imagenes, y ese no las incluye. Hay que
+     subir hasta encontrarlas, pero sin llegar tan arriba como para agarrar las
+     del calendario, que estan en otra rama del arbol. */
+  function flechasCercaDe(cont) {
+    var a = cont;
+    for (var i = 0; i < 4 && a && a !== document.body; i++) {
+      var f = flechasDe(a);
+      if (f.prev && f.next) return f;
+      a = a.parentElement;
+    }
+    return { prev: null, next: null };
   }
 
   // ── Visor a pantalla completa ───────────────────────────────────────────
@@ -222,7 +237,7 @@
     ini = null;
     // Solo horizontal claro, para no robarle el gesto al scroll vertical.
     if (Math.abs(dx) < UMBRAL_DESLIZ || Math.abs(dx) < Math.abs(dy) * 1.5) { contDesliz = null; return; }
-    var f = flechasDe(contDesliz);
+    var f = flechasCercaDe(contDesliz);
     var destino = dx < 0 ? f.next : f.prev;
     if (destino) destino.click();
     contDesliz = null;

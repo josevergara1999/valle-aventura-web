@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>
+(function(){
+  try{
+    if(location.search.indexOf('movil=1')>-1) return;
+    if(window.matchMedia('(min-width: 821px)').matches){
+      location.replace('index.html'+location.hash);
+    }
+  }catch(e){}
+})();
+</script>
+
 
 
 <meta charset="utf-8">

@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
 (function(){
   try{
     if(location.search.indexOf('movil=1')>-1) return;
-    if(window.matchMedia('(min-width: 821px)').matches){
-      location.replace('index.html'+location.hash);
-    }
+    var w = screen && screen.width ? screen.width : 1200;
+    if(w >= 821) location.replace('index.html'+location.search+location.hash);
   }catch(e){}
 })();
 </script>
 
-
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 </head>
 <body>

@@ -110,12 +110,18 @@
     <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:12px;top:46%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.75);pointer-events:none;font-weight:600">Nevados de Chillán</div>
   </div>
 
-  <div data-anim="up" style="position:absolute;left:36px;right:36px;top:546px;z-index:7;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px 14px 12px 12px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
+  <!-- Antes flotaba en absoluto con top:546px, y la sección de abajo le
+       reservaba hueco a mano con padding-top:164px. Eran tres números que
+       tenían que moverse juntos (alto del hero, top de la caja, padding), y
+       en cuanto uno cambiaba aparecía un vacío. Ahora va en el flujo normal
+       y se sube con un margen negativo: la separación es UN número y no
+       puede descuadrarse. -->
+  <div data-anim="up" style="position:relative;z-index:7;margin:-52px 26px 30px;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
     <!-- Los dos campos de fecha se fueron: duplicaban lo que ya hace el
          calendario de abajo, salían vacíos y estiraban la caja a lo alto.
          Esta línea dice a dónde ir, y cuando hay fechas muestra el rango. -->
     <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:12px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.35">{{ fechasTxt }}</a>
-    <div style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35)">
+    <div id="personas" style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35);scroll-margin-top:90px">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
         <div style="display:flex;align-items:center;gap:8px">
@@ -136,12 +142,15 @@
     </div>
   </div>
 
-  <div id="reservar" data-screen-label="Reserva móvil" style="position:relative;z-index:6;margin-top:-24px;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5));clip-path:inset(-200px 0 0 0 round 0 0 20px 20px)">
-    <div style="position:absolute;inset:0;background:#0e1c30;border-radius:20px;clip-path:{{ calClipM }}">
+  <div id="reservar" data-screen-label="Reserva móvil" style="position:relative;z-index:6;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5))">
+    <!-- El fondo llevaba un recorte con muesca (calClipM) calculado en píxeles
+         para dejar pasar la caja flotante. Con la caja en el flujo la muesca
+         ya no encaja con nada, así que el borde vuelve a ser redondo y normal. -->
+    <div style="position:absolute;inset:0;background:#0e1c30;border-radius:20px">
       <div style="position:absolute;inset:0;background:url('uploads/textura-b.webp') center / cover no-repeat"></div>
       <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
     </div>
-    <div style="position:relative;padding:164px 16px 22px">
+    <div style="position:relative;padding:6px 16px 22px">
       <!-- Los dos avisos grandes se fueron. El de "tenemos disponibilidad"
            sobraba: el botón ya dice Reservar esta cabaña y arriba está el
            rango. Solo queda el mensaje cuando hay ALGO que decir —fechas
@@ -194,6 +203,19 @@
     </div>
   </div>
 
+  <sc-if value="{{ avisoPersonas }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarAviso }}" role="dialog" aria-modal="true" aria-label="Faltan las personas" style="position:fixed;inset:0;z-index:95;background:rgba(6,14,24,0.78);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
+      <div onClick="{{ stopProp }}" style="width:100%;max-width:320px;background:#12243c;border:1px solid rgba(255,255,255,0.22);border-radius:18px;padding:24px 20px;box-sizing:border-box;box-shadow:0 30px 70px rgba(0,0,0,0.6);color:#ffffff;text-align:center">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(63,200,218,0.16);border:1.5px solid #3fc8da;display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7fd6e2" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><path d="M18 8.5v5M15.5 11h5"></path></svg>
+        </div>
+        <div style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;margin-top:14px">¿Cuántos van?</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,0.75);margin-top:7px;line-height:1.6">Primero dinos el número de personas. El precio y las cabañas libres dependen de eso.</div>
+        <button onClick="{{ irAPersonas }}" type="button" style="display:flex;align-items:center;justify-content:center;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:14px 10px;cursor:pointer;width:100%;margin-top:18px;min-height:48px">Añadir personas</button>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ bkOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeBk }}" role="dialog" aria-modal="true" aria-label="Reservar cabaña" style="position:fixed;inset:0;z-index:90;background:rgba(6,14,24,0.74);display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box">
       <div onClick="{{ stopProp }}" style="width:100%;max-width:400px;background:#0e1c30;border:1px solid rgba(255,255,255,0.25);border-radius:16px;padding:20px 18px;box-sizing:border-box;box-shadow:0 40px 90px rgba(0,0,0,0.6);color:#ffffff;font-family:'Manrope',sans-serif;max-height:88vh;overflow:auto">
@@ -202,20 +224,49 @@
             <div style="font-family:'Raleway',sans-serif;font-size:17px;font-weight:800">Confirma tu reserva</div>
             <button onClick="{{ closeBk }}" aria-label="Cerrar" type="button" style="border:none;background:rgba(255,255,255,0.12);color:#ffffff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:12px;flex-shrink:0">✕</button>
           </div>
-          <div style="margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:11.5px">
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Fechas</span><b>{{ bkRange }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Noches</span><b>{{ bkNights }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Cabaña</span><b>{{ bkCabTxt }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Huéspedes</span><b>{{ bkGuestsTxt }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Tarifa por noche</span><b>{{ bkNightlyFmt }}</b></div>
-            <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;color:#7fd6e2">{{ bkExtraNote }}</div></sc-if>
-            <div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,0.18);padding-top:7px;margin-top:2px"><span style="color:rgba(255,255,255,0.65)">Total</span><b>{{ bkTotalFmt }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px"><span style="color:#7fd6e2;font-weight:700">Pagas ahora (50%)</span><b style="color:#7fd6e2">{{ bkHalfFmt }}</b></div>
+          <!-- Resumen a 13px y con las filas separadas. Antes iba todo a 11,5
+               apretado y el total se perdía entre las demás líneas. -->
+          <dl style="margin:14px 0 0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:9px;font-size:13px">
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:rgba(255,255,255,0.65);margin:0">Fechas</dt><dd style="margin:0"><b>{{ bkRange }}</b></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:rgba(255,255,255,0.65);margin:0">Noches</dt><dd style="margin:0"><b>{{ bkNights }}</b></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:rgba(255,255,255,0.65);margin:0">Cabaña</dt><dd style="margin:0"><b>{{ bkCabTxt }}</b></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><dt style="color:rgba(255,255,255,0.65);margin:0">Huéspedes</dt><dd style="margin:0"><b>{{ bkGuestsTxt }}</b></dd></div>
+            <div style="display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.18);padding-top:9px"><dt style="color:rgba(255,255,255,0.65);margin:0">Noches × tarifa</dt><dd style="margin:0"><b>{{ bkBreakdown }}</b></dd></div>
+            <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#7fd6e2;line-height:1.5">{{ bkExtraNote }}</div></sc-if>
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:16px"><dt style="color:rgba(255,255,255,0.65);margin:0">Total</dt><dd style="margin:0"><b>{{ bkTotalFmt }}</b></dd></div>
+          </dl>
+
+          <!-- El 50/50 como dos tarjetas del mismo peso. Es como se cobra de
+               verdad, y dicho con la forma se entiende sin leer nada. -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:12px 13px">
+              <div style="font-size:10px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Pagas ahora</div>
+              <div style="font-size:18px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkHalfFmt }}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">50% online</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 13px">
+              <div style="font-size:10px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.7)">Al llegar</div>
+              <div style="font-size:18px;font-weight:800;margin-top:4px">{{ bkBalFmt }}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">en la cabaña</div>
+            </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-            <input placeholder="Nombre y apellido" value="{{ nombre }}" onChange="{{ setNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
-            <input placeholder="Email" type="email" value="{{ email }}" onChange="{{ setEmail }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
-            <input placeholder="Teléfono (+56 9…)" value="{{ fono }}" onChange="{{ setFono }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
+
+          <!-- Etiquetas de verdad, no solo placeholder: al escribir, el
+               placeholder desaparece y ya no sabes qué campo es. Y 16px, que
+               por debajo iOS hace zoom en cada uno. -->
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <label for="f-nom" style="font-size:11px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.72)">Nombre y apellido</label>
+              <input id="f-nom" name="nombre" autocomplete="name" value="{{ nombre }}" onChange="{{ setNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:16px;outline:none;width:100%;box-sizing:border-box;min-height:46px">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <label for="f-ema" style="font-size:11px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.72)">Email</label>
+              <input id="f-ema" name="email" type="email" autocomplete="email" inputmode="email" value="{{ email }}" onChange="{{ setEmail }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:16px;outline:none;width:100%;box-sizing:border-box;min-height:46px">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <label for="f-fon" style="font-size:11px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.72)">Teléfono</label>
+              <input id="f-fon" name="telefono" type="tel" autocomplete="tel" inputmode="tel" placeholder="+56 9 …" value="{{ fono }}" onChange="{{ setFono }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:16px;outline:none;width:100%;box-sizing:border-box;min-height:46px">
+            </div>
           </div>
           <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:8px;font-size:11px;color:#ffb0a6">{{ formError }}</div></sc-if>
           <button onClick="{{ pay }}" style="display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:13px 8px;cursor:pointer;width:100%;margin-top:12px">{{ payLabel }}</button>
@@ -500,7 +551,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;yearSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:24,&quot;max&quot;:90,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;}}">
 class Component extends DCLogic {
-  state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1, buscando: false, buscado: false };
+  state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 0, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1, buscando: false, buscado: false, avisoPersonas: false };
   CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
 
   CAB_GAL = ['img-5798-2.webp','img-5639-jpg-1-2.webp','img-5651-jpg-2.webp',
@@ -772,6 +823,7 @@ class Component extends DCLogic {
     const libres = this.fitCabs()
       .filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length;
     const conFechas = !!(s.calStart && s.calEnd);
+    const sinGente = this.groupSize() === 0;
     const baseP = this.props.precioBase ?? 180000, extraP = this.props.extraPersona ?? 5000;
     const nightly = baseP + Math.max(0, s.guests - 5) * extraP;
     const bkNights = s.calStart && s.calEnd ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
@@ -840,15 +892,35 @@ class Component extends DCLogic {
                : !s.buscado ? 'Buscar disponibilidad'
                : libres === 0 ? 'Esas fechas ya están reservadas'
                : 'Reservar esta cabaña →',
+      /* Con 0 personas el botón se ve gris pero SIGUE siendo pulsable: si
+         estuviera deshabilitado no podría explicar por qué. Apagado y mudo
+         es la peor combinación — es la que hace tocar dos veces y rendirse. */
       accionDis: s.buscando || (s.buscado && libres === 0),
       accionCur: (s.buscado && libres === 0) ? 'not-allowed' : 'pointer',
       accionBg: s.buscando ? 'rgba(32,148,170,0.6)'
+              : sinGente ? 'rgba(255,255,255,0.14)'
               : !s.buscado ? 'rgba(32,148,170,0.92)'
               : libres === 0 ? 'rgba(255,255,255,0.12)'
               : 'linear-gradient(135deg, #35b7c9 0%, #2494ac 100%)',
-      accionColor: (s.buscado && libres === 0) ? 'rgba(255,255,255,0.6)' : '#ffffff',
+      accionColor: (sinGente || (s.buscado && libres === 0)) ? 'rgba(255,255,255,0.55)' : '#ffffff',
+
+      /* Aviso de "faltan las personas". Es una ventanita y no un texto al
+         lado porque los contadores quedan fuera de pantalla cuando estás
+         mirando el botón: hay que llevarte de vuelta, no solo avisarte. */
+      avisoPersonas: s.avisoPersonas,
+      cerrarAviso: () => this.setState({ avisoPersonas: false }),
+      irAPersonas: () => {
+        this.setState({ avisoPersonas: false });
+        const c = document.getElementById('personas');
+        if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      },
       accionFn: () => {
         if (this.state.buscando) return;
+
+        /* Primero las personas: sin saber cuántos van, ni el precio ni la
+           disponibilidad significan nada. Antes arrancaba en 2 y alguien
+           podía leer el total de 2 creyendo que era el suyo. */
+        if (sinGente) { this.setState({ avisoPersonas: true }); return; }
 
         if (!(s.calStart && s.calEnd)) {
           /* Sin fechas no hay nada que buscar: lo honesto es llevarle al
@@ -880,6 +952,10 @@ class Component extends DCLogic {
       bkRange: (s.calStart ? this.fmtDate(s.calStart) : '—') + ' → ' + (s.calEnd ? this.fmtDate(s.calEnd) : '—'),
       bkNights, bkCabTxt: 'Te asignamos una de las 3',
       bkNightlyFmt: this.fmt(nightly), bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf),
+      /* El desglose y el saldo: sin ellos el total era un número que había
+         que creerse. Con "2 × $180.000" se comprueba de un vistazo. */
+      bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
+      bkBalFmt: this.fmt(bkTotal - bkHalf),
       bkExtraNote: s.guests > 5 ? 'Incluye +' + this.fmt(extraP) + '/noche por cada adulto sobre el 5º (los niños −12 no suman extra)' : false,
       bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
       nombre: s.nombre, email: s.email, fono: s.fono,
@@ -912,14 +988,15 @@ class Component extends DCLogic {
       guests: s.guests,
       /* Reemplaza a las dos tarjetas: dice lo que importa sin pedir que
          elijas nada. En verde si hay, en ambar si no. */
-      libresTxt: !conFechas
+      libresTxt: sinGente ? '¿Cuántos van? Añade las personas para ver disponibilidad'
+        : !conFechas
         ? (libres === 0 ? 'Ninguna cabaña admite ese grupo' : libres + (libres === 1 ? ' cabaña' : ' cabañas') + ' para tu grupo · elige las fechas')
         : libres === 0 ? 'Sin cabañas libres en esas fechas'
         : libres === 1 ? 'Queda 1 cabaña libre esas fechas'
         : 'Quedan ' + libres + ' cabañas libres esas fechas',
-      libresColor: libres === 0 ? '#f0c419' : '#7fd6e2',
+      libresColor: sinGente ? 'rgba(255,255,255,0.6)' : libres === 0 ? '#f0c419' : '#7fd6e2',
       guestMax: 'Máximo ' + CUPO + ' personas',
-      gMinus: () => this.setState({ guests: Math.max(1, s.guests - 1) }),
+      gMinus: () => this.setState({ guests: Math.max(0, s.guests - 1), buscado: false }),
       gPlus: () => this.setState({ guests: Math.min(CUPO - s.kids, s.guests + 1), buscado: false }),
       kids: s.kids,
       kMinus: () => this.setState({ kids: Math.max(0, s.kids - 1) }),

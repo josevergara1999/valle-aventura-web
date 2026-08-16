@@ -135,9 +135,9 @@
                 <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;font-size:10px;font-weight:800;letter-spacing:1px;color:#7fd6e2;text-align:center">
                   <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;margin-top:6px;min-height:222px;align-content:start">
+                <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;margin-top:6px;min-height:248px;align-content:start">
                   <sc-for list="{{ mo.days }}" as="d" hint-placeholder-count="35">
-                    <button onClick="{{ d.pick }}" style="border:none;padding:8px 0;text-align:center;font-family:'Manrope',sans-serif;font-size:11.5px;border-radius:8px;cursor:pointer;background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }}">{{ d.n }}</button>
+                    <button onClick="{{ d.pick }}" style="border:none;padding:12px 0;text-align:center;font-family:'Manrope',sans-serif;font-size:11.5px;border-radius:8px;cursor:pointer;touch-action:manipulation;background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }}">{{ d.n }}</button>
                   </sc-for>
                 </div>
               </div>
@@ -530,11 +530,13 @@ class Component extends DCLogic {
     const s = this.state, minN = this.props.minNoches ?? 2;
     if (!s.calStart || (s.calStart && s.calEnd)) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
     if (di <= s.calStart) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
+    let cruza = false;
+    for (let d = this.shiftDate(s.calStart, 1); d < di; d = this.shiftDate(d, 1)) {
+      if (this.CAL_OCC.includes(d)) { cruza = true; break; }
+    }
+    if (cruza) { this.setState({ calStart: di, calEnd: null, calError: 'Entre esas dos fechas hay noches ocupadas. Empezamos de nuevo desde el ' + this.fmtDate(di) + ' — ahora elige la salida.' }); return; }
     const nights = Math.round((new Date(di) - new Date(s.calStart)) / 86400000);
     if (nights < minN) { this.setState({ calError: 'La estadía mínima es de ' + minN + ' noches. Elige una fecha de salida más lejana.' }); return; }
-    for (let d = this.shiftDate(s.calStart, 1); d < di; d = this.shiftDate(d, 1)) {
-      if (this.CAL_OCC.includes(d)) { this.setState({ calError: 'Hay fechas ocupadas dentro de ese rango. Prueba otras fechas.' }); return; }
-    }
     this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di });
   }
   componentDidMount() {

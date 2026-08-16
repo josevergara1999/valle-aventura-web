@@ -134,7 +134,6 @@
         </div>
       </div>
     </div>
-    <button onClick="{{ doSearch }}" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;min-height:44px;margin-top:10px;border:none;border-radius:999px;background:rgba(32,148,170,0.92);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:700;padding:12px 15px;cursor:pointer;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path></svg>Buscar disponibilidad</button>
   </div>
 
   <div id="reservar" data-screen-label="Reserva móvil" style="position:relative;z-index:6;margin-top:-24px;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5));clip-path:inset(-200px 0 0 0 round 0 0 20px 20px)">
@@ -187,7 +186,11 @@
       </div>
       <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ calError }}</div></sc-if>
       <div style="font-size:9.5px;color:rgba(255,255,255,0.7);line-height:1.7;margin-top:10px">Estadía mínima: 2 noches · Fechas tachadas ya reservadas · {{ guestMax }}</div>
-      <button onClick="{{ openBooking }}" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:14px 10px;cursor:pointer;width:100%;margin-top:10px">Reservar esta cabaña →</button>
+      <!-- Un solo botón con tres estados. Antes eran dos —buscar arriba y
+           reservar abajo— que actuaban sobre las mismas fechas: el de arriba
+           no decía si había sitio y el de abajo no se enteraba de que no lo
+           había hasta que lo apretabas. -->
+      <button onClick="{{ accionFn }}" disabled="{{ accionDis }}" type="button" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:{{ accionBg }};color:{{ accionColor }};font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:15px 10px;cursor:{{ accionCur }};width:100%;margin-top:10px;min-height:48px;touch-action:manipulation">{{ accionTxt }}</button>
     </div>
   </div>
 
@@ -487,7 +490,9 @@
       <div style="font-size:12px;font-weight:800">Tu destino te espera</div>
       <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px">desconecta y recarga energías</div>
     </div>
-    <button style="display:flex;align-items:center;gap:7px;border:none;border-radius:999px;background:rgba(32,148,170,0.92);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path></svg>Buscar disponibilidad</button>
+    <!-- No tenía onClick: era un botón que no hacía nada. Ahora sube al
+         calendario, que es donde se busca. -->
+    <a href="#calendario" style="display:flex;align-items:center;gap:7px;border:none;border-radius:999px;background:rgba(32,148,170,0.92);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:700;padding:12px 15px;min-height:44px;box-sizing:border-box;cursor:pointer;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path></svg>Ver fechas libres</a>
   </div>
 
   <a href="#" aria-label="WhatsApp" style="position:fixed;right:16px;bottom:18px;z-index:60;width:48px;height:48px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,0.4)"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1.1-4.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9.5c.5 2.5 3 5 5.5 5.5l1-1.5-2-1-1 .5c-.8-.5-1.5-1.2-2-2l.5-1-1-2z"></path></svg></a>
@@ -808,6 +813,38 @@ class Component extends DCLogic {
       searchError: s.searchError, searchMsg: s.searchMsg, calError: s.calError,
       openBooking: () => {
         if (!s.calStart || !s.calEnd) { this.setState({ calError: 'Selecciona tus fechas de entrada y salida en el calendario.' }); return; }
+        this.setState({ bkOpen: true, bkStep: 1, formError: '' });
+      },
+
+      /* ── El botón único ──────────────────────────────────────────────
+         Tres estados, porque hay tres situaciones distintas y antes las
+         cubrían dos botones que no se hablaban entre sí:
+           sin fechas   → busca: lleva al calendario y lo dice
+           con sitio    → reserva
+           sin sitio    → lo dice y no deja seguir, en vez de dejarte
+                          apretar para que te rebote un error
+         El caso "sin sitio" existe porque el calendario razona por noches
+         libres en general, y aquí manda la capacidad elegida: puede quedar
+         libre la de 8 y no la de 9. */
+      accionTxt: !(s.calStart && s.calEnd) ? 'Buscar disponibilidad'
+               : availFor(s.cabin) === 0 ? 'Esas fechas ya están reservadas'
+               : 'Reservar esta cabaña →',
+      accionDis: (s.calStart && s.calEnd) && availFor(s.cabin) === 0,
+      accionCur: ((s.calStart && s.calEnd) && availFor(s.cabin) === 0) ? 'not-allowed' : 'pointer',
+      accionBg: !(s.calStart && s.calEnd) ? 'rgba(32,148,170,0.92)'
+              : availFor(s.cabin) === 0 ? 'rgba(255,255,255,0.12)'
+              : 'linear-gradient(135deg, #35b7c9 0%, #2494ac 100%)',
+      accionColor: ((s.calStart && s.calEnd) && availFor(s.cabin) === 0) ? 'rgba(255,255,255,0.6)' : '#ffffff',
+      accionFn: () => {
+        if (!(s.calStart && s.calEnd)) {
+          /* Sin fechas no hay nada que buscar: lo honesto es llevarle al
+             sitio donde se eligen, no devolverle un error. */
+          this.setState({ calError: 'Marca tu entrada y tu salida en el calendario de arriba.' });
+          const cal = document.getElementById('calendario');
+          if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        if (availFor(s.cabin) === 0) return;
         this.setState({ bkOpen: true, bkStep: 1, formError: '' });
       },
       closeBk: () => this.setState({ bkOpen: false }),

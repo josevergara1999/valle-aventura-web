@@ -500,7 +500,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;yearSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:24,&quot;max&quot;:90,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;}}">
 class Component extends DCLogic {
-  state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1 };
+  state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1, buscando: false, buscado: false };
   CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
 
   CAB_GAL = ['img-5798-2.webp','img-5639-jpg-1-2.webp','img-5651-jpg-2.webp',
@@ -633,8 +633,8 @@ class Component extends DCLogic {
   }
   pickDay(di) {
     const s = this.state, minN = this.props.minNoches ?? 2;
-    if (!s.calStart || (s.calStart && s.calEnd)) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
-    if (di <= s.calStart) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
+    if (!s.calStart || (s.calStart && s.calEnd)) { this.setState({ calStart: di, calEnd: null, calError: '', buscado: false }); return; }
+    if (di <= s.calStart) { this.setState({ calStart: di, calEnd: null, calError: '', buscado: false }); return; }
     /* Red de seguridad: los días inalcanzables ya salen deshabilitados en
        buildDays, así que esto no debería dispararse con un toque. Si llega a
        pasar, se reinicia la selección en vez de dejarla trabada. */
@@ -644,7 +644,7 @@ class Component extends DCLogic {
     }
     const nights = Math.round((new Date(di) - new Date(s.calStart)) / 86400000);
     if (nights < minN) { this.setState({ calError: 'La estadía mínima es de ' + minN + ' noches. Elige una fecha de salida más lejana.' }); return; }
-    this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di });
+    this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di, buscado: false });
   }
   componentDidMount() {
     /* El calendario abría siempre en julio de 2026 — un mes ya terminado —
@@ -732,6 +732,7 @@ class Component extends DCLogic {
     if (this._animRed) clearTimeout(this._animRed);
     if (this._galIO) this._galIO.disconnect();
     if (this._galRed) clearTimeout(this._galRed);
+    if (this._buscaT) clearTimeout(this._buscaT);
     if (this._galScroll) window.removeEventListener('scroll', this._galScroll);
     if (this._key) document.removeEventListener('keydown', this._key);
     if (this._onRes) window.removeEventListener('resize', this._onRes);
@@ -758,7 +759,7 @@ class Component extends DCLogic {
     const calClipM = "path('M 0 3000 L 0 54 Q 0 34 20 34 L " + (Lm - 12) + " 34 Q " + Lm + " 34 " + Lm + " 26 L " + Lm + " 14 Q " + Lm + " 0 " + (Lm + 14) + " 0 L " + (Rm - 14) + " 0 Q " + Rm + " 0 " + Rm + " 14 L " + Rm + " 26 Q " + Rm + " 34 " + (Rm + 12) + " 34 L " + (cwM - 20) + " 34 Q " + cwM + " 34 " + cwM + " 54 L " + cwM + " 3000 Z')";
     const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const ym = this.CAL_MONTHS[s.calM];
-    const selCab = c => this.setState({ cabin: c, guests: Math.min(this.state.guests, c) });
+    const selCab = c => this.setState({ cabin: c, guests: Math.min(this.state.guests, c), buscado: false });
     /* Cuántas cabañas de esa capacidad quedan libres. Si ya hay fechas
        elegidas, mira el rango completo: una cabaña que se libera a mitad de
        la estadía no sirve. */
@@ -826,16 +827,25 @@ class Component extends DCLogic {
          El caso "sin sitio" existe porque el calendario razona por noches
          libres en general, y aquí manda la capacidad elegida: puede quedar
          libre la de 8 y no la de 9. */
-      accionTxt: !(s.calStart && s.calEnd) ? 'Buscar disponibilidad'
+      /* El botón NO adelanta la respuesta. Aunque ya tengas fechas, primero
+         dice "Buscar disponibilidad": la respuesta se gana apretando. Si se
+         revelara solo, buscar no significaría nada y el botón sería un
+         cartel. Cualquier cambio de fechas o de tamaño lo devuelve a buscar,
+         porque la respuesta anterior ya no vale. */
+      accionTxt: s.buscando ? 'Buscando…'
+               : !s.buscado ? 'Buscar disponibilidad'
                : availFor(s.cabin) === 0 ? 'Esas fechas ya están reservadas'
                : 'Reservar esta cabaña →',
-      accionDis: (s.calStart && s.calEnd) && availFor(s.cabin) === 0,
-      accionCur: ((s.calStart && s.calEnd) && availFor(s.cabin) === 0) ? 'not-allowed' : 'pointer',
-      accionBg: !(s.calStart && s.calEnd) ? 'rgba(32,148,170,0.92)'
+      accionDis: s.buscando || (s.buscado && availFor(s.cabin) === 0),
+      accionCur: (s.buscado && availFor(s.cabin) === 0) ? 'not-allowed' : 'pointer',
+      accionBg: s.buscando ? 'rgba(32,148,170,0.6)'
+              : !s.buscado ? 'rgba(32,148,170,0.92)'
               : availFor(s.cabin) === 0 ? 'rgba(255,255,255,0.12)'
               : 'linear-gradient(135deg, #35b7c9 0%, #2494ac 100%)',
-      accionColor: ((s.calStart && s.calEnd) && availFor(s.cabin) === 0) ? 'rgba(255,255,255,0.6)' : '#ffffff',
+      accionColor: (s.buscado && availFor(s.cabin) === 0) ? 'rgba(255,255,255,0.6)' : '#ffffff',
       accionFn: () => {
+        if (this.state.buscando) return;
+
         if (!(s.calStart && s.calEnd)) {
           /* Sin fechas no hay nada que buscar: lo honesto es llevarle al
              sitio donde se eligen, no devolverle un error. */
@@ -844,6 +854,19 @@ class Component extends DCLogic {
           if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
+
+        if (!this.state.buscado) {
+          /* La espera es corta y real: cuando esto lea Supabase habrá una
+             consulta de verdad aquí. Mientras tanto sirve para que la
+             respuesta se sienta como una respuesta. */
+          this.setState({ buscando: true, calError: '' });
+          this._buscaT = setTimeout(() => {
+            this.doSearch();
+            this.setState({ buscando: false, buscado: true });
+          }, 750);
+          return;
+        }
+
         if (availFor(s.cabin) === 0) return;
         this.setState({ bkOpen: true, bkStep: 1, formError: '' });
       },

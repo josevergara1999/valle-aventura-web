@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultado de tu reserva — Cabañas Valle Aventura</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0d1b2e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@800&amp;family=Manrope:wght@400;700;800&amp;display=swap" rel="stylesheet">
+<style>
+/* Página de retorno de Webpay. A propósito es HTML plano, sin el runtime ni
+   React: es la pantalla donde el cliente descubre si su plata se movió, y no
+   puede depender de que cargue nada más. */
+:root{
+  --navy:#0d1b2e;--navy-2:#0e1c30;--tx:#fff;--tx-2:rgba(255,255,255,.78);
+  --tx-3:rgba(255,255,255,.62);--linea:rgba(255,255,255,.18);
+  --cian:#35b7c9;--cian-claro:#7fd6e2;--oro:#f0c419;--ok:#7ec97e;--mal:#ff9a8b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy);color:var(--tx);font-family:'Manrope',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;display:flex;align-items:center;justify-content:center;
+  min-height:100svh;padding:24px}
+.caja{width:100%;max-width:520px;background:var(--navy-2);border:1px solid var(--linea);
+  border-radius:20px;padding:36px 24px 32px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.marca{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;border:1.5px solid currentColor}
+.ok{color:var(--ok)}.mal{color:var(--mal)}.neutro{color:var(--cian-claro)}
+h1{font-family:'Raleway',serif;font-size:clamp(24px,6vw,32px);font-weight:800;margin:0;line-height:1.15}
+p{margin:12px 0 0;color:var(--tx-2)}
+.orden{margin-top:18px;padding:10px 14px;border:1px dashed var(--linea);border-radius:10px;
+  font-size:13px;color:var(--tx-3)}
+.orden b{color:var(--tx);font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.acciones{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+a.bt{display:flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;
+  border-radius:999px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.02em}
+.bt--wa{background:#25d366;color:#052e16}
+.bt--oro{background:var(--oro);color:#1c2b1c}
+.bt--fant{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.34);color:var(--tx)}
+@media(prefers-reduced-transparency:reduce){.caja{background:#0b1727}}
+</style>
+</head>
+<body>
+<main class="caja" id="caja">
+  <div class="marca neutro" id="marca" aria-hidden="true">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle></svg>
+  </div>
+  <h1 id="titulo">Revisando tu pago…</h1>
+  <p id="texto">Un segundo.</p>
+  <div class="orden" id="orden" hidden>Número de reserva: <b id="ordenN"></b></div>
+  <div class="acciones" id="acciones"></div>
+</main>
+
+<script>
+(function(){
+  var p = new URLSearchParams(location.search);
+  var estado = p.get('estado') || 'error';
+  var orden = p.get('orden') || '';
+  var WA = 'https://wa.me/';   // ← poner aquí el número real de Valle Aventura
+
+  var casos = {
+    ok: {
+      cls:'ok',
+      icono:'<path d="M4 12.5 L9.5 18 L20 6.5"></path>',
+      t:'¡Reserva confirmada!',
+      d:'Recibimos el 50% del total. El saldo se paga en la cabaña al llegar. Te escribiremos por WhatsApp para coordinar la entrega de llaves.',
+      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','nuevo.html']]
+    },
+    rechazado: {
+      cls:'mal',
+      icono:'<path d="M12 7v7"></path><circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="9"></circle>',
+      t:'El pago fue rechazado',
+      d:'Tu banco no autorizó la transacción y no se cobró nada. La fecha sigue disponible: puedes intentar con otra tarjeta o coordinar por WhatsApp.',
+      bts:[['bt--oro','Intentar de nuevo','nuevo.html#reservar'],['bt--wa','Coordinar por WhatsApp',WA]]
+    },
+    anulado: {
+      cls:'neutro',
+      icono:'<path d="M9 9l6 6M15 9l-6 6"></path><circle cx="12" cy="12" r="9"></circle>',
+      t:'Cancelaste el pago',
+      d:'No se cobró nada y tu reserva no quedó tomada. Las fechas que elegiste siguen libres por ahora.',
+      bts:[['bt--oro','Volver a reservar','nuevo.html#reservar'],['bt--fant','Ir al inicio','nuevo.html']]
+    },
+    error: {
+      cls:'mal',
+      icono:'<path d="M12 7v7"></path><circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="9"></circle>',
+      t:'No pudimos confirmar el pago',
+      d:'Algo falló al volver desde Webpay. Si te llegó el cobro, escríbenos por WhatsApp con tu número de reserva y lo resolvemos al tiro — no vuelvas a pagar.',
+      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','nuevo.html']]
+    }
+  };
+
+  var c = casos[estado] || casos.error;
+  var marca = document.getElementById('marca');
+  marca.className = 'marca ' + c.cls;
+  marca.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + c.icono + '</svg>';
+  document.getElementById('titulo').textContent = c.t;
+  document.getElementById('texto').textContent = c.d;
+  document.title = c.t + ' — Cabañas Valle Aventura';
+
+  if (orden) {
+    document.getElementById('ordenN').textContent = orden;
+    document.getElementById('orden').hidden = false;
+  }
+
+  document.getElementById('acciones').innerHTML = c.bts.map(function(b){
+    return '<a class="bt ' + b[0] + '" href="' + b[2] + '">' + b[1] + '</a>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

@@ -343,6 +343,10 @@ button{font:inherit;color:inherit}
   font-family:var(--f-texto);font-weight:800;margin-bottom:var(--e-2)}
 .pie a,.pie p{font-size:var(--t-s);color:var(--tx-2);line-height:2}
 .pie a:hover{color:var(--oro)}
+/* La razón social cruza el grid entero y se separa: es la línea que dice quién
+   responde por el dinero, y en la pantalla de pago eso es lo que se busca. */
+.pie__legal{grid-column:1/-1;margin-top:var(--e-2);padding-top:var(--e-3);
+  border-top:1px solid var(--linea);font-size:var(--t-xs);color:var(--tx-3);line-height:1.7}
 .pendiente{color:var(--oro);border:1px dashed rgba(240,196,25,.5);border-radius:var(--r-s);
   padding:2px 8px;font-size:var(--t-xs);display:inline-block}
 
@@ -701,6 +705,7 @@ button{font:inherit;color:inherit}
       <p><span class="pendiente">Falta la dirección exacta</span></p>
       <p><a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a></p>
     </div>
+    <p class="pie__legal">© 2026 Sociedad Inmobiliaria Valle Aventura · Valle Las Trancas, comuna de Pinto, Región de Ñuble, Chile</p>
     <div>
       <h3>Tu estadía</h3>
       <p>Check-in 16:00 · Check-out 11:00</p>

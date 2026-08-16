@@ -37,7 +37,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;800&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
-  body{margin:0;background:#0d1b2e;}
+  body{margin:0;background:#0d1b2e;color:#ffffff;}
   a{color:#f5f1e6;text-decoration:none;}
   a:hover{color:#f0c419;}
 
@@ -145,11 +145,11 @@
     <div data-anim="up" data-anim-delay="0.2" style="position:relative;z-index:2;margin-top:20px;display:flex;gap:8px;overflow-x:auto;padding:0 18px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
       <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Dónde</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap">Valle Las Trancas</div>
+        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Valle Las Trancas</div>
       </div>
       <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Termas</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap">a 15 minutos</div>
+        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">a 15 minutos</div>
       </div>
       <div style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Nevados</div>
@@ -157,7 +157,7 @@
       </div>
       <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Capacidad</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap">8 y 9 huéspedes</div>
+        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">8 y 9 huéspedes</div>
       </div>
       <div aria-hidden="true" style="flex:0 0 auto;width:6px"></div>
     </div>
@@ -183,27 +183,27 @@
            Deja de pertenecer a la portada o al calendario, asi que no hay
            dos tarjetas chocando. Y las personas siguen a la vista cuando
            llegas al boton: por no tenerlas hubo que inventar un aviso. -->
-<div style="position:sticky;top:0;z-index:20;margin:0 -16px 16px;background:#12243c;backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid rgba(255,255,255,0.22);padding:10px 16px calc(10px + env(safe-area-inset-top,0px));box-shadow:0 10px 30px rgba(0,0,0,0.45);color:#ffffff">
+<div style="position:sticky;top:0;z-index:20;margin:0 -26px 18px;background:rgba(13,27,46,.94);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.16);padding:calc(10px + env(safe-area-inset-top,0px)) 20px 12px;box-shadow:0 12px 34px rgba(0,0,0,.5);color:#ffffff">
       <!-- Los dos campos de fecha se fueron: duplicaban lo que ya hace el
            calendario de abajo, salían vacíos y estiraban la caja a lo alto.
            Esta línea dice a dónde ir, y cuando hay fechas muestra el rango. -->
-      <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:12px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.35">{{ fechasTxt }}</a>
-      <div id="personas" style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35);scroll-margin-top:90px">
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-          <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <button onClick="{{ gMinus }}" aria-label="Quitar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
-            <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ guests }}</span>
-            <button onClick="{{ gPlus }}" aria-label="Agregar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
+      <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:7px;min-height:32px;font-size:13px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.3;letter-spacing:.01em">{{ fechasTxt }}</a>
+      <div id="personas" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px;scroll-margin-top:90px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px 8px 7px 12px">
+          <span style="font-size:10px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.72)">Adultos</span>
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onClick="{{ gMinus }}" aria-label="Quitar un adulto" type="button" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0;touch-action:manipulation">−</button>
+            <span style="font-size:16px;font-weight:800;min-width:20px;text-align:center;white-space:nowrap">{{ guests }}</span>
+            <button onClick="{{ gPlus }}" aria-label="Agregar un adulto" type="button" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0;touch-action:manipulation">+</button>
           </div>
         </div>
-        <span style="width:1px;background:rgba(255,255,255,0.4);margin:2px 0"></span>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-          <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Niños −12</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <button onClick="{{ kMinus }}" aria-label="Quitar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
-            <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ kids }}</span>
-            <button onClick="{{ kPlus }}" aria-label="Agregar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
+        
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px 8px 7px 12px">
+          <span style="font-size:10px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.72)">Niños −12</span>
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onClick="{{ kMinus }}" aria-label="Quitar un niño" type="button" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0;touch-action:manipulation">−</button>
+            <span style="font-size:16px;font-weight:800;min-width:20px;text-align:center;white-space:nowrap">{{ kids }}</span>
+            <button onClick="{{ kPlus }}" aria-label="Agregar un niño" type="button" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0;touch-action:manipulation">+</button>
           </div>
         </div>
       </div>

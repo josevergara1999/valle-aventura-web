@@ -13,8 +13,16 @@
   'use strict';
 
   var CONFIG = {
-    SUPABASE_URL: '',        // p. ej. https://xxxx.supabase.co
-    SUPABASE_ANON_KEY: ''    // la clave ANÓNIMA. La service_role NO va aquí nunca.
+    // Proyecto "Valle Aventura", organización propia, región São Paulo.
+    SUPABASE_URL: 'https://wxxlqszadprwizporhbg.supabase.co',
+
+    // ⬇️ FALTA ESTA LÍNEA. Es lo único que separa a la página de leer la
+    // agenda real. Está en el panel de Supabase → Project Settings → API
+    // Keys → la clave PUBLICABLE (anon). Empieza por "sb_publishable_".
+    // Es pública por diseño: viaja al navegador igual. La clave SECRETA
+    // (service_role) NO va aquí nunca — se salta RLS y quedaría a la vista
+    // de cualquiera que abra el código de la página.
+    SUPABASE_ANON_KEY: ''
   };
 
   /* Datos de ejemplo. Se usan solo mientras CONFIG esté vacío, y la página lo

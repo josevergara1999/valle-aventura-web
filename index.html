@@ -21,7 +21,9 @@
   try{
     if(location.search.indexOf('pc=1')>-1) return;
     var w = screen && screen.width ? screen.width : 1200;
-    if(w <= 820) location.replace('movil.html'+location.search+location.hash);
+    // Los telefonos van a la version fusionada. Para volver a la antigua,
+    // cambiar 'nuevo.html' por 'movil.html' aqui y nada mas.
+    if(w <= 820) location.replace('nuevo.html'+location.search+location.hash);
   }catch(e){}
 })();
 </script>

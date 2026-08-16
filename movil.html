@@ -19,9 +19,12 @@
 <script>
 (function(){
   try{
+    // Esta es la version antigua. Se queda en el repo para poder comparar,
+    // pero ya no se sirve sola: los telefonos van a nuevo.html y los
+    // escritorios a index.html. Para verla igualmente: ?movil=1
     if(location.search.indexOf('movil=1')>-1) return;
     var w = screen && screen.width ? screen.width : 1200;
-    if(w >= 821) location.replace('index.html'+location.search+location.hash);
+    location.replace((w >= 821 ? 'index.html' : 'nuevo.html')+location.search+location.hash);
   }catch(e){}
 })();
 </script>

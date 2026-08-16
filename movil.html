@@ -110,39 +110,7 @@
     <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:12px;top:46%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.75);pointer-events:none;font-weight:600">Nevados de Chillán</div>
   </div>
 
-  <!-- Antes flotaba en absoluto con top:546px, y la sección de abajo le
-       reservaba hueco a mano con padding-top:164px. Eran tres números que
-       tenían que moverse juntos (alto del hero, top de la caja, padding), y
-       en cuanto uno cambiaba aparecía un vacío. Ahora va en el flujo normal
-       y se sube con un margen negativo: la separación es UN número y no
-       puede descuadrarse. -->
-  <div data-anim="up" style="position:relative;z-index:7;margin:-52px 26px 30px;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
-    <!-- Los dos campos de fecha se fueron: duplicaban lo que ya hace el
-         calendario de abajo, salían vacíos y estiraban la caja a lo alto.
-         Esta línea dice a dónde ir, y cuando hay fechas muestra el rango. -->
-    <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:12px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.35">{{ fechasTxt }}</a>
-    <div id="personas" style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35);scroll-margin-top:90px">
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button onClick="{{ gMinus }}" aria-label="Quitar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
-          <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ guests }}</span>
-          <button onClick="{{ gPlus }}" aria-label="Agregar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
-        </div>
-      </div>
-      <span style="width:1px;background:rgba(255,255,255,0.4);margin:2px 0"></span>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Niños −12</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button onClick="{{ kMinus }}" aria-label="Quitar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
-          <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ kids }}</span>
-          <button onClick="{{ kPlus }}" aria-label="Agregar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="reservar" data-screen-label="Reserva móvil" style="position:relative;z-index:6;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5))">
+  <div id="reservar" data-screen-label="Reserva móvil" style="position:relative;z-index:6;margin-top:-46px;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5))">
     <!-- El fondo llevaba un recorte con muesca (calClipM) calculado en píxeles
          para dejar pasar la caja flotante. Con la caja en el flujo la muesca
          ya no encaja con nada, así que el borde vuelve a ser redondo y normal. -->
@@ -151,6 +119,37 @@
       <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
     </div>
     <div style="position:relative;padding:6px 16px 22px">
+    <!-- Vive DENTRO de la sección de reserva, que es a la que pertenece.
+         reservaba hueco a mano con padding-top:164px. Eran tres números que
+         dos dependía de margenes que colapsan distinto segun el navegador, y
+         aparecia un vacio en unos telefonos y no en otros. Metida dentro, no
+         puede haber hueco entre ambas: lo unico que las separa es el padding
+         de la propia seccion. -->
+    <div style="position:relative;z-index:7;margin:0 0 18px;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
+      <!-- Los dos campos de fecha se fueron: duplicaban lo que ya hace el
+           calendario de abajo, salían vacíos y estiraban la caja a lo alto.
+           Esta línea dice a dónde ir, y cuando hay fechas muestra el rango. -->
+      <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:12px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.35">{{ fechasTxt }}</a>
+      <div id="personas" style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35);scroll-margin-top:90px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+          <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button onClick="{{ gMinus }}" aria-label="Quitar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
+            <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ guests }}</span>
+            <button onClick="{{ gPlus }}" aria-label="Agregar un adulto" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
+          </div>
+        </div>
+        <span style="width:1px;background:rgba(255,255,255,0.4);margin:2px 0"></span>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+          <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Niños −12</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button onClick="{{ kMinus }}" aria-label="Quitar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
+            <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ kids }}</span>
+            <button onClick="{{ kPlus }}" aria-label="Agregar un niño" type="button" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
       <!-- Los dos avisos grandes se fueron. El de "tenemos disponibilidad"
            sobraba: el botón ya dice Reservar esta cabaña y arriba está el
            rango. Solo queda el mensaje cuando hay ALGO que decir —fechas

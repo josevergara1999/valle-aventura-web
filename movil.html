@@ -141,10 +141,13 @@
       <div style="position:absolute;inset:0;background:url('uploads/textura-b.webp') center / cover no-repeat"></div>
       <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
     </div>
-    <div style="position:relative;padding:204px 16px 22px">
-      <sc-if value="{{ avisoDemo }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(240,196,25,0.14);border:1px solid rgba(240,196,25,0.5);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#f7dd7a;line-height:1.6">{{ avisoDemo }}</div></sc-if>
+    <div style="position:relative;padding:178px 16px 22px">
+      <!-- Los dos avisos grandes se fueron. El de "tenemos disponibilidad"
+           sobraba: el botón ya dice Reservar esta cabaña y arriba está el
+           rango. Solo queda el mensaje cuando hay ALGO que decir —fechas
+           ocupadas y una alternativa cerca—, que es cuando ayuda. -->
       <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#ffc9c0" role="alert">{{ searchError }}</div></sc-if>
-      <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
+      <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6" role="status">{{ searchMsg }}</div></sc-if>
       <div style="font-size:13px;font-weight:800">Elige tu cabaña</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
         <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-family:'Manrope',sans-serif">
@@ -185,7 +188,7 @@
         </div>
       </div>
       <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ calError }}</div></sc-if>
-      <div style="font-size:9.5px;color:rgba(255,255,255,0.7);line-height:1.7;margin-top:10px">Estadía mínima: 2 noches · Fechas tachadas ya reservadas · {{ guestMax }}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.68);line-height:1.7;margin-top:10px">Estadía mínima: 2 noches · Fechas tachadas ya reservadas · {{ guestMax }}{{ notaDemo }}</div>
       <!-- Un solo botón con tres estados. Antes eran dos —buscar arriba y
            reservar abajo— que actuaban sobre las mismas fechas: el de arriba
            no decía si había sitio y el de abajo no se enteraba de que no lo
@@ -551,7 +554,9 @@ class Component extends DCLogic {
     const upd = { searchError: '', calError: '' };
     if (this.rangeFree(s.searchIn, nights)) {
       upd.calM = this.monthIdx(s.searchIn); upd.calStart = s.searchIn; upd.calEnd = s.searchOut;
-      upd.searchMsg = '¡Tenemos disponibilidad del ' + this.fmtDate(s.searchIn) + ' al ' + this.fmtDate(s.searchOut) + ' (' + nights + ' noches)! Tus fechas ya quedaron marcadas en el calendario — confirma tu reserva abajo.';
+      /* Sin mensaje cuando SÍ hay: el botón pasa a "Reservar esta cabaña" y
+         arriba está el rango. Un párrafo repitiéndolo solo ocupa pantalla. */
+      upd.searchMsg = '';
     } else {
       let alt = null;
       for (let k = 1; k <= 60 && !alt; k++) {
@@ -926,8 +931,13 @@ class Component extends DCLogic {
       fechasColor: (s.calStart && s.calEnd) ? '#ffffff' : 'rgba(255,255,255,0.9)',
       cab8Sub: subTxt(availFor(8)),
       cab9Sub: subTxt(availFor(9)),
-      avisoDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? false
-        : 'Disponibilidad de ejemplo: esta página todavía no está conectada a la agenda real. Confirma por WhatsApp antes de dar por hecha una fecha.',
+      /* El aviso de datos de ejemplo pasa de una caja amarilla de tres líneas
+         a una cláusula en la letra chica que ya estaba ahí. Ocupa una línea
+         en vez de cinco, y desaparece solo en cuanto datos.js tenga la clave
+         de Supabase. No lo borro del todo: mientras la disponibilidad sea
+         inventada, alguien tiene que decirlo. */
+      notaDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? ''
+        : ' · Disponibilidad de ejemplo: confírmala por WhatsApp',
       cab8Bg: s.cabin === 8 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab9Bg: s.cabin === 9 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab8Border: s.cabin === 8 ? '1.5px solid #3fc8da' : '1px solid rgba(255,255,255,0.3)',

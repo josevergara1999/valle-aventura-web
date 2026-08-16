@@ -111,17 +111,10 @@
   </div>
 
   <div data-anim="up" style="position:absolute;left:36px;right:36px;top:546px;z-index:7;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px 14px 12px 12px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
-    <div style="display:flex;gap:10px">
-      <label style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer">
-        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Entrada</span>
-        <input type="date" value="{{ searchIn }}" onChange="{{ setSearchIn }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;line-height:1.25;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;text-align:center;color-scheme:dark">
-      </label>
-      <span style="width:1px;background:rgba(255,255,255,0.4)"></span>
-      <label style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer">
-        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Salida</span>
-        <input type="date" value="{{ searchOut }}" onChange="{{ setSearchOut }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;line-height:1.25;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;text-align:center;color-scheme:dark">
-      </label>
-    </div>
+    <!-- Los dos campos de fecha se fueron: duplicaban lo que ya hace el
+         calendario de abajo, salían vacíos y estiraban la caja a lo alto.
+         Esta línea dice a dónde ir, y cuando hay fechas muestra el rango. -->
+    <a href="#calendario" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:12px;font-weight:{{ fechasPeso }};color:{{ fechasColor }};text-align:center;line-height:1.35">{{ fechasTxt }}</a>
     <div style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35)">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
@@ -165,7 +158,7 @@
         </button>
       </div>
       <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:8px">Las 3 cabañas son idénticas — te asignamos la tuya según el tamaño del grupo.</div>
-      <div style="margin-top:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;box-shadow:0 16px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+      <div id="calendario" style="margin-top:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;box-shadow:0 16px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);scroll-margin-top:16px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <button onClick="{{ calPrev }}" aria-label="Mes anterior" type="button" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-size:14px;cursor:pointer">‹</button>
           <span style="font-family:'Raleway',sans-serif;font-size:17px;font-weight:800;letter-spacing:1px;white-space:nowrap">{{ calTitle }}</span>
@@ -544,7 +537,7 @@ class Component extends DCLogic {
   monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
   doSearch() {
     const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
-    if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Elige fecha de entrada y de salida.', searchMsg: '' }); return; }
+    if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Primero marca tu entrada y tu salida en el calendario de abajo.', searchMsg: '' }); return; }
     if (s.searchIn < today) { this.setState({ searchError: 'La fecha de entrada no puede ser en el pasado.', searchMsg: '' }); return; }
     if (s.searchOut <= s.searchIn) { this.setState({ searchError: 'La salida debe ser después de la entrada.', searchMsg: '' }); return; }
     const nights = Math.round((new Date(s.searchOut) - new Date(s.searchIn)) / 86400000);
@@ -863,6 +856,14 @@ class Component extends DCLogic {
       pick9: () => selCab(9),
       /* Disponibilidad calculada, no escrita a mano. Cuenta las cabañas de esa
          capacidad que quedan libres el rango entero, no noche a noche. */
+      /* La línea que reemplaza a los campos de fecha: invita al calendario
+         cuando no hay nada, y confirma el rango cuando ya lo elegiste. */
+      fechasTxt: (s.calStart && s.calEnd)
+        ? this.fmtDate(s.calStart) + '  →  ' + this.fmtDate(s.calEnd)
+        : s.calStart ? 'Entrada ' + this.fmtDate(s.calStart) + ' · elige la salida ↓'
+        : 'Selecciona tus fechas en el calendario ↓',
+      fechasPeso: (s.calStart && s.calEnd) ? 800 : 600,
+      fechasColor: (s.calStart && s.calEnd) ? '#ffffff' : 'rgba(255,255,255,0.9)',
       cab8Sub: subTxt(availFor(8)),
       cab9Sub: subTxt(availFor(9)),
       avisoDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? false

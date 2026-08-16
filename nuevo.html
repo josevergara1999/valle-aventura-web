@@ -562,7 +562,7 @@ window.VA_OCUPACION = {
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:22px;margin-top:16px;font-size:11.5px;color:rgba(255,255,255,0.75)">
-          <span style="display:inline-flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:rgba(255,255,255,0.12);display:inline-block"></span>Ocupado</span><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:linear-gradient(135deg, rgba(255,255,255,0.06) 0 calc(50% - 1px), rgba(255,255,255,0.55) calc(50% - 1px) calc(50% + 1px), rgba(255,255,255,0.26) calc(50% + 1px) 100%);display:inline-block"></span>Llegada o salida el mismo día</span>
+          <span style="display:inline-flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:rgba(5,13,26,0.55);display:inline-block"></span>Ocupado</span><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:linear-gradient(135deg,rgba(5,13,26,0.55) 0%,rgba(5,13,26,0.55) 44%,rgba(255,255,255,0.85) 44%,rgba(255,255,255,0.85) 56%,rgba(255,255,255,0.24) 56%,rgba(255,255,255,0.24) 100%);display:inline-block"></span>Llegada o salida el mismo día</span>
           <span style="display:inline-flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:4px;background:#35b7c9;display:inline-block"></span>Tu selección</span>
           <span style="margin-left:auto;font-size:11.5px;color:rgba(255,255,255,0.7)">Entrada: <b>{{ calStartTxt }}</b> · Salida: <b>{{ calEndTxt }}</b></span>
         </div>
@@ -859,15 +859,24 @@ window.VA_OCUPACION = {
       const di = iso(d);
       const night = this.dayOcc(di), morn = this.dayOcc(this.shiftDate(di, -1));
       const occ = night && morn, diag = (night || morn) && !occ;
-      const occC = 'rgba(255,255,255,0.06)', freeC = 'rgba(255,255,255,0.26)';
+      /* Lo ocupado se pinta OSCURO, no blanco tenue. Antes era blanco al 8%
+         sobre una textura azul y el fondo se lo comía: ni el día partido ni
+         el día lleno se distinguían de uno libre. Claro contra oscuro sí se
+         lee a 44px y con el teléfono al sol. */
+      const occC = 'rgba(5,13,26,0.55)', freeC = 'rgba(255,255,255,0.24)';
       /* Día partido: uno se va a las 11:00 y otro puede entrar a las 16:00.
          Antes las dos mitades eran 0,08 y 0,2 de blanco — un 12% de
          diferencia que en una celda de 44px sobre textura no se distingue.
          Ahora las separa una costura clara, para que el corte se lea como
          intencional y no como un degradado sucio. */
-      const costura = 'rgba(255,255,255,0.55)';
-      const parte = (a, b) => 'linear-gradient(135deg, ' + a + ' 0 calc(50% - 1px), '
-        + costura + ' calc(50% - 1px) calc(50% + 1px), ' + b + ' calc(50% + 1px) 100%)';
+      /* Sintaxis clásica de parada simple a propósito: la forma con posición
+         doble ("color inicio fin") es CSS Images 4 y Safari de iOS la pinta
+         de forma irregular. Esto se ve igual y funciona en todos lados. */
+      const costura = 'rgba(255,255,255,0.85)';
+      const parte = (a, b) => 'linear-gradient(135deg,'
+        + a + ' 0%,' + a + ' 49%,'
+        + costura + ' 49%,' + costura + ' 51%,'
+        + b + ' 51%,' + b + ' 100%)';
       /* morn = la noche anterior está ocupada, o sea que ESTA mañana alguien
          se va: la mitad ocupada va arriba-izquierda. Si no, es al revés. */
       const diagBg = morn ? parte(occC, freeC) : parte(freeC, occC);

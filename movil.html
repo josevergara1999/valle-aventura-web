@@ -68,34 +68,34 @@
     <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:12px;top:46%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.75);pointer-events:none;font-weight:600">Nevados de Chillán</div>
   </div>
 
-  <div data-anim="up" style="position:absolute;left:36px;right:36px;top:546px;z-index:7;background:rgba(150,170,190,0.42);border:1px solid rgba(255,255,255,0.45);border-radius:14px 14px 12px 12px;padding:10px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
+  <div data-anim="up" style="position:absolute;left:36px;right:36px;top:546px;z-index:7;background:rgba(150,170,190,0.42);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,0.45);border-radius:14px 14px 12px 12px;padding:9px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
     <div style="display:flex;gap:10px">
-      <label style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;cursor:pointer">
+      <label style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Entrada</span>
-        <input type="date" value="{{ searchIn }}" onChange="{{ setSearchIn }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;color-scheme:dark">
+        <input type="date" value="{{ searchIn }}" onChange="{{ setSearchIn }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;line-height:1.25;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;text-align:center;color-scheme:dark">
       </label>
       <span style="width:1px;background:rgba(255,255,255,0.4)"></span>
-      <label style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;cursor:pointer">
+      <label style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Salida</span>
-        <input type="date" value="{{ searchOut }}" onChange="{{ setSearchOut }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;color-scheme:dark">
+        <input type="date" value="{{ searchOut }}" onChange="{{ setSearchOut }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;line-height:1.25;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;text-align:center;color-scheme:dark">
       </label>
     </div>
-    <div style="display:flex;gap:10px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.35)">
+    <div style="display:flex;gap:10px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.35)">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
         <div style="display:flex;align-items:center;gap:8px">
-          <button onClick="{{ gMinus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">−</button>
+          <button onClick="{{ gMinus }}" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
           <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ guests }}</span>
-          <button onClick="{{ gPlus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">+</button>
+          <button onClick="{{ gPlus }}" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
         </div>
       </div>
       <span style="width:1px;background:rgba(255,255,255,0.4);margin:2px 0"></span>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
         <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Niños −12</span>
         <div style="display:flex;align-items:center;gap:8px">
-          <button onClick="{{ kMinus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">−</button>
+          <button onClick="{{ kMinus }}" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">−</button>
           <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ kids }}</span>
-          <button onClick="{{ kPlus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">+</button>
+          <button onClick="{{ kPlus }}" style="width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0">+</button>
         </div>
       </div>
     </div>
@@ -112,21 +112,21 @@
       <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
       <div style="font-size:13px;font-weight:800">Elige tu cabaña</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-        <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};color:#ffffff;font-family:'Manrope',sans-serif">
+        <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-family:'Manrope',sans-serif">
           <span style="font-size:12.5px;font-weight:800">Para 8 personas</span>
           <span style="font-size:10px;color:rgba(255,255,255,0.75)">2 cabañas disponibles</span>
         </button>
-        <button onClick="{{ pick9 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab9Bg }};border:{{ cab9Border }};color:#ffffff;font-family:'Manrope',sans-serif">
+        <button onClick="{{ pick9 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab9Bg }};border:{{ cab9Border }};backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-family:'Manrope',sans-serif">
           <span style="font-size:12.5px;font-weight:800">Para 9 personas</span>
           <span style="font-size:10px;color:rgba(255,255,255,0.75)">1 cabaña disponible</span>
         </button>
       </div>
       <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:8px">Las 3 cabañas son idénticas — te asignamos la tuya según el tamaño del grupo.</div>
-      <div style="margin-top:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;box-shadow:0 16px 40px rgba(0,0,0,0.3)">
+      <div style="margin-top:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;box-shadow:0 16px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <button onClick="{{ calPrev }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);color:#ffffff;font-size:14px;cursor:pointer">‹</button>
+          <button onClick="{{ calPrev }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-size:14px;cursor:pointer">‹</button>
           <span style="font-family:'Raleway',sans-serif;font-size:17px;font-weight:800;letter-spacing:1px;white-space:nowrap">{{ calTitle }}</span>
-          <button onClick="{{ calNext }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);color:#ffffff;font-size:14px;cursor:pointer">›</button>
+          <button onClick="{{ calNext }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-size:14px;cursor:pointer">›</button>
         </div>
         <div style="overflow:hidden;margin-top:12px">
           <div style="display:flex;gap:20px;transform:{{ calShiftX }};transition:transform 0.55s cubic-bezier(0.25,0.8,0.3,1)">

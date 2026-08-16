@@ -49,6 +49,26 @@
      que tocas uno, y muchas veces no vuelve solo. */
   input,select,textarea{font-size:16px !important}
 
+
+  /* ── Cinta del valle ──────────────────────────────────────────────────
+     Un bucle continuo con los datos del sitio. La pista lleva la lista DOS
+     veces y se desplaza justo la mitad: al terminar vuelve al origen y el
+     salto es invisible, asi que no hay principio ni fin.
+     El desvanecido de los bordes es lo que importa: sin el, una capsula a
+     medias se lee como cortada; con el, se lee como que viene mas. */
+  @keyframes va-cinta { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  .va-cinta{ position:relative; overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%) }
+  .va-cinta__pista{ display:flex; gap:8px; width:max-content; animation:va-cinta 38s linear infinite }
+  /* Movimiento continuo y lento: justo lo que hay que poder apagar. Sin
+     animacion las capsulas se acomodan solas y no se pierde ninguna. */
+  @media (prefers-reduced-motion: reduce){
+    .va-cinta{ -webkit-mask-image:none; mask-image:none }
+    .va-cinta__pista{ animation:none; width:auto; flex-wrap:wrap; justify-content:center }
+    .va-cinta__pista [data-copia]{ display:none }
+  }
+
   .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
       clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
@@ -137,29 +157,73 @@
       <p data-anim="up" style="margin:14px 0 0;font-size:13px;line-height:1.65;color:rgba(255,255,255,.92);max-width:31ch;text-wrap:pretty">Tres cabañas idénticas en el corazón del Valle Las Trancas. Naturaleza, descanso y aventura a 15 minutos de las Termas.</p>
     </div>
 
-    <!-- ── LA FICHA DEL VALLE ──────────────────────────────────────────────
-         Es lo que separa esto de cualquier web de cabañas: datos concretos de
-         ESTE sitio, no adjetivos. Se desliza porque en 430px no caben cuatro,
-         y truncarlos sería peor que dejar que se deslicen.
-         Cae justo sobre la disolución: el texto pisa la frontera y la cose. -->
-    <div data-anim="up" data-anim-delay="0.2" style="position:relative;z-index:2;margin-top:20px;display:flex;gap:8px;overflow-x:auto;padding:0 18px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
-      <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
-        <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Dónde</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Valle Las Trancas</div>
+    <!-- ── LA CINTA DEL VALLE ──────────────────────────────────────────────
+         Datos concretos de ESTE sitio, no adjetivos, girando en bucle. Es lo
+         que separa esto de una plantilla de cabañas: dónde está, a cuánto de
+         las termas, el premio de Nevados, y lo que de verdad se pregunta la
+         gente antes de subir a la montaña.
+         La lista va DOS veces y la pista se desplaza justo la mitad: al
+         volver al origen el salto no se ve. Cae sobre la disolución de la
+         foto, así que además cose la frontera con la sección de abajo. -->
+    <div class="va-cinta" style="position:relative;z-index:2;margin-top:20px;padding:0 0 2px">
+      <div class="va-cinta__pista" style="padding:0 18px">
+        <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Dónde</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Valle Las Trancas</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Termas</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">a 15 minutos</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Nevados</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#f0c419">Mejor ski de Chile 2025</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Capacidad</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">8 y 9 huéspedes</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Tina caliente</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">bajo las estrellas</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">WiFi</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Starlink en la montaña</div>
+        </div>
+        <div style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Mascotas</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#f0c419">bienvenidas</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Dónde</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Valle Las Trancas</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Termas</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">a 15 minutos</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Nevados</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#f0c419">Mejor ski de Chile 2025</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Capacidad</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">8 y 9 huéspedes</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Tina caliente</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">bajo las estrellas</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">WiFi</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">Starlink en la montaña</div>
+        </div>
+        <div data-copia aria-hidden="true" style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+          <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Mascotas</div>
+          <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#f0c419">bienvenidas</div>
+        </div>
       </div>
-      <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
-        <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Termas</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">a 15 minutos</div>
-      </div>
-      <div style="flex:0 0 auto;background:rgba(240,196,25,.12);border:1px solid rgba(240,196,25,.45);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
-        <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#f0c419">Nevados</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#f0c419">Mejor ski de Chile 2025</div>
-      </div>
-      <div style="flex:0 0 auto;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
-        <div style="font-size:9.5px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Capacidad</div>
-        <div style="font-size:13px;font-weight:800;margin-top:3px;white-space:nowrap;color:#ffffff">8 y 9 huéspedes</div>
-      </div>
-      <div aria-hidden="true" style="flex:0 0 auto;width:6px"></div>
     </div>
   </header>
 

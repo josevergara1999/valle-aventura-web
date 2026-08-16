@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cabañas Valle Aventura — Las Trancas, Nevados de Chillán</title>
+<meta name="description" content="Tres cabañas equipadas para 8 y 9 personas en el Valle Las Trancas, a 15 minutos de las Termas de Chillán. Tina caliente, WiFi Starlink y estufa a pellet.">
+<meta name="theme-color" content="#0d1b2e">
+<link rel="canonical" href="https://josevergara1999.github.io/valle-aventura-web/nuevo.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Cabañas Valle Aventura">
+<meta property="og:title" content="Cabañas Valle Aventura — Las Trancas, Nevados de Chillán">
+<meta property="og:description" content="Tres cabañas equipadas para 8 y 9 personas, a 15 minutos de las Termas de Chillán. Consulta disponibilidad y reserva.">
+<meta property="og:image" content="https://josevergara1999.github.io/valle-aventura-web/uploads/cabana-invierno.webp">
+<meta property="og:image:alt" content="Cabaña de Valle Aventura en la nieve, en el Valle Las Trancas">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="image" href="uploads/r/fondo-a-800.webp" imagesrcset="uploads/r/fondo-a-400.webp 400w, uploads/r/fondo-a-800.webp 800w, uploads/r/fondo-a-1400.webp 1400w" imagesizes="100vw">
+<script src="./datos.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;600;800&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   TOKENS — la paleta vive aquí y en ningún otro sitio.
+   Antes eran 766 literales de color escritos a mano en dos archivos.
+   ───────────────────────────────────────────────────────────────────────── */
+:root{
+  /* Superficies */
+  --navy:#0d1b2e;
+  --navy-2:#0e1c30;
+  --navy-3:#12243c;
+  --linea:rgba(255,255,255,.18);
+  --linea-fuerte:rgba(255,255,255,.34);
+
+  /* Texto — probados sobre --navy: 15.9:1, 10.1:1, 6.4:1 */
+  --tx:#ffffff;
+  --tx-2:rgba(255,255,255,.78);
+  --tx-3:rgba(255,255,255,.62);
+
+  /* Acentos con papel definido.
+     CIAN = selección y disponibilidad. ORO = precio y descubrimiento. */
+  --cian:#35b7c9;
+  --cian-claro:#7fd6e2;
+  --cian-tenue:rgba(53,183,201,.18);
+  --oro:#f0c419;
+  --oro-tinta:#1c2b1c;
+  --alerta:#ffc9c0;
+  --alerta-fondo:rgba(214,84,64,.22);
+  --alerta-linea:rgba(255,140,120,.5);
+
+  /* Vidrio — ahora es ACENTO, no sistema. Solo donde hay algo real detrás. */
+  --vidrio:rgba(14,28,48,.62);
+  --vidrio-linea:rgba(255,255,255,.28);
+  --vidrio-blur:blur(16px) saturate(140%);
+
+  /* Tipografía — piso de 12px. Nada por debajo. */
+  --f-titulo:'Raleway',Georgia,serif;
+  --f-texto:'Manrope',system-ui,sans-serif;
+  --t-xs:12px;
+  --t-s:13px;
+  --t-m:15px;
+  --t-l:18px;
+  --t-xl:clamp(24px,4.5vw,34px);
+  --t-2xl:clamp(30px,7vw,54px);
+  --t-3xl:clamp(44px,13vw,118px);
+
+  /* Espacio y forma */
+  --e-1:6px;  --e-2:10px; --e-3:16px; --e-4:24px; --e-5:36px; --e-6:56px;
+  --r-s:10px; --r-m:14px; --r-l:20px; --r-full:999px;
+  --toque:44px;                   /* área mínima de toque */
+  --ancho:1240px;
+  --sombra:0 24px 60px rgba(0,0,0,.45);
+
+  --curva:cubic-bezier(.22,.8,.3,1);
+  --dur:.32s;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--navy);color:var(--tx);
+  font-family:var(--f-texto);font-size:var(--t-m);line-height:1.6;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+h1,h2,h3{font-family:var(--f-titulo);font-weight:800;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:var(--t-3xl);line-height:.92;letter-spacing:-.02em}
+h2{font-size:var(--t-2xl);line-height:1.08}
+h3{font-size:var(--t-l);line-height:1.25}
+p{margin:0;text-wrap:pretty}
+a{color:var(--tx);text-decoration:none}
+button{font:inherit;color:inherit}
+
+/* Foco visible. Antes había `outline:none` en 10 inputs sin nada que lo
+   reemplazara: con teclado no se veía dónde estabas. */
+:focus-visible{outline:3px solid var(--cian-claro);outline-offset:2px;border-radius:4px}
+:focus:not(:focus-visible){outline:none}
+
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ── Piezas reutilizables ─────────────────────────────────────────────── */
+.env{width:100%;max-width:var(--ancho);margin:0 auto;padding:0 var(--e-3)}
+@media(min-width:700px){.env{padding:0 var(--e-4)}}
+
+.tarjeta{position:relative;border-radius:var(--r-l);overflow:hidden;background:var(--navy-2);box-shadow:var(--sombra)}
+
+/* Scrim: ningún texto va sobre foto sin una capa que garantice el contraste.
+   Es la regla que arregla los 17 fallos de contraste, y los arregla por
+   diseño en vez de aclarar colores uno por uno. */
+.scrim::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,15,26,.78) 0%,rgba(8,15,26,.42) 42%,rgba(8,15,26,.80) 100%)}
+@media(min-width:900px){
+  .scrim--lado::after{background:linear-gradient(100deg,rgba(8,15,26,.86) 0%,rgba(8,15,26,.55) 48%,rgba(8,15,26,.22) 100%)}
+}
+.sobre{position:relative;z-index:2}
+
+.foto-fondo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+.eyebrow{font-size:var(--t-xs);letter-spacing:.22em;font-weight:800;text-transform:uppercase;color:var(--tx-2)}
+.capitulo{display:flex;align-items:baseline;gap:12px}
+.capitulo b{font-family:var(--f-titulo);font-size:26px;font-weight:300;color:var(--tx-3)}
+
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--linea-fuerte);
+  border-radius:var(--r-full);padding:8px 14px;font-size:var(--t-xs);font-weight:600;
+  color:var(--tx);background:rgba(6,12,20,.55)}
+.chip--oro{border-color:var(--oro);color:var(--oro)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:var(--toque);padding:13px 26px;border:none;border-radius:var(--r-full);
+  font-family:var(--f-texto);font-size:var(--t-s);font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;touch-action:manipulation;
+  transition:transform .12s ease,filter .12s ease}
+.btn:active{transform:scale(.975)}
+.btn--cian{background:linear-gradient(135deg,#3fc8da 0%,#2494ac 100%);color:#04222a}
+.btn--oro{background:var(--oro);color:var(--oro-tinta);letter-spacing:.02em;text-transform:none;font-size:var(--t-m)}
+.btn--fantasma{background:rgba(255,255,255,.1);border:1px solid var(--linea-fuerte);color:var(--tx)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+.icono{display:inline-flex;align-items:center;justify-content:center;
+  width:var(--toque);height:var(--toque);border-radius:var(--r-s);
+  border:1px solid var(--linea-fuerte);background:rgba(255,255,255,.12);
+  color:var(--tx);font-size:16px;line-height:1;cursor:pointer;flex-shrink:0;
+  touch-action:manipulation}
+.icono:active{background:rgba(255,255,255,.2)}
+.icono--redondo{border-radius:50%}
+
+.aviso{border-radius:var(--r-s);padding:11px 14px;font-size:var(--t-s);line-height:1.55}
+.aviso--error{background:var(--alerta-fondo);border:1px solid var(--alerta-linea);color:var(--alerta)}
+.aviso--ok{background:var(--cian-tenue);border:1px solid rgba(63,200,218,.5);color:#aee9f2}
+
+/* ── Cabecera ─────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:50;background:rgba(9,17,29,.9);
+  -webkit-backdrop-filter:var(--vidrio-blur);backdrop-filter:var(--vidrio-blur);
+  border-bottom:1px solid var(--linea)}
+.nav__fila{display:flex;align-items:center;justify-content:space-between;gap:var(--e-3);
+  min-height:60px;padding:8px 0}
+.nav__logo{height:40px;width:auto;object-fit:contain}
+.nav__links{display:none;gap:var(--e-4);font-size:var(--t-xs);letter-spacing:.18em;
+  font-weight:800;text-transform:uppercase}
+.nav__links a{color:var(--tx-2);padding:6px 0}
+.nav__links a:hover,.nav__links a:focus-visible{color:var(--oro)}
+@media(min-width:820px){.nav__links{display:flex}}
+.nav__social{display:flex;align-items:center;gap:4px}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.hero{position:relative;min-height:78vh;display:flex;align-items:flex-end;
+  border-radius:0;overflow:hidden;margin-bottom:var(--e-5)}
+@media(min-width:700px){
+  .hero{min-height:600px;border-radius:var(--r-l);margin:var(--e-4) auto 0;max-width:var(--ancho)}
+}
+.hero__txt{position:relative;z-index:2;padding:var(--e-6) var(--e-3) var(--e-5)}
+@media(min-width:700px){.hero__txt{padding:var(--e-6) var(--e-6);max-width:620px}}
+.hero__marca{color:var(--tx);text-shadow:0 4px 22px rgba(0,0,0,.6)}
+.hero__marca span{display:block;color:var(--oro)}
+.hero__p{font-size:var(--t-m);line-height:1.75;color:var(--tx-2);margin-top:var(--e-3);max-width:44ch}
+.hero__acciones{display:flex;flex-wrap:wrap;gap:var(--e-2);margin-top:var(--e-4)}
+.hero__sello{position:absolute;right:var(--e-3);top:var(--e-4);z-index:2;
+  writing-mode:vertical-rl;font-size:var(--t-xs);letter-spacing:.4em;text-transform:uppercase;
+  color:var(--tx-2);font-weight:600;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+@media(max-width:699px){.hero__sello{display:none}}
+
+/* ── Buscador — el único vidrio de verdad: flota sobre la foto ────────── */
+.buscador{position:relative;z-index:20;margin:calc(var(--e-5) * -1) auto 0;max-width:900px;
+  background:var(--vidrio);
+  -webkit-backdrop-filter:var(--vidrio-blur);backdrop-filter:var(--vidrio-blur);
+  border:1px solid var(--vidrio-linea);border-radius:var(--r-m);
+  box-shadow:0 18px 50px rgba(0,0,0,.45);padding:var(--e-3)}
+.buscador__campos{display:grid;grid-template-columns:1fr 1fr;gap:var(--e-2)}
+@media(min-width:820px){.buscador__campos{grid-template-columns:1fr 1fr 1fr 1fr}}
+.campo{display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:var(--e-2) 8px;border-radius:var(--r-s);background:rgba(255,255,255,.07)}
+.campo__et{font-size:var(--t-xs);letter-spacing:.16em;font-weight:800;text-transform:uppercase;color:var(--tx-2)}
+/* 16px obligatorio: por debajo, iOS Safari hace zoom en cada campo. */
+.campo input[type=date]{border:none;background:transparent;font-family:var(--f-texto);
+  font-size:16px;font-weight:700;color:var(--tx);padding:0;width:100%;text-align:center;
+  color-scheme:dark;min-height:32px}
+.contador{display:flex;align-items:center;gap:var(--e-2)}
+.contador b{font-size:var(--t-l);font-weight:800;min-width:24px;text-align:center}
+.buscador .btn{width:100%;margin-top:var(--e-2)}
+
+/* ── Bloque de reserva ────────────────────────────────────────────────── */
+.reserva{position:relative;padding:var(--e-5) 0 var(--e-6);margin-top:var(--e-4);
+  background:var(--navy-2);border-radius:var(--r-l);overflow:hidden}
+/* La textura va bajo un velo al 82%: con la variante de 800px nadie nota la
+   diferencia y se ahorran ~180 KB en el teléfono. */
+.reserva__fondo{position:absolute;inset:0;background:url('uploads/r/textura-b-800.webp') center/cover no-repeat}
+@media(min-width:1040px){
+  .reserva__fondo{background-image:url('uploads/r/textura-b-1400.webp')}
+}
+.reserva__velo{position:absolute;inset:0;background:rgba(11,22,38,.82)}
+.reserva__cuerpo{position:relative;z-index:2;max-width:640px;margin:0 auto;padding:0 var(--e-3)}
+
+.cabanas{display:grid;grid-template-columns:1fr 1fr;gap:var(--e-2);margin-top:var(--e-2)}
+.cabana{display:flex;flex-direction:column;align-items:center;gap:2px;
+  min-height:var(--toque);padding:14px 10px;border-radius:var(--r-m);cursor:pointer;
+  background:rgba(255,255,255,.09);border:1px solid var(--linea);color:var(--tx);
+  font-family:var(--f-texto);touch-action:manipulation;transition:background var(--dur) var(--curva)}
+.cabana[aria-pressed=true]{background:var(--cian-tenue);border:1.5px solid #3fc8da}
+.cabana strong{font-size:var(--t-m);font-weight:800}
+.cabana span{font-size:var(--t-xs);color:var(--tx-3)}
+
+/* El calendario ya no lleva vidrio: iba sobre una textura oscura y el
+   desenfoque no aportaba nada — pero sí costaba 42 capas compuestas. */
+.cal{margin-top:var(--e-4);background:rgba(255,255,255,.06);
+  border:1px solid var(--linea);border-radius:var(--r-m);padding:var(--e-3)}
+.cal__cab{display:flex;align-items:center;justify-content:space-between;gap:var(--e-2)}
+.cal__mes{font-family:var(--f-titulo);font-size:var(--t-l);font-weight:800;letter-spacing:.02em}
+.cal__sem,.cal__dias{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal__sem{margin-top:var(--e-3);font-size:var(--t-xs);font-weight:800;letter-spacing:.1em;
+  color:var(--cian-claro);text-align:center}
+.cal__dias{margin-top:6px;min-height:264px;align-content:start}
+.dia{min-height:40px;border:none;border-radius:var(--r-s);cursor:pointer;
+  font-family:var(--f-texto);font-size:var(--t-s);text-align:center;
+  touch-action:manipulation;transition:transform .1s ease}
+.dia:active{transform:scale(.92)}
+.dia[disabled]{cursor:default}
+.cal__leyenda{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e-2) var(--e-3);
+  margin-top:var(--e-3);font-size:var(--t-xs);color:var(--tx-2)}
+.cal__leyenda i{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.cal__rango{margin-left:auto;white-space:nowrap}
+
+/* ── Modal de reserva ─────────────────────────────────────────────────── */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(5,11,20,.8);
+  display:flex;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:700px){.modal{align-items:center;padding:var(--e-4)}}
+.modal__caja{width:100%;max-width:520px;max-height:92vh;overflow:auto;
+  background:var(--navy-2);border:1px solid var(--linea-fuerte);
+  border-radius:var(--r-l) var(--r-l) 0 0;padding:var(--e-4) var(--e-3) var(--e-5);
+  box-shadow:0 -20px 60px rgba(0,0,0,.6)}
+@media(min-width:700px){.modal__caja{border-radius:var(--r-l);padding:var(--e-4)}}
+.modal__cab{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--e-2)}
+.resumen{margin-top:var(--e-3);background:rgba(255,255,255,.07);border:1px solid var(--linea);
+  border-radius:var(--r-m);padding:var(--e-3);display:flex;flex-direction:column;gap:8px;font-size:var(--t-s)}
+.resumen div{display:flex;justify-content:space-between;gap:var(--e-2)}
+.resumen dt{color:var(--tx-3)}
+.pagos{display:grid;grid-template-columns:1fr 1fr;gap:var(--e-2);margin-top:var(--e-2)}
+.pago{border-radius:var(--r-m);padding:var(--e-2) 14px}
+.pago--ahora{background:var(--cian-tenue);border:1px solid rgba(63,200,218,.5)}
+.pago--luego{background:rgba(255,255,255,.07);border:1px solid var(--linea)}
+.pago b{display:block;font-size:var(--t-l);font-weight:800;margin-top:4px}
+.pago--ahora b{color:var(--cian-claro)}
+.campo-txt{display:flex;flex-direction:column;gap:5px}
+.campo-txt label{font-size:var(--t-xs);letter-spacing:.12em;font-weight:800;
+  text-transform:uppercase;color:var(--tx-2)}
+.campo-txt input{background:rgba(255,255,255,.08);border:1px solid var(--linea-fuerte);
+  border-radius:var(--r-s);padding:12px 14px;color:var(--tx);font-family:var(--f-texto);
+  font-size:16px;width:100%;min-height:var(--toque)}
+
+/* ── Secciones de contenido ───────────────────────────────────────────── */
+.seccion{margin-top:var(--e-6)}
+.panel{position:relative;min-height:520px;display:flex;align-items:flex-end;
+  border-radius:var(--r-l);overflow:hidden;box-shadow:var(--sombra)}
+.panel__txt{position:relative;z-index:2;padding:var(--e-5) var(--e-3)}
+@media(min-width:900px){
+  .panel{min-height:600px;align-items:center}
+  .panel__txt{padding:var(--e-6);max-width:56%}
+}
+.panel__p{font-size:var(--t-s);line-height:1.8;color:var(--tx-2);margin-top:var(--e-3);max-width:46ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--e-3)}
+
+.precio{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--e-2);margin-top:var(--e-4)}
+.precio b{font-size:var(--t-xl);font-weight:800;color:var(--oro)}
+.precio span{font-size:var(--t-s);color:var(--tx-2)}
+
+/* Galería — se desplaza con el dedo de verdad (scroll nativo con snap),
+   en vez del `.click()` sobre una flecha que había antes. */
+.galeria{display:flex;gap:var(--e-2);overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;padding:var(--e-2) 0 var(--e-3);
+  scrollbar-width:none}
+.galeria::-webkit-scrollbar{display:none}
+.galeria__f{position:relative;flex:0 0 74%;max-width:340px;aspect-ratio:4/3;
+  scroll-snap-align:center;border-radius:var(--r-m);overflow:hidden;
+  border:none;padding:0;cursor:zoom-in;background:var(--navy-3)}
+@media(min-width:700px){.galeria__f{flex-basis:38%}}
+@media(min-width:1040px){.galeria__f{flex-basis:26%}}
+.galeria__f img{width:100%;height:100%;object-fit:cover}
+.galeria__et{position:absolute;left:8px;bottom:8px;background:rgba(4,10,18,.72);
+  border-radius:var(--r-full);padding:4px 11px;font-size:var(--t-xs);font-weight:700}
+
+/* ── Visor ────────────────────────────────────────────────────────────── */
+.visor{position:fixed;inset:0;z-index:200;background:rgba(5,11,18,.94);
+  display:flex;align-items:center;justify-content:center;padding:var(--e-4)}
+.visor img{max-width:100%;max-height:82vh;border-radius:var(--r-m);object-fit:contain}
+.visor__barra{position:absolute;left:50%;transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom,0px) + 18px);
+  display:flex;align-items:center;gap:var(--e-3);
+  background:var(--vidrio);-webkit-backdrop-filter:var(--vidrio-blur);backdrop-filter:var(--vidrio-blur);
+  border:1px solid var(--vidrio-linea);border-radius:var(--r-full);padding:6px 10px}
+.visor__cerrar{position:absolute;right:var(--e-3);top:calc(env(safe-area-inset-top,0px) + var(--e-3))}
+
+/* ── Datos y acordeones ───────────────────────────────────────────────── */
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linea);
+  border:1px solid var(--linea);border-radius:var(--r-l);overflow:hidden;margin-top:var(--e-4)}
+@media(min-width:900px){.datos{grid-template-columns:repeat(4,1fr)}}
+.dato{background:var(--navy-2);padding:var(--e-4) var(--e-3);text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:8px}
+.dato b{font-size:var(--t-s);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.dato span{font-size:var(--t-xs);color:var(--tx-2);line-height:1.5}
+
+.acordeon{border:1px solid var(--linea);border-radius:var(--r-m);overflow:hidden;
+  background:var(--navy-2);margin-top:var(--e-2)}
+.acordeon__bt{display:flex;align-items:center;justify-content:space-between;gap:var(--e-2);
+  width:100%;min-height:var(--toque);padding:var(--e-3);background:none;border:none;
+  cursor:pointer;text-align:left;font-family:var(--f-titulo);font-size:var(--t-l);font-weight:800}
+.acordeon__cu{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur) var(--curva)}
+.acordeon[open] .acordeon__cu,.acordeon__cu[data-abierto=si]{grid-template-rows:1fr}
+.acordeon__in{overflow:hidden}
+.acordeon__in p{padding:0 var(--e-3) var(--e-3);font-size:var(--t-s);color:var(--tx-2)}
+
+/* ── Pie ──────────────────────────────────────────────────────────────── */
+.pie{margin-top:var(--e-6);border-top:1px solid var(--linea);background:#0a1524;
+  padding:var(--e-5) 0 calc(env(safe-area-inset-bottom,0px) + var(--e-5))}
+.pie__grid{display:grid;gap:var(--e-4)}
+@media(min-width:820px){.pie__grid{grid-template-columns:1.4fr 1fr 1fr}}
+.pie h3{font-size:var(--t-s);letter-spacing:.16em;text-transform:uppercase;color:var(--tx-3);
+  font-family:var(--f-texto);font-weight:800;margin-bottom:var(--e-2)}
+.pie a,.pie p{font-size:var(--t-s);color:var(--tx-2);line-height:2}
+.pie a:hover{color:var(--oro)}
+.pendiente{color:var(--oro);border:1px dashed rgba(240,196,25,.5);border-radius:var(--r-s);
+  padding:2px 8px;font-size:var(--t-xs);display:inline-block}
+
+/* ── WhatsApp ─────────────────────────────────────────────────────────── */
+.wa{position:fixed;right:var(--e-3);bottom:calc(env(safe-area-inset-bottom,0px) + var(--e-3));
+  z-index:60;width:56px;height:56px;border-radius:50%;background:#25d366;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 12px 30px rgba(0,0,0,.5)}
+
+/* ── Revelado ─────────────────────────────────────────────────────────── */
+[data-anim]{opacity:0;transform:translateY(20px);
+  transition:opacity .45s var(--curva),transform .45s var(--curva)}
+[data-anim].visto{opacity:1;transform:none}
+
+/* ── Preferencias del sistema ─────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+  [data-anim]{opacity:1;transform:none}
+  .galeria{scroll-snap-type:none}
+}
+@media(prefers-reduced-transparency:reduce){
+  .nav,.buscador,.visor__barra{background:#0b1727;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media(prefers-contrast:more){
+  :root{--tx-2:#fff;--tx-3:rgba(255,255,255,.85);--linea:rgba(255,255,255,.5);--vidrio:#0b1727}
+  .chip,.cabana,.cal{border-width:1.5px}
+}
+</style>
+</helmet>
+
+<header class="nav">
+  <div class="env nav__fila">
+    <a href="#inicio"><img class="nav__logo" src="uploads/r/va-logo-400.webp" width="120" height="40" alt="Cabañas Valle Aventura"></a>
+    <nav class="nav__links" aria-label="Principal">
+      <a href="#reservar">Reservar</a>
+      <a href="#cabanas">Cabañas</a>
+      <a href="#tour3d">Tour 3D</a>
+      <a href="#valle">El valle</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="nav__social">
+      <a class="icono icono--redondo" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram de Valle Aventura"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg></a>
+    </div>
+  </div>
+</header>
+
+<main id="inicio">
+
+  <!-- ── Hero ───────────────────────────────────────────────────────── -->
+  <section class="hero scrim scrim--lado" aria-labelledby="t-hero">
+    <img class="foto-fondo" src="uploads/r/fondo-a-800.webp"
+         srcset="uploads/r/fondo-a-400.webp 400w, uploads/r/fondo-a-800.webp 800w, uploads/r/fondo-a-1400.webp 1400w"
+         sizes="100vw" width="1400" height="788" fetchpriority="high"
+         alt="Valle Las Trancas nevado, en los Nevados de Chillán">
+    <p class="hero__sello">Nevados de Chillán</p>
+    <div class="hero__txt">
+      <div class="capitulo" data-anim><b>01</b><span class="eyebrow">Descubre el valle</span></div>
+      <h1 class="hero__marca" id="t-hero" data-anim>Invierno<span>2026</span></h1>
+      <p class="hero__p" data-anim>Tres cabañas equipadas en el corazón del Valle Las Trancas, a 15 minutos de las Termas de Chillán. Naturaleza, descanso y aventura en equilibrio.</p>
+      <div class="hero__acciones" data-anim>
+        <a class="btn btn--oro" href="#reservar">Ver disponibilidad →</a>
+        <a class="btn btn--fantasma" href="#tour3d">Recorrer en 3D</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Reserva ────────────────────────────────────────────────────── -->
+  <section class="env" id="reservar" aria-labelledby="t-reservar">
+    <h2 class="sr" id="t-reservar">Consulta disponibilidad y reserva</h2>
+
+    <form class="buscador" onSubmit="{{ noSubmit }}" data-anim>
+      <div class="buscador__campos">
+        <label class="campo">
+          <span class="campo__et">Entrada</span>
+          <input type="date" value="{{ searchIn }}" onChange="{{ setSearchIn }}" min="{{ todayMin }}">
+        </label>
+        <label class="campo">
+          <span class="campo__et">Salida</span>
+          <input type="date" value="{{ searchOut }}" onChange="{{ setSearchOut }}" min="{{ todayMin }}">
+        </label>
+        <div class="campo">
+          <span class="campo__et" id="et-ad">Adultos</span>
+          <div class="contador">
+            <button type="button" class="icono" onClick="{{ gMinus }}" aria-label="Quitar un adulto">−</button>
+            <b aria-live="polite" aria-labelledby="et-ad">{{ guests }}</b>
+            <button type="button" class="icono" onClick="{{ gPlus }}" aria-label="Agregar un adulto">+</button>
+          </div>
+        </div>
+        <div class="campo">
+          <span class="campo__et" id="et-ni">Niños −12</span>
+          <div class="contador">
+            <button type="button" class="icono" onClick="{{ kMinus }}" aria-label="Quitar un niño">−</button>
+            <b aria-live="polite" aria-labelledby="et-ni">{{ kids }}</b>
+            <button type="button" class="icono" onClick="{{ kPlus }}" aria-label="Agregar un niño">+</button>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn btn--cian" onClick="{{ doSearch }}">Buscar disponibilidad</button>
+    </form>
+
+    <div class="reserva">
+      <div class="reserva__fondo" aria-hidden="true"></div>
+      <div class="reserva__velo" aria-hidden="true"></div>
+      <div class="reserva__cuerpo">
+
+        <sc-if value="{{ avisoDemo }}" hint-placeholder-val="{{ false }}">
+          <p class="aviso aviso--error" style="margin-bottom:16px">{{ avisoDemo }}</p>
+        </sc-if>
+        <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}">
+          <p class="aviso aviso--error" role="alert" style="margin-bottom:16px">{{ searchError }}</p>
+        </sc-if>
+        <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}">
+          <p class="aviso aviso--ok" role="status" style="margin-bottom:16px">{{ searchMsg }}</p>
+        </sc-if>
+
+        <h3>¿Cuántos vienen?</h3>
+        <div class="cabanas">
+          <button class="cabana" onClick="{{ pick8 }}" aria-pressed="{{ cab8Sel }}">
+            <strong>Para 8 personas</strong><span>{{ cab8Sub }}</span>
+          </button>
+          <button class="cabana" onClick="{{ pick9 }}" aria-pressed="{{ cab9Sel }}">
+            <strong>Para 9 personas</strong><span>{{ cab9Sub }}</span>
+          </button>
+        </div>
+        <p style="font-size:var(--t-xs);color:var(--tx-3);margin-top:10px">Las 3 cabañas son idénticas — te asignamos la tuya según el tamaño del grupo.</p>
+
+        <div class="cal">
+          <div class="cal__cab">
+            <button class="icono" onClick="{{ calPrev }}" aria-label="Mes anterior">‹</button>
+            <span class="cal__mes" aria-live="polite">{{ calTitle }}</span>
+            <button class="icono" onClick="{{ calNext }}" aria-label="Mes siguiente">›</button>
+          </div>
+          <div class="cal__sem" aria-hidden="true">
+            <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+          </div>
+          <div class="cal__dias" role="grid" aria-label="Calendario de disponibilidad">
+            <sc-for list="{{ calDays }}" as="d" hint-placeholder-count="35">
+              <button class="dia" onClick="{{ d.pick }}" disabled="{{ d.dis }}" aria-label="{{ d.aria }}"
+                      style="background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }};box-shadow:{{ d.ring }}">{{ d.n }}</button>
+            </sc-for>
+          </div>
+          <p class="cal__leyenda">
+            <span><i style="background:rgba(255,255,255,.08)"></i>Ocupado</span>
+            <span><i style="background:linear-gradient(135deg,rgba(255,255,255,.08) 50%,rgba(255,255,255,.38) 50%)"></i>Llegada o salida el mismo día</span>
+            <span><i style="background:var(--cian)"></i>Tu selección</span>
+            <span class="cal__rango">Entrada <b>{{ calStartTxt }}</b> · Salida <b>{{ calEndTxt }}</b></span>
+          </p>
+        </div>
+
+        <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}">
+          <p class="aviso aviso--error" role="alert" style="margin-top:16px">{{ calError }}</p>
+        </sc-if>
+
+        <p style="font-size:var(--t-xs);color:var(--tx-3);margin-top:16px;line-height:1.7">Estadía mínima {{ minNoches }} noches · Puedes llegar el mismo día que sale otro huésped · {{ guestMax }}</p>
+        <button class="btn btn--cian" style="width:100%;margin-top:16px" onClick="{{ openBooking }}" disabled="{{ resDis }}">Reservar esta cabaña →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Modal ──────────────────────────────────────────────────────── -->
+  <sc-if value="{{ bkOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="modal" onClick="{{ closeBk }}" role="dialog" aria-modal="true" aria-label="Reservar cabaña">
+      <div class="modal__caja" onClick="{{ stopProp }}">
+        <div class="modal__cab">
+          <div>
+            <span class="eyebrow" style="color:var(--cian-claro)">{{ bkStepTxt }}</span>
+            <h3 style="margin-top:4px">{{ bkTitle }}</h3>
+          </div>
+          <button class="icono" onClick="{{ closeBk }}" aria-label="Cerrar">✕</button>
+        </div>
+
+        <sc-if value="{{ bkS1 }}" hint-placeholder-val="{{ true }}">
+          <dl class="resumen">
+            <div><dt>Entrada</dt><dd><b>{{ bkInTxt }} · 16:00</b></dd></div>
+            <div><dt>Salida</dt><dd><b>{{ bkOutTxt }} · 11:00</b></dd></div>
+            <div><dt>Noches</dt><dd><b>{{ bkNights }}</b></dd></div>
+            <div><dt>Cabaña</dt><dd><b>{{ bkCabTxt }}</b></dd></div>
+            <div><dt>Huéspedes</dt><dd><b>{{ bkGuestsTxt }}</b></dd></div>
+            <div style="border-top:1px solid var(--linea);padding-top:8px"><dt>Noches × tarifa</dt><dd><b>{{ bkBreakdown }}</b></dd></div>
+            <div style="font-size:var(--t-l)"><dt>Total</dt><dd><b>{{ bkTotalFmt }}</b></dd></div>
+          </dl>
+          <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:var(--t-xs);color:var(--cian-claro);margin-top:8px">{{ bkExtraNote }}</p>
+          </sc-if>
+          <div class="pagos">
+            <div class="pago pago--ahora"><span class="eyebrow" style="color:var(--cian-claro)">Pagas ahora</span><b>{{ bkHalfFmt }}</b></div>
+            <div class="pago pago--luego"><span class="eyebrow">Al llegar</span><b>{{ bkBalFmt }}</b></div>
+          </div>
+          <button class="btn btn--cian" style="width:100%;margin-top:16px" onClick="{{ bkNext }}">Quiero reservar →</button>
+          <p style="font-size:var(--t-xs);color:var(--tx-3);margin-top:10px;text-align:center">Check-in 16:00 · Check-out 11:00 · Cancelación gratuita hasta 7 días antes</p>
+        </sc-if>
+
+        <sc-if value="{{ bkS2 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+            <div class="campo-txt"><label for="i-nom">Nombre y apellido</label>
+              <input id="i-nom" name="nombre" autocomplete="name" value="{{ nombre }}" onChange="{{ setNombre }}"></div>
+            <div class="campo-txt"><label for="i-fon">Teléfono</label>
+              <input id="i-fon" name="telefono" type="tel" autocomplete="tel" placeholder="+56 9 …" value="{{ fono }}" onChange="{{ setFono }}"></div>
+            <div class="campo-txt"><label for="i-ema">Email</label>
+              <input id="i-ema" name="email" type="email" autocomplete="email" value="{{ email }}" onChange="{{ setEmail }}"></div>
+          </div>
+          <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+            <p class="aviso aviso--error" role="alert" style="margin-top:12px">{{ formError }}</p>
+          </sc-if>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn--fantasma" onClick="{{ bkBack }}">← Volver</button>
+            <button class="btn btn--cian" style="flex:1" onClick="{{ bkNext }}">Continuar →</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ bkS3 }}" hint-placeholder-val="{{ false }}">
+          <p class="aviso aviso--ok" style="margin-top:16px">Total <b>{{ bkTotalFmt }}</b> · pagas ahora el 50%: <b>{{ bkHalfFmt }}</b></p>
+          <button class="btn btn--cian" style="width:100%;margin-top:14px" onClick="{{ pagar }}" disabled="{{ pagoDis }}">{{ pagoLabel }}</button>
+          <sc-if value="{{ pagoAviso }}" hint-placeholder-val="{{ false }}">
+            <p class="aviso aviso--error" role="alert" style="margin-top:12px">{{ pagoAviso }}</p>
+          </sc-if>
+          <button class="btn btn--fantasma" style="width:100%;margin-top:10px" onClick="{{ bkBack }}">← Volver</button>
+        </sc-if>
+
+        <sc-if value="{{ bkS4 }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:12px 0">
+            <h3 style="font-size:var(--t-xl)">Solicitud enviada</h3>
+            <p style="font-size:var(--t-s);color:var(--tx-2);margin-top:8px">Te confirmamos por WhatsApp. <b>Todavía no se ha cobrado nada</b> y la fecha no queda bloqueada hasta que confirmemos.</p>
+          </div>
+          <dl class="resumen">
+            <div><dt>Fechas</dt><dd><b>{{ bkRange }}</b></dd></div>
+            <div><dt>Cabaña</dt><dd><b>{{ bkCabTxt }}</b></dd></div>
+            <div><dt>Huéspedes</dt><dd><b>{{ bkGuestsTxt }}</b></dd></div>
+            <div><dt>Total</dt><dd><b>{{ bkTotalFmt }}</b></dd></div>
+          </dl>
+          <button class="btn btn--fantasma" style="width:100%;margin-top:16px" onClick="{{ finishBk }}">Listo</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ── Cabañas ────────────────────────────────────────────────────── -->
+  <section class="env seccion" id="cabanas" aria-labelledby="t-cab">
+    <div class="panel scrim scrim--lado">
+      <img class="foto-fondo" loading="lazy" decoding="async"
+           src="uploads/r/cabana-invierno-800.webp"
+           srcset="uploads/r/cabana-invierno-400.webp 400w, uploads/r/cabana-invierno-800.webp 800w, uploads/r/cabana-invierno-1400.webp 1400w"
+           sizes="(min-width:1280px) 1240px, 100vw" width="1400" height="933"
+           alt="Cabañas nevadas entre árboles del bosque nativo">
+      <div class="panel__txt">
+        <div class="capitulo" data-anim><b>02</b><span class="eyebrow">Dormir bien</span></div>
+        <h2 id="t-cab" data-anim>Dormir bien también es parte del viaje</h2>
+        <p class="panel__p" data-anim>Cabañas equipadas en medio del bosque nativo, a 15 minutos de las Termas de Chillán. Un lugar para bajar el ritmo y recargarte.</p>
+        <div class="chips" data-anim>
+          <span class="chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="#7ec97e"><path d="M12 2 L19 14 H14 V22 H10 V14 H5 Z"></path></svg>Bosque nativo</span>
+          <span class="chip">Tina caliente</span>
+          <span class="chip">WiFi Starlink</span>
+          <span class="chip">Estufa a pellet</span>
+          <span class="chip chip--oro">Pet friendly</span>
+        </div>
+        <div class="precio" data-anim>
+          <span>desde</span><b>$180.000</b><span>/ noche · 8–9 huéspedes</span>
+        </div>
+        <a class="btn btn--oro" style="margin-top:24px" href="#reservar" data-anim>Ver disponibilidad →</a>
+      </div>
+    </div>
+
+    <h3 style="margin-top:36px">Por dentro</h3>
+    <div class="galeria" role="list" aria-label="Fotos del interior de la cabaña">
+      <sc-for list="{{ galFotos }}" as="f" hint-placeholder-count="6">
+        <button class="galeria__f" role="listitem" onClick="{{ f.open }}" aria-label="Ampliar foto: {{ f.label }}">
+          <img loading="lazy" decoding="async" src="{{ f.s400 }}" srcset="{{ f.srcset }}"
+               sizes="(min-width:1040px) 320px, (min-width:700px) 38vw, 74vw"
+               width="400" height="300" alt="{{ f.label }} de la cabaña">
+          <span class="galeria__et">{{ f.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ── Visor ──────────────────────────────────────────────────────── -->
+  <sc-if value="{{ lbOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="visor" onClick="{{ lbClose }}" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+      <img onClick="{{ stopProp }}" src="{{ lbSrc }}" alt="{{ lbLabel }}">
+      <div class="visor__barra" onClick="{{ stopProp }}">
+        <button class="icono icono--redondo" onClick="{{ lbPrev }}" aria-label="Foto anterior">‹</button>
+        <span style="font-size:var(--t-xs);font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap">{{ lbLabel }} · {{ galCount }}</span>
+        <button class="icono icono--redondo" onClick="{{ lbNext }}" aria-label="Foto siguiente">›</button>
+      </div>
+      <button class="icono icono--redondo visor__cerrar" onClick="{{ lbClose }}" aria-label="Cerrar">✕</button>
+    </div>
+  </sc-if>
+
+  <!-- ── Tour 3D ────────────────────────────────────────────────────── -->
+  <section class="env seccion" id="tour3d" aria-labelledby="t-tour">
+    <div class="panel scrim scrim--lado">
+      <sc-if value="{{ tourOff }}" hint-placeholder-val="{{ true }}">
+        <img class="foto-fondo" loading="lazy" decoding="async"
+             src="uploads/r/cabana-nieve-800.webp"
+             srcset="uploads/r/cabana-nieve-400.webp 400w, uploads/r/cabana-nieve-800.webp 800w, uploads/r/cabana-nieve-1400.webp 1400w"
+             sizes="(min-width:1280px) 1240px, 100vw" width="1400" height="1050"
+             alt="Interior de la cabaña con vista a la nieve">
+        <div class="panel__txt">
+          <div class="capitulo" data-anim><b>03</b><span class="eyebrow">Tour digital 3D</span></div>
+          <h2 id="t-tour" data-anim>Recorre la cabaña antes de llegar</h2>
+          <p class="panel__p" data-anim>Camina por el living, la cocina y los dormitorios en un recorrido de 360°. Sin sorpresas: lo que ves es exactamente lo que te espera en el valle.</p>
+          <div class="chips" data-anim>
+            <span class="chip">Recorrido 360°</span><span class="chip">Plano de la cabaña</span><span class="chip">Compatible con VR</span>
+          </div>
+          <button class="btn btn--oro" style="margin-top:24px" onClick="{{ tourStart }}" data-anim>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><ellipse cx="12" cy="12" rx="9" ry="4"></ellipse></svg>
+            Iniciar recorrido
+          </button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:#0b1420">
+          <iframe src="{{ tourUrl }}" title="Tour 3D de la cabaña Nevados" loading="lazy"
+                  style="position:absolute;inset:0;width:100%;height:100%;border:none"
+                  allowfullscreen="true" allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"></iframe>
+          <button class="btn btn--fantasma" style="position:absolute;right:12px;top:12px;z-index:3" onClick="{{ tourStop }}">Cerrar ✕</button>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- ── El valle ───────────────────────────────────────────────────── -->
+  <section class="env seccion" id="valle" aria-labelledby="t-valle">
+    <div class="capitulo" data-anim><b>04</b><span class="eyebrow">En el corazón de la montaña</span></div>
+    <h2 id="t-valle" style="margin-top:10px" data-anim>Un destino para vivirlo todo el año</h2>
+    <div class="datos">
+      <div class="dato"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21c-4-4.5-6-7.8-6-10.5a6 6 0 1 1 12 0C18 13.2 16 16.5 12 21z"></path><circle cx="12" cy="10.5" r="2.2"></circle></svg><b>15 minutos</b><span>de las Termas de Chillán</span></div>
+      <div class="dato"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 19 L9 8 L13 14 L16 10 L21 19 Z"></path><path d="M9 8 L10.5 5.5 L12 8"></path></svg><b>Nevados</b><span>Mejor centro de ski de Chile 2025</span></div>
+      <div class="dato"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 14c0 3 3 5 7 5s7-2 7-5-3-5-7-5"></path><path d="M8 4c-1 1.2-1 2.4 0 3.6M12 3c-1 1.2-1 2.4 0 3.6M16 4c-1 1.2-1 2.4 0 3.6"></path></svg><b>Tina caliente</b><span>bajo las estrellas del valle</span></div>
+      <div class="dato"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9.5C8.5 5.5 15.5 5.5 20 9.5"></path><path d="M7 13c3-2.6 7-2.6 10 0"></path><path d="M10 16.5c1.2-1 2.8-1 4 0"></path></svg><b>WiFi Starlink</b><span>señal incluso con nieve</span></div>
+    </div>
+
+    <h3 style="margin-top:36px">Vive el valle</h3>
+    <sc-for list="{{ vive }}" as="v" hint-placeholder-count="3">
+      <div class="acordeon">
+        <button class="acordeon__bt" onClick="{{ v.tog }}" aria-expanded="{{ v.ab }}">
+          {{ v.t }}<span aria-hidden="true">{{ v.sig }}</span>
+        </button>
+        <div class="acordeon__cu" data-abierto="{{ v.st }}"><div class="acordeon__in"><p>{{ v.d }}</p></div></div>
+      </div>
+    </sc-for>
+  </section>
+</main>
+
+<!-- ── Pie ──────────────────────────────────────────────────────────── -->
+<footer class="pie" id="contacto">
+  <div class="env pie__grid">
+    <div>
+      <img src="uploads/r/va-logo-400.webp" width="140" height="47" alt="Cabañas Valle Aventura" loading="lazy">
+      <p style="margin-top:12px;max-width:38ch">Tres cabañas idénticas para 8 y 9 personas en el Valle Las Trancas, comuna de Pinto, Región de Ñuble.</p>
+    </div>
+    <div>
+      <h3>Contacto</h3>
+      <p><span class="pendiente">Falta el teléfono</span></p>
+      <p><span class="pendiente">Falta la dirección exacta</span></p>
+      <p><a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a></p>
+    </div>
+    <div>
+      <h3>Tu estadía</h3>
+      <p>Check-in 16:00 · Check-out 11:00</p>
+      <p>Estadía mínima 2 noches</p>
+      <p>Cancelación gratuita hasta 7 días antes</p>
+      <p>Se paga 50% al reservar y 50% en la cabaña</p>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp a Valle Aventura">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#052e16" stroke-width="1.9"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1.1-4.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9.5c.5 2.5 3 5 5.5 5.5l1-1.5-2-1-1 .5c-.8-.5-1.5-1.2-2-2l.5-1-1-2z"></path></svg>
+</a>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;}}">class Component extends DCLogic {
+  state = { gal: 0, tourOn: false, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0,
+            cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '',
+            bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false,
+            formError: '', pagoAviso: '', lbOpen: false, lbI: 0, vive: -1, datos: 0 };
+
+  CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
+
+  GAL = [
+    ['img-2558-2.webp','Living'], ['img-2559-2.webp','Living'], ['img-2565-1-2.webp','Living'],
+    ['img-2557-2.webp','Cocina'], ['img-2590-2.webp','Cocina'],
+    ['img-2569-2.webp','Habitación 1'], ['img-2571-2.webp','Habitación 1'],
+    ['img-2578-2.webp','Habitación 2'], ['img-2584-2.webp','Habitación 2'],
+    ['img-2585-2.webp','Habitación 3'], ['psx-20211023-160323-1-1-2.webp','Habitación 3']
+  ];
+
+  VIVE = [
+    ['Diviértete', 'Ski y snowboard en Nevados de Chillán, elegido Mejor Centro de Ski de Chile 2025. Trekking, cabalgatas y la Cueva de los Pincheira a pocos minutos.'],
+    ['Explora',    'Termas naturales, bosque nativo y el complejo volcánico más extenso de Sudamérica. En verano, senderos y baños de río.'],
+    ['Descansa',   'Tina caliente bajo las estrellas, estufa a pellet y cocina completamente equipada. Sin señal de ciudad y con WiFi Starlink cuando lo necesitas.']
+  ];
+
+  /* ── Ocupación: una sola fuente, la de datos.js ─────────────────────── */
+  OCC() { return (window.VA_DATOS && window.VA_DATOS.cabanas()) || []; }
+  cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
+  groupSize() { return this.state.guests + this.state.kids; }
+  fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
+  dayOcc(di) { const f = this.fitCabs(); return !f.length || f.every(c => !this.cabFreeNight(c, di)); }
+  freeCabsRange(a, b, cabs) { return cabs.filter(c => { for (let d = a; d < b; d = this.shiftDate(d, 1)) { if (!this.cabFreeNight(c, d)) return false; } return true; }); }
+
+  fmtDate(di) { const p = di.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  fmt(n) { return '$' + n.toLocaleString('es-CL'); }
+  todayStr() { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
+  shiftDate(str, days) { const d = new Date(str + 'T00:00:00'); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  rangeFree(inStr, nights) { return this.freeCabsRange(inStr, this.shiftDate(inStr, nights), this.fitCabs()).length > 0; }
+  monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
+
+  /* Precio. Los niños −12 NO cuentan para el umbral de 5: el recargo mira
+     solo a los adultos. Antes el escritorio los sumaba y el móvil no, así que
+     la misma reserva costaba distinto según el aparato. */
+  nightly() {
+    const base = this.props.precioBase ?? 180000, extra = this.props.extraPersona ?? 5000;
+    return base + Math.max(0, this.state.guests - 5) * extra;
+  }
+
+  doSearch() {
+    const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
+    if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Elige fecha de entrada y de salida.', searchMsg: '' }); return; }
+    if (s.searchIn < today) { this.setState({ searchError: 'La fecha de entrada no puede ser en el pasado.', searchMsg: '' }); return; }
+    if (s.searchOut <= s.searchIn) { this.setState({ searchError: 'La salida debe ser después de la entrada.', searchMsg: '' }); return; }
+    const nights = Math.round((new Date(s.searchOut) - new Date(s.searchIn)) / 86400000);
+    if (nights < minN) { this.setState({ searchError: 'La estadía mínima es de ' + minN + ' noches.', searchMsg: '' }); return; }
+    if (this.monthIdx(s.searchIn) < 0) { this.setState({ searchError: 'Por ahora recibimos reservas entre julio y diciembre 2026.', searchMsg: '' }); return; }
+    const upd = { searchError: '', calError: '' };
+    if (this.rangeFree(s.searchIn, nights)) {
+      upd.calM = this.monthIdx(s.searchIn); upd.calStart = s.searchIn; upd.calEnd = s.searchOut;
+      upd.searchMsg = '¡Tenemos disponibilidad del ' + this.fmtDate(s.searchIn) + ' al ' + this.fmtDate(s.searchOut) + ' (' + nights + ' noches)! Tus fechas ya quedaron marcadas en el calendario.';
+    } else {
+      let alt = null;
+      for (let k = 1; k <= 60 && !alt; k++) {
+        const minus = this.shiftDate(s.searchIn, -k), plus = this.shiftDate(s.searchIn, k);
+        if (minus >= today && this.monthIdx(minus) >= 0 && this.rangeFree(minus, nights)) alt = minus;
+        else if (this.monthIdx(plus) >= 0 && this.rangeFree(plus, nights)) alt = plus;
+      }
+      if (alt) {
+        const altOut = this.shiftDate(alt, nights);
+        upd.calM = this.monthIdx(alt); upd.calStart = alt; upd.calEnd = altOut;
+        upd.searchMsg = 'Esas fechas ya están ocupadas. Te recomendamos del ' + this.fmtDate(alt) + ' al ' + this.fmtDate(altOut) + ' (' + nights + ' noches), las más cercanas disponibles.';
+      } else {
+        upd.searchMsg = 'No encontramos disponibilidad cercana a esas fechas. Revisa el calendario para ver los días libres.';
+      }
+    }
+    this.setState(upd);
+  }
+
+  /* Un día es inalcanzable si, con una entrada ya puesta, el rango hasta él
+     cruza una noche ocupada. Se pinta como tal en vez de dejar que lo toques
+     para nada: el toque muerto era el problema que traía a la gente de vuelta. */
+  inalcanzable(di) {
+    const s = this.state;
+    if (!s.calStart || s.calEnd || di <= s.calStart) return false;
+    return !this.freeCabsRange(s.calStart, di, this.fitCabs()).length;
+  }
+
+  buildDays(mi) {
+    const s = this.state, hoy = this.todayStr();
+    const y = this.CAL_MONTHS[mi][0], m = this.CAL_MONTHS[mi][1];
+    const nDays = new Date(y, m + 1, 0).getDate();
+    const off = (new Date(y, m, 1).getDay() + 6) % 7;
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const iso = d => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const days = [];
+    for (let i = 0; i < off; i++) days.push({ n: '', bg: 'transparent', color: 'transparent', fw: 400, deco: 'none', ring: 'none', dis: true, aria: '' });
+    for (let d = 1; d <= nDays; d++) {
+      const di = iso(d);
+      const pasado = di < hoy;
+      const night = this.dayOcc(di), morn = this.dayOcc(this.shiftDate(di, -1));
+      const occ = night && morn, diag = (night || morn) && !occ;
+      const lejos = this.inalcanzable(di);
+      const occC = 'rgba(255,255,255,.08)', freeC = 'rgba(255,255,255,.2)';
+      const diagBg = morn ? 'linear-gradient(135deg,' + occC + ' 50%,' + freeC + ' 50%)'
+                          : 'linear-gradient(135deg,' + freeC + ' 50%,' + occC + ' 50%)';
+      const sel = s.calStart === di || s.calEnd === di;
+      const inR = s.calStart && s.calEnd && di > s.calStart && di < s.calEnd;
+      const muerto = pasado || occ || lejos;
+      let estado = 'disponible';
+      if (pasado) estado = 'fecha pasada';
+      else if (occ) estado = 'ocupado';
+      else if (lejos) estado = 'no alcanzable desde tu entrada';
+      else if (sel) estado = 'seleccionado';
+      else if (diag) estado = 'llegada o salida el mismo día';
+      days.push({
+        n: d,
+        bg: sel ? (diag ? diagBg : 'linear-gradient(135deg,#3fc8da 0%,#2494ac 100%)')
+           : inR ? 'rgba(63,193,201,.35)'
+           : (pasado || lejos) ? 'rgba(255,255,255,.04)'
+           : occ ? occC : diag ? diagBg : freeC,
+        color: sel ? (diag ? '#7fd6e2' : '#04222a')
+             : (pasado || lejos) ? 'rgba(255,255,255,.25)'
+             : occ ? 'rgba(255,255,255,.4)' : '#ffffff',
+        fw: sel ? 800 : 500,
+        deco: occ ? 'line-through' : 'none',
+        ring: sel && diag ? 'inset 0 0 0 2.5px #3fc8da' : 'none',
+        dis: muerto,
+        aria: d + ' de ' + meses[m] + ', ' + estado,
+        pick: muerto ? undefined : () => this.pickDay(di)
+      });
+    }
+    return days;
+  }
+
+  pickDay(di) {
+    const s = this.state, minN = this.props.minNoches ?? 2;
+    if (!s.calStart || (s.calStart && s.calEnd) || di <= s.calStart) {
+      this.setState({ calStart: di, calEnd: null, calError: '' }); return;
+    }
+    const nights = Math.round((new Date(di) - new Date(s.calStart)) / 86400000);
+    if (nights < minN) { this.setState({ calError: 'La estadía mínima es de ' + minN + ' noches. Elige una salida más lejana.' }); return; }
+    this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const ym = this.CAL_MONTHS[s.calM], y = ym[0], m = ym[1];
+    const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const selCab = c => { const g = Math.min(this.state.guests, c); this.setState({ cabin: c, guests: g, kids: Math.min(this.state.kids, c - g) }); };
+    const availFor = cap => { const need = Math.max(cap, this.groupSize()); return this.OCC().filter(c => c.capacidad >= need).filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length; };
+    const subTxt = n => n === 0 ? ((s.calStart && s.calEnd) ? 'Sin disponibilidad en esas fechas' : 'No disponible para tu grupo') : n === 1 ? '1 cabaña disponible' : n + ' cabañas disponibles';
+    const nightly = this.nightly();
+    const extraAd = Math.max(0, s.guests - 5);
+    const extraP = this.props.extraPersona ?? 5000;
+    const bkNights = s.calStart && s.calEnd ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
+    const bkTotal = bkNights * nightly, bkHalf = Math.round(bkTotal / 2), bkBal = bkTotal - bkHalf;
+    const base = 'uploads/r/';
+    const conectado = !!(window.VA_DATOS && window.VA_DATOS.esReal());
+
+    return {
+      avisoDemo: conectado ? false : 'Disponibilidad de ejemplo: esta página todavía no está conectada a la agenda real. Confirma por WhatsApp antes de dar por hecha una fecha.',
+      noSubmit: e => e.preventDefault(),
+      calTitle: names[m] + ' ' + y,
+      calDays: this.buildDays(s.calM),
+      calPrev: () => this.setState({ calM: Math.max(0, s.calM - 1) }),
+      calNext: () => this.setState({ calM: Math.min(this.CAL_MONTHS.length - 1, s.calM + 1) }),
+      calStartTxt: s.calStart ? this.fmtDate(s.calStart) : '—',
+      calEndTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
+      guests: s.guests, kids: s.kids,
+      guestMax: 'Máximo ' + s.cabin + ' en esta cabaña',
+      searchIn: s.searchIn, searchOut: s.searchOut, todayMin: this.todayStr(),
+      setSearchIn: e => this.setState({ searchIn: e.target.value, searchError: '' }),
+      setSearchOut: e => this.setState({ searchOut: e.target.value, searchError: '' }),
+      doSearch: () => this.doSearch(),
+      searchError: s.searchError, searchMsg: s.searchMsg, calError: s.calError,
+      minNoches: this.props.minNoches ?? 2,
+
+      gMinus: () => this.setState({ guests: Math.max(1, s.guests - 1) }),
+      gPlus: () => this.setState({ guests: Math.min(s.cabin - s.kids, s.guests + 1) }),
+      kMinus: () => this.setState({ kids: Math.max(0, s.kids - 1) }),
+      kPlus: () => this.setState({ kids: Math.min(s.cabin - s.guests, s.kids + 1) }),
+      pick8: () => selCab(8), pick9: () => selCab(9),
+      cab8Sel: s.cabin === 8 ? 'true' : 'false', cab9Sel: s.cabin === 9 ? 'true' : 'false',
+      cab8Sub: subTxt(availFor(8)), cab9Sub: subTxt(availFor(9)),
+
+      resDis: !(s.calStart && s.calEnd),
+      openBooking: () => {
+        if (!s.calStart || !s.calEnd) { this.setState({ calError: 'Selecciona tus fechas en el calendario.' }); return; }
+        if (availFor(s.cabin) === 0) { this.setState({ calError: 'No queda ninguna cabaña para ' + s.cabin + ' personas libre en esas fechas. Cambia las fechas o el tamaño.' }); return; }
+        this.setState({ bkOpen: true, bkStep: 1, formError: '', pagoAviso: '' });
+      },
+      closeBk: () => this.setState({ bkOpen: false }),
+      stopProp: e => e.stopPropagation(),
+      bkOpen: s.bkOpen, bkS1: s.bkStep === 1, bkS2: s.bkStep === 2, bkS3: s.bkStep === 3, bkS4: s.bkStep === 4,
+      bkStepTxt: s.bkStep === 4 ? 'Reserva' : 'Paso ' + s.bkStep + ' de 3',
+      bkTitle: s.bkStep === 1 ? 'Confirma tu reserva' : s.bkStep === 2 ? 'Tus datos' : s.bkStep === 3 ? 'Pago' : 'Todo listo',
+      bkInTxt: s.calStart ? this.fmtDate(s.calStart) : '—',
+      bkOutTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
+      bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
+      bkRange: (s.calStart ? this.fmtDate(s.calStart) : '—') + ' → ' + (s.calEnd ? this.fmtDate(s.calEnd) : '—'),
+      bkNights, bkCabTxt: 'Para ' + s.cabin + ' personas',
+      bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
+      bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf), bkBalFmt: this.fmt(bkBal),
+      bkExtraNote: extraAd > 0 ? 'Incluye +' + this.fmt(extraP) + '/noche por cada adulto sobre el 5º. Los niños −12 no suman extra.' : false,
+
+      nombre: s.nombre, email: s.email, fono: s.fono, formError: s.formError,
+      setNombre: e => this.setState({ nombre: e.target.value }),
+      setEmail: e => this.setState({ email: e.target.value }),
+      setFono: e => this.setState({ fono: e.target.value }),
+      bkNext: () => {
+        if (this.state.bkStep === 1) { this.setState({ bkStep: 2, formError: '' }); return; }
+        const st = this.state;
+        if (!st.nombre.trim() || !st.fono.trim() || !st.email.trim()) { this.setState({ formError: 'Completa tu nombre, teléfono y email para continuar.' }); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.email)) { this.setState({ formError: 'Revisa el formato de tu email.' }); return; }
+        this.setState({ bkStep: 3, formError: '' });
+      },
+      bkBack: () => this.setState({ bkStep: Math.max(1, this.state.bkStep - 1), formError: '', pagoAviso: '' }),
+
+      /* Webpay todavía no está conectado. En vez de fingir un cobro, se dice
+         qué pasa de verdad: la solicitud queda anotada y se confirma a mano. */
+      pagoLabel: s.paying ? 'Enviando…' : (window.VA_PAGOS ? 'Pagar ' + this.fmt(bkHalf) + ' con Webpay' : 'Enviar solicitud de reserva'),
+      pagoDis: s.paying,
+      pagoAviso: s.pagoAviso,
+      pagar: () => {
+        if (this.state.paying) return;
+        this.setState({ paying: true, pagoAviso: '' });
+        if (window.VA_PAGOS && window.VA_PAGOS.iniciar) {
+          window.VA_PAGOS.iniciar({ monto: bkHalf, nombre: s.nombre, email: s.email, fono: s.fono,
+                                    desde: s.calStart, hasta: s.calEnd, cabina: s.cabin })
+            .catch(err => this.setState({ paying: false, pagoAviso: 'No pudimos abrir Webpay (' + err.message + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));
+          return;
+        }
+        this.setState({ paying: false, bkStep: 4 });
+      },
+      finishBk: () => this.setState({ bkOpen: false, bkStep: 1, calStart: null, calEnd: null,
+                                      searchIn: '', searchOut: '', searchMsg: '', nombre: '', email: '', fono: '', pagoAviso: '' }),
+
+      galFotos: this.GAL.map((g, i) => {
+        const n = g[0].replace('.webp', '');
+        return {
+          label: g[1],
+          s400: base + n + '-400.webp',
+          srcset: base + n + '-400.webp 400w, ' + base + n + '-800.webp 800w',
+          open: () => this.setState({ lbOpen: true, lbI: i })
+        };
+      }),
+      galCount: (s.lbI + 1) + ' / ' + this.GAL.length,
+      lbOpen: s.lbOpen,
+      lbSrc: base + this.GAL[s.lbI][0].replace('.webp', '') + '-1400.webp',
+      lbLabel: this.GAL[s.lbI][1],
+      lbClose: () => this.setState({ lbOpen: false }),
+      lbPrev: () => this.setState({ lbI: (s.lbI - 1 + this.GAL.length) % this.GAL.length }),
+      lbNext: () => this.setState({ lbI: (s.lbI + 1) % this.GAL.length }),
+
+      tourOn: s.tourOn, tourOff: !s.tourOn,
+      tourUrl: 'https://my.matterport.com/show/?m=SxQL3iGyoDo&play=1&qs=1',
+      tourStart: () => this.setState({ tourOn: true }),
+      tourStop: () => this.setState({ tourOn: false }),
+
+      vive: this.VIVE.map((v, i) => ({
+        t: v[0], d: v[1],
+        ab: s.vive === i ? 'true' : 'false',
+        st: s.vive === i ? 'si' : 'no',
+        sig: s.vive === i ? '−' : '+',
+        tog: () => this.setState({ vive: s.vive === i ? -1 : i })
+      }))
+    };
+  }
+
+  componentDidMount() {
+    /* El calendario abre en el mes de hoy. Antes el móvil abría siempre en
+       julio de 2026 — un mes ya terminado. */
+    const mi = this.monthIdx(this.todayStr());
+    if (mi > 0) this.setState({ calM: mi });
+
+    if (window.VA_DATOS) window.VA_DATOS.cargar().then(() => this.setState({ datos: Date.now() }));
+
+    /* IntersectionObserver en vez del setInterval de 250 ms que medía 74
+       elementos cuatro veces por segundo, para siempre. */
+    if ('IntersectionObserver' in window) {
+      this._io = new IntersectionObserver((ents, obs) => {
+        ents.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visto'); obs.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      const mira = () => document.querySelectorAll('[data-anim]:not(.visto)').forEach(el => this._io.observe(el));
+      mira();
+      this._mo = new MutationObserver(mira);
+      this._mo.observe(document.body, { childList: true, subtree: true });
+    } else {
+      document.querySelectorAll('[data-anim]').forEach(el => el.classList.add('visto'));
+    }
+
+    this._key = e => {
+      if (e.key !== 'Escape') return;
+      if (this.state.lbOpen) this.setState({ lbOpen: false });
+      else if (this.state.bkOpen) this.setState({ bkOpen: false });
+      else if (this.state.tourOn) this.setState({ tourOn: false });
+    };
+    document.addEventListener('keydown', this._key);
+  }
+
+  componentWillUnmount() {
+    if (this._io) this._io.disconnect();
+    if (this._mo) this._mo.disconnect();
+    document.removeEventListener('keydown', this._key);
+  }
+}
+</script>
+</body>
+</html>

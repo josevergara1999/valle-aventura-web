@@ -26,8 +26,8 @@
 })();
 </script>
 
-<script src="./datos.js"></script>
-<script src="./pagos.js"></script>
+<script src="./datos.js?v=2"></script>
+<script src="./pagos.js?v=2"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -762,8 +762,11 @@ class Component extends DCLogic {
     const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const ym = this.CAL_MONTHS[s.calM];
     /* Ya no se elige tamaño de cabaña: se deduce del grupo. CUPO es la
-       capacidad de la cabaña más grande, o sea el tope real del sitio. */
-    const CUPO = Math.max(0, ...this.OCC().map(c => c.capacidad), 9);
+       capacidad de la cabaña ARRENDABLE más grande — OCC() ya deja fuera la
+       Host, que es la casa de José y no se arrienda. Sale del dato, no de un
+       9 escrito a mano: si mañana cambia una capacidad, esto cambia solo. */
+    const caps = this.OCC().map(c => c.capacidad).filter(n => n > 0);
+    const CUPO = caps.length ? Math.max.apply(null, caps) : 9;
     /* Cuántas cabañas le sirven al grupo. Si ya hay fechas, mira el rango
        COMPLETO: una que se libera a mitad de la estadía no sirve de nada. */
     const libres = this.fitCabs()

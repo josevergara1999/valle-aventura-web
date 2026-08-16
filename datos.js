@@ -25,24 +25,40 @@
     SUPABASE_ANON_KEY: ''
   };
 
-  /* Datos de ejemplo. Se usan solo mientras CONFIG esté vacío, y la página lo
-     dice en pantalla para que nadie los confunda con disponibilidad real. */
+  /* ⚠️ SE ARRIENDAN TRES. NUNCA CUATRO.
+   *
+   * La tabla `cabanas` de Supabase tiene una cuarta fila, la **Host**, que es
+   * la casa de José. Está ahí porque consume pellet y hay que contabilizarlo,
+   * pero `arrienda = false`: no entra en el calendario, ni en el cotizador,
+   * ni en "cuántas quedan libres", ni en la asignación.
+   *
+   * Este archivo la filtra por dos sitios a la vez —en la consulta y otra vez
+   * al entregar la lista— a propósito: si alguien cambia la consulta algún
+   * día, la casa de José sigue sin poder aparecer como disponible. Un solo
+   * filtro es un olvido a la espera de pasar, y aquí el fallo sería vender la
+   * casa donde vive el dueño.
+   */
   var EJEMPLO = {
     cabanas: [
-      { id: 'shangri-la', nombre: 'Shangri-la', capacidad: 8, reservas: [
+      { id: 'shangri-la', nombre: 'Shangri-la', capacidad: 8, arrienda: true, reservas: [
         ['2026-08-20','2026-08-23'], ['2026-09-11','2026-09-13'], ['2026-09-18','2026-09-21'],
         ['2026-10-09','2026-10-12'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
       ]},
-      { id: 'el-chueco', nombre: 'El Chueco', capacidad: 9, reservas: [
+      { id: 'el-chueco', nombre: 'El Chueco', capacidad: 9, arrienda: true, reservas: [
         ['2026-08-21','2026-08-24'], ['2026-09-18','2026-09-20'], ['2026-10-09','2026-10-11'],
         ['2026-10-30','2026-11-01'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
       ]},
-      { id: 'nevados', nombre: 'Nevados', capacidad: 8, reservas: [
+      { id: 'nevados', nombre: 'Nevados', capacidad: 8, arrienda: true, reservas: [
         ['2026-08-21','2026-08-23'], ['2026-08-28','2026-08-30'], ['2026-09-17','2026-09-22'],
         ['2026-10-09','2026-10-12'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
       ]}
     ]
   };
+
+  /* El segundo filtro, el que no depende de cómo esté escrita la consulta. */
+  function soloArrendables(lista) {
+    return (lista || []).filter(function (c) { return c && c.arrienda !== false; });
+  }
 
   var estado = {
     cabanas: EJEMPLO.cabanas,
@@ -54,36 +70,51 @@
     return !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
   }
 
-  /* Lee `bloqueos` con la clave anónima. El schema da permiso columna por
-     columna: id, cabana_id, desde, hasta. Nombre y teléfono quedan fuera del
-     grant, así que esta llamada no puede exponer datos de huésped ni por error. */
+  var cab = function () {
+    return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
+      /* PRIMER filtro: la Host ni siquiera viaja por la red. */
+      '/rest/v1/cabanas?select=id,nombre,capacidad,arrienda&arrienda=eq.true&order=orden.asc';
+  };
+  var blo = function () {
+    return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
+      '/rest/v1/bloqueos?select=cabana_id,desde,hasta&order=desde.asc';
+  };
+  var cabecera = function () {
+    return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY };
+  };
+
+  /* Lee el catálogo y los bloqueos con la clave anónima. El schema da permiso
+     columna por columna: id, cabana_id, desde, hasta. Nombre y teléfono quedan
+     fuera del grant, así que esto no puede exponer datos de huésped ni por
+     error. */
   function cargar() {
     if (!conectado()) return Promise.resolve(estado);
 
-    var url = CONFIG.SUPABASE_URL.replace(/\/$/, '') +
-      '/rest/v1/bloqueos?select=cabana_id,desde,hasta&order=desde.asc';
-
-    return fetch(url, {
-      headers: {
-        apikey: CONFIG.SUPABASE_ANON_KEY,
-        Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
-      }
-    })
-      .then(function (r) {
+    var pide = function (url) {
+      return fetch(url, { headers: cabecera() }).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
-      })
-      .then(function (filas) {
+      });
+    };
+
+    return Promise.all([pide(cab()), pide(blo())])
+      .then(function (res) {
+        var catalogo = soloArrendables(res[0]);   // SEGUNDO filtro
+        var filas = res[1];
         var porCabana = {};
         filas.forEach(function (f) {
           (porCabana[f.cabana_id] = porCabana[f.cabana_id] || []).push([f.desde, f.hasta]);
         });
-        // Las capacidades vienen del catálogo; si aún no se expone, se conservan
-        // las del ejemplo para no quedarse sin el filtro por tamaño de grupo.
-        estado.cabanas = EJEMPLO.cabanas.map(function (c) {
-          return { id: c.id, nombre: c.nombre, capacidad: c.capacidad, reservas: porCabana[c.id] || [] };
+        /* Si el catálogo viniera vacío se conserva el ejemplo: es preferible
+           una página que funciona y avisa, a uno que dice "no hay cabañas". */
+        var base = catalogo.length ? catalogo : EJEMPLO.cabanas;
+        estado.cabanas = soloArrendables(base).map(function (c) {
+          return {
+            id: c.id, nombre: c.nombre, capacidad: c.capacidad, arrienda: true,
+            reservas: porCabana[c.id] || []
+          };
         });
-        estado.real = true;
+        estado.real = catalogo.length > 0;
         estado.error = null;
         return estado;
       })
@@ -96,7 +127,14 @@
   }
 
   window.VA_DATOS = {
-    cabanas: function () { return estado.cabanas; },
+    /* TERCER punto de filtrado, el último antes de que la página vea nada.
+       Nadie que consuma esto puede recibir la casa de José, venga de donde
+       venga la lista. */
+    cabanas: function () { return soloArrendables(estado.cabanas); },
+    /* Cuántas se arriendan de verdad. La página lo usa como tope de personas
+       y como "quedan N libres"; si algún día se suma una cuarta cabaña real
+       aquí sale sola, y la Host sigue fuera. */
+    total: function () { return soloArrendables(estado.cabanas).length; },
     esReal: function () { return estado.real; },
     error: function () { return estado.error; },
     conectado: conectado,

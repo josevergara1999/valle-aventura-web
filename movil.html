@@ -26,6 +26,8 @@
 })();
 </script>
 
+<script src="./datos.js"></script>
+<script src="./pagos.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -121,17 +123,18 @@
       <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
     </div>
     <div style="position:relative;padding:204px 16px 22px">
-      <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ searchError }}</div></sc-if>
+      <sc-if value="{{ avisoDemo }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(240,196,25,0.14);border:1px solid rgba(240,196,25,0.5);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#f7dd7a;line-height:1.6">{{ avisoDemo }}</div></sc-if>
+      <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#ffc9c0" role="alert">{{ searchError }}</div></sc-if>
       <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
       <div style="font-size:13px;font-weight:800">Elige tu cabaña</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
         <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-family:'Manrope',sans-serif">
           <span style="font-size:12.5px;font-weight:800">Para 8 personas</span>
-          <span style="font-size:10px;color:rgba(255,255,255,0.75)">2 cabañas disponibles</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.78)">{{ cab8Sub }}</span>
         </button>
         <button onClick="{{ pick9 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab9Bg }};border:{{ cab9Border }};backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);color:#ffffff;font-family:'Manrope',sans-serif">
           <span style="font-size:12.5px;font-weight:800">Para 9 personas</span>
-          <span style="font-size:10px;color:rgba(255,255,255,0.75)">1 cabaña disponible</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.78)">{{ cab9Sub }}</span>
         </button>
       </div>
       <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:8px">Las 3 cabañas son idénticas — te asignamos la tuya según el tamaño del grupo.</div>
@@ -150,7 +153,7 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;margin-top:6px;min-height:248px;align-content:start">
                   <sc-for list="{{ mo.days }}" as="d" hint-placeholder-count="35">
-                    <button onClick="{{ d.pick }}" style="border:none;padding:12px 0;text-align:center;font-family:'Manrope',sans-serif;font-size:11.5px;border-radius:8px;cursor:pointer;touch-action:manipulation;background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }}">{{ d.n }}</button>
+                    <button onClick="{{ d.pick }}" disabled="{{ d.dis }}" aria-label="{{ d.aria }}" style="border:none;padding:12px 0;text-align:center;font-family:'Manrope',sans-serif;font-size:12.5px;border-radius:8px;cursor:pointer;touch-action:manipulation;background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }}">{{ d.n }}</button>
                   </sc-for>
                 </div>
               </div>
@@ -158,7 +161,7 @@
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:9.5px;color:rgba(255,255,255,0.75);flex-wrap:wrap">
-          <span style="display:inline-flex;align-items:center;gap:10px"><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,0.12);display:inline-block"></span>Ocupado</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#35b7c9;display:inline-block"></span>Tu selección</span></span>
+          <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:rgba(5,13,26,0.55);display:inline-block"></span>Ocupado</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,rgba(5,13,26,0.55) 0%,rgba(5,13,26,0.55) 44%,rgba(255,255,255,0.85) 44%,rgba(255,255,255,0.85) 56%,rgba(255,255,255,0.24) 56%,rgba(255,255,255,0.24) 100%);display:inline-block"></span>Entra y sale el mismo día</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:#35b7c9;display:inline-block"></span>Tu selección</span></span>
           <span style="white-space:nowrap">Entrada: <b>{{ calStartTxt }}</b> · Salida: <b>{{ calEndTxt }}</b></span>
         </div>
       </div>
@@ -198,8 +201,8 @@
         <sc-if value="{{ bkDone }}" hint-placeholder-val="{{ false }}">
           <div style="text-align:center;padding:6px 0 2px">
             <div style="width:54px;height:54px;border-radius:50%;background:rgba(53,183,201,0.18);border:1.5px solid #35b7c9;display:flex;align-items:center;justify-content:center;margin:0 auto"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3fc8da" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 L9.5 18 L20 6.5"></path></svg></div>
-            <div style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;margin-top:12px">¡Reserva confirmada!</div>
-            <div style="font-size:11.5px;color:rgba(255,255,255,0.75);margin-top:5px;line-height:1.6">Te enviamos el detalle y el comprobante de pago a <b style="color:#ffffff">{{ email }}</b></div>
+            <div style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;margin-top:12px">Solicitud enviada</div>
+            <div style="font-size:11.5px;color:rgba(255,255,255,0.75);margin-top:5px;line-height:1.6">Te confirmamos por WhatsApp. <b style="color:#ffffff">Todavía no se ha cobrado nada</b> y la fecha no queda tomada hasta que confirmemos.</div>
           </div>
           <div style="margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:11.5px">
             <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Fechas</span><b>{{ bkRange }}</b></div>
@@ -474,12 +477,30 @@
 class Component extends DCLogic {
   state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1 };
   CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
-  CAL_OCC = ['2026-07-24','2026-07-25','2026-08-07','2026-08-08','2026-08-15','2026-08-16','2026-09-18','2026-09-19'];
+
+  /* Antes aquí vivía CAL_OCC: ocho fechas escritas a mano que no coincidían
+     con las del escritorio. El mismo fin de semana salía libre en el teléfono
+     y ocupado en el notebook. Ahora la ocupación sale de datos.js, que es la
+     misma fuente que usa index.html, y se razona por cabaña en vez de por
+     fecha suelta: es lo que permite saber si queda ALGUNA libre para el
+     tamaño del grupo. */
+  OCC() {
+    if (window.VA_DATOS) return window.VA_DATOS.cabanas();
+    return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || [];
+  }
+  cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
+  groupSize() { return this.state.guests + this.state.kids; }
+  fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
+  /* Una noche está ocupada solo si NINGUNA cabaña donde cabe el grupo queda
+     libre. Con una tomada de tres todavía hay dos por vender. */
+  dayOcc(di) { const f = this.fitCabs(); return !f.length || f.every(c => !this.cabFreeNight(c, di)); }
+  freeCabsRange(a, b, cabs) { return cabs.filter(c => { for (let d = a; d < b; d = this.shiftDate(d, 1)) { if (!this.cabFreeNight(c, d)) return false; } return true; }); }
+
   fmtDate(di) { const p = di.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
   fmt(n) { return '$' + n.toLocaleString('es-CL'); }
   todayStr() { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
   shiftDate(str, days) { const d = new Date(str + 'T00:00:00'); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-  rangeFree(inStr, nights) { let d = inStr; for (let i = 0; i < nights; i++) { if (this.CAL_OCC.includes(d)) return false; d = this.shiftDate(d, 1); } return true; }
+  rangeFree(inStr, nights) { return this.freeCabsRange(inStr, this.shiftDate(inStr, nights), this.fitCabs()).length > 0; }
   monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
   doSearch() {
     const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
@@ -510,26 +531,59 @@ class Component extends DCLogic {
     }
     this.setState(upd);
   }
-  buildDays(mi) {
+  /* Con una entrada ya puesta, un día al otro lado de una noche ocupada no se
+     puede alcanzar. Se pinta apagado en vez de dejar que lo toques para nada. */
+  inalcanzable(di) {
     const s = this.state;
+    if (!s.calStart || s.calEnd || di <= s.calStart) return false;
+    return !this.freeCabsRange(s.calStart, di, this.fitCabs()).length;
+  }
+  buildDays(mi) {
+    const s = this.state, hoy = this.todayStr();
     const y = this.CAL_MONTHS[mi][0], m = this.CAL_MONTHS[mi][1];
     const nDays = new Date(y, m + 1, 0).getDate();
     const off = (new Date(y, m, 1).getDay() + 6) % 7;
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     const iso = d => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     const days = [];
-    for (let i = 0; i < off; i++) days.push({ n: '', bg: 'transparent', color: 'transparent', fw: 400, deco: 'none' });
+    for (let i = 0; i < off; i++) days.push({ n: '', bg: 'transparent', color: 'transparent', fw: 400, deco: 'none', dis: true, aria: '' });
+
+    /* Lo ocupado se pinta OSCURO, no blanco tenue: sobre la textura azul un
+       blanco al 8% no se distingue de un día libre. */
+    const occC = 'rgba(5,13,26,0.55)', freeC = 'rgba(255,255,255,0.24)';
+    const costura = 'rgba(255,255,255,0.85)';
+    const parte = (a, b) => 'linear-gradient(135deg,' + a + ' 0%,' + a + ' 49%,'
+      + costura + ' 49%,' + costura + ' 51%,' + b + ' 51%,' + b + ' 100%)';
+
     for (let d = 1; d <= nDays; d++) {
       const di = iso(d);
-      const occ = this.CAL_OCC.includes(di);
+      /* night = ¿está tomada la noche de este día? morn = ¿lo estaba la
+         anterior? Si solo una, el día se parte: uno sale a las 11:00 y otro
+         entra a las 16:00, así que la fecha sigue sirviendo. */
+      const night = this.dayOcc(di), morn = this.dayOcc(this.shiftDate(di, -1));
+      const occ = night && morn, diag = (night || morn) && !occ;
+      const diagBg = morn ? parte(occC, freeC) : parte(freeC, occC);
+      const pasado = di < hoy, lejos = this.inalcanzable(di);
+      const muerto = pasado || occ || lejos;
       const sel = s.calStart === di || s.calEnd === di;
       const inR = s.calStart && s.calEnd && di > s.calStart && di < s.calEnd;
+      const estado = pasado ? 'fecha pasada' : occ ? 'ocupado'
+                   : lejos ? 'no alcanzable desde tu entrada'
+                   : sel ? 'seleccionado' : diag ? 'llegada o salida el mismo día' : 'disponible';
       days.push({
         n: d,
-        bg: sel ? 'linear-gradient(135deg, #3fc8da 0%, #2494ac 100%)' : inR ? 'rgba(63,193,201,0.35)' : occ ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.2)',
-        color: sel ? '#06222a' : occ ? 'rgba(255,255,255,0.4)' : '#ffffff',
+        bg: sel ? (diag ? diagBg : 'linear-gradient(135deg, #3fc8da 0%, #2494ac 100%)')
+           : inR ? 'rgba(63,193,201,0.35)'
+           : (pasado || lejos) ? 'rgba(255,255,255,0.05)'
+           : occ ? occC : diag ? diagBg : freeC,
+        color: sel ? (diag ? '#7fd6e2' : '#06222a')
+             : (pasado || lejos) ? 'rgba(255,255,255,0.25)'
+             : occ ? 'rgba(255,255,255,0.45)' : '#ffffff',
         fw: sel ? 800 : 500,
         deco: occ ? 'line-through' : 'none',
-        pick: occ ? undefined : () => this.pickDay(di)
+        dis: muerto,
+        aria: d + ' de ' + meses[m] + ', ' + estado,
+        pick: muerto ? undefined : () => this.pickDay(di)
       });
     }
     return days;
@@ -543,16 +597,35 @@ class Component extends DCLogic {
     const s = this.state, minN = this.props.minNoches ?? 2;
     if (!s.calStart || (s.calStart && s.calEnd)) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
     if (di <= s.calStart) { this.setState({ calStart: di, calEnd: null, calError: '' }); return; }
-    let cruza = false;
-    for (let d = this.shiftDate(s.calStart, 1); d < di; d = this.shiftDate(d, 1)) {
-      if (this.CAL_OCC.includes(d)) { cruza = true; break; }
+    /* Red de seguridad: los días inalcanzables ya salen deshabilitados en
+       buildDays, así que esto no debería dispararse con un toque. Si llega a
+       pasar, se reinicia la selección en vez de dejarla trabada. */
+    if (!this.freeCabsRange(s.calStart, di, this.fitCabs()).length) {
+      this.setState({ calStart: di, calEnd: null, calError: 'Entre esas dos fechas hay noches ocupadas. Empezamos de nuevo desde el ' + this.fmtDate(di) + ' — ahora elige la salida.' });
+      return;
     }
-    if (cruza) { this.setState({ calStart: di, calEnd: null, calError: 'Entre esas dos fechas hay noches ocupadas. Empezamos de nuevo desde el ' + this.fmtDate(di) + ' — ahora elige la salida.' }); return; }
     const nights = Math.round((new Date(di) - new Date(s.calStart)) / 86400000);
     if (nights < minN) { this.setState({ calError: 'La estadía mínima es de ' + minN + ' noches. Elige una fecha de salida más lejana.' }); return; }
     this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di });
   }
   componentDidMount() {
+    /* El calendario abría siempre en julio de 2026 — un mes ya terminado —
+       porque calM arrancaba en 0. Ahora abre en el mes de hoy. */
+    const mi = this.monthIdx(this.todayStr());
+    if (mi > 0) this.setState({ calM: mi });
+
+    /* Ocupación real si datos.js tiene credenciales; si no, el ejemplo y un
+       aviso en pantalla que lo dice. */
+    if (window.VA_DATOS) window.VA_DATOS.cargar().then(() => this.setState({ recarga: Date.now() }));
+
+    /* Escape cierra lo que esté abierto: antes no había salida por teclado. */
+    this._key = e => {
+      if (e.key !== 'Escape') return;
+      if (this.state.bkOpen) this.setState({ bkOpen: false });
+      else if (this.state.tourOn) this.setState({ tourOn: false });
+    };
+    document.addEventListener('keydown', this._key);
+
     this._onRes = () => this.setState({ vw: document.documentElement.clientWidth });
     this._onRes();
     window.addEventListener('resize', this._onRes);
@@ -612,6 +685,14 @@ class Component extends DCLogic {
     const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const ym = this.CAL_MONTHS[s.calM];
     const selCab = c => this.setState({ cabin: c, guests: Math.min(this.state.guests, c) });
+    /* Cuántas cabañas de esa capacidad quedan libres. Si ya hay fechas
+       elegidas, mira el rango completo: una cabaña que se libera a mitad de
+       la estadía no sirve. */
+    const availFor = cap => { const need = Math.max(cap, this.groupSize());
+      return this.OCC().filter(c => c.capacidad >= need)
+        .filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length; };
+    const subTxt = n => n === 0 ? ((s.calStart && s.calEnd) ? 'Sin disponibilidad en esas fechas' : 'No disponible para tu grupo')
+      : n === 1 ? '1 cabaña disponible' : n + ' cabañas disponibles';
     const baseP = this.props.precioBase ?? 180000, extraP = this.props.extraPersona ?? 5000;
     const nightly = baseP + Math.max(0, s.guests - 5) * extraP;
     const bkNights = s.calStart && s.calEnd ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
@@ -665,13 +746,26 @@ class Component extends DCLogic {
       setEmail: e => this.setState({ email: e.target.value }),
       setFono: e => this.setState({ fono: e.target.value }),
       formError: s.formError,
-      payLabel: s.paying ? 'Procesando pago…' : 'Pagar ' + this.fmt(bkHalf) + ' ahora',
+      payLabel: s.paying ? 'Enviando…'
+              : (window.VA_PAGOS ? 'Pagar ' + this.fmt(bkHalf) + ' con Webpay'
+                                 : 'Enviar solicitud de reserva'),
       pay: () => {
         if (s.paying) return;
         if (!s.nombre.trim() || !s.email.trim() || !s.fono.trim()) { this.setState({ formError: 'Completa tu nombre, email y teléfono para continuar.' }); return; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email)) { this.setState({ formError: 'Revisa el formato de tu email.' }); return; }
         this.setState({ paying: true, formError: '' });
-        setTimeout(() => this.setState({ paying: false, bkStep: 2 }), 1400);
+        /* Si pagos.js tiene endpoint, esto sale a Webpay de verdad. Mientras
+           no lo tenga, la solicitud queda anotada y se confirma a mano — que
+           es lo que de verdad pasa. Antes aquí había un setTimeout que fingía
+           un cobro y una pantalla que decía haber enviado un comprobante. */
+        if (window.VA_PAGOS && window.VA_PAGOS.iniciar) {
+          window.VA_PAGOS.iniciar({ monto: bkHalf, nombre: s.nombre, email: s.email, fono: s.fono,
+                                    desde: s.calStart, hasta: s.calEnd, cabina: s.cabin })
+            .catch(err => this.setState({ paying: false,
+              formError: 'No pudimos abrir Webpay (' + err.message + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));
+          return;
+        }
+        this.setState({ paying: false, bkStep: 2 });
       },
       finishBk: () => this.setState({ bkOpen: false, bkStep: 1, calStart: null, calEnd: null, searchIn: '', searchOut: '', searchMsg: '', nombre: '', email: '', fono: '' }),
       guests: s.guests,
@@ -683,6 +777,12 @@ class Component extends DCLogic {
       kPlus: () => this.setState({ kids: Math.min(s.cabin - s.guests, s.kids + 1) }),
       pick8: () => selCab(8),
       pick9: () => selCab(9),
+      /* Disponibilidad calculada, no escrita a mano. Cuenta las cabañas de esa
+         capacidad que quedan libres el rango entero, no noche a noche. */
+      cab8Sub: subTxt(availFor(8)),
+      cab9Sub: subTxt(availFor(9)),
+      avisoDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? false
+        : 'Disponibilidad de ejemplo: esta página todavía no está conectada a la agenda real. Confirma por WhatsApp antes de dar por hecha una fecha.',
       cab8Bg: s.cabin === 8 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab9Bg: s.cabin === 9 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab8Border: s.cabin === 8 ? '1.5px solid #3fc8da' : '1px solid rgba(255,255,255,0.3)',

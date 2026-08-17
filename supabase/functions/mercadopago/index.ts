@@ -80,20 +80,29 @@ async function firmaValida(req: Request, dataId: string): Promise<boolean> {
   const ts = partes['ts'], v1 = partes['v1'];
   if (!ts || !v1) return false;
 
-  const manifiesto = `id:${dataId};request-id:${reqId};ts:${ts};`;
+  /* Mercado Pago arma el texto a firmar con las partes que EXISTEN. Si la
+     peticion no trae x-request-id --el simulador del panel no lo manda-- el
+     firma 'id:123456;ts:...;' y nosotros firmabamos
+     'id:123456;request-id:;ts:...;'. Mismo secreto, firmas distintas, 401.
+     Se prueban las dos formas: la de con y la de sin. */
   const clave = await crypto.subtle.importKey(
     'raw', new TextEncoder().encode(WEBHOOK_SECRET),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
   );
-  const mac = await crypto.subtle.sign('HMAC', clave, new TextEncoder().encode(manifiesto));
-  const esperado = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const candidatos = reqId
+    ? [`id:${dataId};request-id:${reqId};ts:${ts};`, `id:${dataId};ts:${ts};`]
+    : [`id:${dataId};ts:${ts};`, `id:${dataId};request-id:;ts:${ts};`];
 
-  /* Comparación en tiempo constante: comparar con === filtra el secreto por el
-     tiempo que tarda en fallar. */
-  if (esperado.length !== v1.length) return false;
-  let dif = 0;
-  for (let i = 0; i < esperado.length; i++) dif |= esperado.charCodeAt(i) ^ v1.charCodeAt(i);
-  return dif === 0;
+  for (const manifiesto of candidatos) {
+    const mac = await crypto.subtle.sign('HMAC', clave, new TextEncoder().encode(manifiesto));
+    const esperado = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
+    if (esperado.length === v1.length) {
+      let d = 0;
+      for (let i = 0; i < esperado.length; i++) d |= esperado.charCodeAt(i) ^ v1.charCodeAt(i);
+      if (d === 0) return true;
+    }
+  }
+  return false;
 }
 
 Deno.serve(async (req) => {
@@ -154,7 +163,11 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${TOKEN}`,
-          'Content-Type': 'application/json',
+          /* El charset NO sobra. Sin el, Mercado Pago interpreta el cuerpo como
+             latin-1 y el titulo que ve el cliente al pagar sale "CabaA+-a Valle
+             Aventura A- 2 noches". JSON es UTF-8 por norma, pero su API no lo
+             asume: hay que decirselo. */
+          'Content-Type': 'application/json; charset=utf-8',
           'X-Idempotency-Key': ref,   // si el cliente pulsa dos veces, una sola preferencia
         },
         body: JSON.stringify({

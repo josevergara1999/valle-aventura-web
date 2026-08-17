@@ -72,8 +72,12 @@
 
   var cab = function () {
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
-      /* PRIMER filtro: la Host ni siquiera viaja por la red. */
-      '/rest/v1/cabanas?select=id,nombre,capacidad,arrienda&arrienda=eq.true&order=orden.asc';
+      /* PRIMER filtro: la Host ni siquiera viaja por la red.
+         La columna del schema es `capacidad_max`, no `capacidad` — se renombra
+         al recibirla. Y `activa` porque una cabaña dada de baja tampoco se
+         vende, aunque siga en la tabla. */
+      '/rest/v1/cabanas?select=id,nombre,capacidad_max,arrienda,activa' +
+      '&arrienda=eq.true&activa=eq.true&order=orden.asc';
   };
   var blo = function () {
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
@@ -110,10 +114,15 @@
         var base = catalogo.length ? catalogo : EJEMPLO.cabanas;
         estado.cabanas = soloArrendables(base).map(function (c) {
           return {
-            id: c.id, nombre: c.nombre, capacidad: c.capacidad, arrienda: true,
+            id: c.id,
+            nombre: c.nombre,
+            // capacidad_max en la base; capacidad en la página
+            capacidad: c.capacidad_max != null ? c.capacidad_max : c.capacidad,
+            arrienda: true,
             reservas: porCabana[c.id] || []
           };
-        });
+        // Capacidad 0 es la casa del anfitrión: no se vende ni por error.
+        }).filter(function (c) { return c.capacidad > 0; });
         estado.real = catalogo.length > 0;
         estado.error = null;
         return estado;

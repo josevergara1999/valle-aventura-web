@@ -27,6 +27,7 @@
 </script>
 
 <script src="./support.js"></script>
+<script src="./datos.js?v=2"></script>
 </head>
 <body>
 <x-dc>
@@ -183,7 +184,7 @@ window.VA_OCUPACION = {
         </div>
         <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:14px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:10px 14px;font-size:12.5px;color:#ffc9c0">{{ calError }}</div></sc-if>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:20px;flex-wrap:wrap">
-          <div style="font-size:11.5px;color:rgba(255,255,255,0.7);line-height:1.7">Estadía mínima: {{ minNoches }} noches · Puedes llegar el mismo día que sale otro huésped · {{ guestMax }}</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,0.7);line-height:1.7">Estadía mínima: {{ minNoches }} noches · Puedes llegar el mismo día que sale otro huésped · {{ guestMax }}{{ notaDemo }}</div>
           <button onClick="{{ openBooking }}" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:15px 34px;cursor:{{ resCur }};opacity:{{ resOp }}" disabled="{{ resDis }}">Reservar esta cabaña →</button>
         </div>
     </div>
@@ -514,7 +515,14 @@ window.VA_OCUPACION = {
     { label: 'Tu camino', sec: 6, path: 'M4.5 19.5 C11 19.5 7.5 4.5 14.5 4.5 L19.5 4.5 M17.5 2.5 L19.5 4.5 L17.5 6.5' },
     { label: 'Cabañas', sec: 2, path: 'M3 19 V9 M3 15 H21 V19 M6.5 12 H10 V15 M3 9 C3 7.5 4 6.5 5.5 6.5 C7 6.5 8 7.5 8 9' }
   ];
-  OCC() { return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || []; }
+  /* Misma fuente que el teléfono. Cuando esta página y movil.html leían cada
+     una su propia lista, un día salía libre en el celular y ocupado en el
+     notebook. El ejemplo de abajo solo se usa si datos.js no responde, y en
+     ese caso el aviso de "disponibilidad de ejemplo" queda visible. */
+  OCC() {
+    if (window.VA_DATOS) return window.VA_DATOS.cabanas();
+    return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || [];
+  }
   cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
   groupSize() { return this.state.guests + this.state.kids; }
   fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
@@ -672,6 +680,10 @@ window.VA_OCUPACION = {
       calEndTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
       guests: s.guests,
       guestMax: 'Máximo ' + s.cabin + ' en esta cabaña',
+      /* Mientras la disponibilidad sea inventada, alguien tiene que decirlo.
+         Desaparece solo en cuanto datos.js consigue leer la base. */
+      notaDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? ''
+        : ' · Disponibilidad de ejemplo: confírmala por WhatsApp',
       searchIn: s.searchIn, searchOut: s.searchOut, todayMin: this.todayStr(),
       setSearchIn: e => this.setState({ searchIn: e.target.value, searchError: '' }, () => { if (this.state.searchIn && this.state.searchOut) this.doSearch(); }),
       setSearchOut: e => this.setState({ searchOut: e.target.value, searchError: '' }, () => { if (this.state.searchIn && this.state.searchOut) this.doSearch(); }),
@@ -732,6 +744,12 @@ window.VA_OCUPACION = {
   componentDidMount() {
     const mi = this.monthIdx(this.todayStr());
     if (mi > 0) this.setState({ calM: mi });
+
+    /* Ocupación real. Si la base no contesta, datos.js se queda con el ejemplo
+       y `esReal()` sigue en false, que es lo que mantiene el aviso en pantalla:
+       una página que funciona y lo advierte es mejor que una en blanco. */
+    if (window.VA_DATOS) window.VA_DATOS.cargar().then(() => this.setState({ recarga: Date.now() }));
+
     this._onScroll = () => {
       if (this._raf) return;
       this._raf = requestAnimationFrame(() => {

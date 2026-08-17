@@ -16,13 +16,14 @@
     // Proyecto "Valle Aventura", organización propia, región São Paulo.
     SUPABASE_URL: 'https://wxxlqszadprwizporhbg.supabase.co',
 
-    // ⬇️ FALTA ESTA LÍNEA. Es lo único que separa a la página de leer la
-    // agenda real. Está en el panel de Supabase → Project Settings → API
-    // Keys → la clave PUBLICABLE (anon). Empieza por "sb_publishable_".
-    // Es pública por diseño: viaja al navegador igual. La clave SECRETA
-    // (service_role) NO va aquí nunca — se salta RLS y quedaría a la vista
-    // de cualquiera que abra el código de la página.
-    SUPABASE_ANON_KEY: ''
+    /* Clave PUBLICABLE (anon). Es pública por diseño: viaja al navegador de
+       todas formas, y solo puede hacer lo que las políticas RLS permitan —
+       leer cabañas, tarifas, reglas, y de `bloqueos` únicamente las columnas
+       del grant (id, cabana_id, desde, hasta, origen). Nombre y teléfono del
+       huésped quedan fuera.
+       La clave SECRETA (sb_secret_ / service_role) NO va aquí nunca: se salta
+       RLS y quedaría a la vista de cualquiera que abra el código. */
+    SUPABASE_ANON_KEY: 'sb_publishable_2AuGtg42OxMoFDm7t3TbKA_ukrx_wDM'
   };
 
   /* ⚠️ SE ARRIENDAN TRES. NUNCA CUATRO.

@@ -36,6 +36,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;800&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
   
+  /* El menú superior lleva a secciones de la misma página. Sin esto el salto
+     es seco y se pierde la referencia de dónde estabas. */
+  html{scroll-behavior:smooth;}
+  [id]{scroll-margin-top:12px;}
+  /* Quien pide menos movimiento no quiere que la página se deslice sola. */
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
   body{margin:0;background:#0d1b2e;}
   a{color:#f5f1e6;text-decoration:none;}
   a:hover{color:#f0c419;}
@@ -77,10 +83,10 @@ window.VA_OCUPACION = {
         <a href="https://www.instagram.com/valleaventurachile/" target="_blank" rel="noopener" aria-label="Instagram" style="display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1c2b1c" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="#1c2b1c" stroke="none"></circle></svg></a>
       </div>
       <div style="display:flex;align-items:center;gap:30px;font-size:10.5px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;white-space:nowrap">
-        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Cabañas</a>
+        <a href="#cabanas" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Cabañas</a>
         <a href="#tour3d" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Tour 3D</a>
-        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Reservas</a>
-        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Contacto</a>
+        <a href="#reservas" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Reservas</a>
+        <a href="#contacto" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Contacto</a>
       </div>
     </div>
     <div data-anim="left" style="position: absolute; inset: 0; padding: 118px 0 0 7%; box-sizing: border-box; font-family: 'Raleway',sans-serif; font-weight: 800; font-size: 118px; line-height: 0.9; letter-spacing: 2px; pointer-events: none; background-image: url('uploads/fondo-a.webp'); background-size: cover; background-position: center; -webkit-background-clip: text; background-clip: text; color: rgba(0,0,0,{{ sombraValle }}); left: 47px; top: 55px; filter: drop-shadow(0 8px 22px rgba(0,0,0,0.5))">INVIERNO<div data-anim="right" data-anim-delay="0.15" style="position: absolute; top: 212px; left: 408px; font-family: 'Manrope',sans-serif; font-weight: 800; font-size: 112px; line-height: 0.9; color: #ffffff; text-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: none; opacity: {{ opacidadAventura }}">2026</div></div>
@@ -97,14 +103,14 @@ window.VA_OCUPACION = {
         <span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.45);display:inline-block"></span>
       </div>
       <div style="font-size:12.5px;line-height:1.8;margin-top:14px;text-wrap:pretty;color:rgba(255,255,255,0.9)">Cabañas equipadas en el corazón del Valle Las Trancas, a 15 minutos de las Termas de Chillán. Naturaleza, descanso y aventura en equilibrio perfecto.</div>
-      <a href="#" style="display:inline-flex;align-items:center;gap:12px;margin-top:22px;font-size:11px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;color:#ffffff">Ver cabañas <span style="width:54px;height:1px;background:#ffffff;display:inline-block"></span> →</a>
+      <a href="#cabanas" style="display:inline-flex;align-items:center;gap:12px;margin-top:22px;font-size:11px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;color:#ffffff">Ver cabañas <span style="width:54px;height:1px;background:#ffffff;display:inline-block"></span> →</a>
     </div>
     <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:-1px;width:min(800px, 80%);height:34px;background:#0d1b2e;border-radius:22px 22px 0 0"></div>
     <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:30px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:13px;letter-spacing:8px;text-transform:uppercase;color:rgba(255,255,255,0.7);pointer-events:none;font-weight:600">Nevados de Chillán</div>
   </div>
 </div>
 
-<div data-screen-label="Reserva de fechas" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px 26px;position:relative;z-index:6">
+<div data-screen-label="Reserva de fechas" id="reservas" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px 26px;position:relative;z-index:6">
   <div data-anim="up" style="position:relative;width:100%;max-width:1240px;margin-top:-34px;color:#ffffff;padding:86px 54px 46px;box-sizing:border-box;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5));clip-path:inset(-200px 0 0 0)">
     <div style="position:absolute;inset:0;background:#0e1c30;border-radius:14px;clip-path:{{ calClip }}">
       <div style="position:absolute;inset:0;background:url('uploads/textura-b.webp') center / cover no-repeat fixed"></div>
@@ -280,7 +286,7 @@ window.VA_OCUPACION = {
   </div>
 </div>
 
-<div data-screen-label="Dormir bien - Cabañas" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 26px 34px;scroll-snap-align:start">
+<div data-screen-label="Dormir bien - Cabañas" id="cabanas" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 26px 34px;scroll-snap-align:start">
   <div style="position:relative;width:100%;max-width:1240px;height:640px;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);background:#141c26">
     <img src="uploads/cabana-invierno.webp" alt="Cabañas nevadas entre árboles" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
     <div style="position:absolute;inset:0;background:linear-gradient(100deg, rgba(10,16,22,0.62) 0%, rgba(10,16,22,0.28) 45%, rgba(10,16,22,0.15) 100%);pointer-events:none"></div>
@@ -296,7 +302,7 @@ window.VA_OCUPACION = {
         <span style="display:inline-flex;align-items:center;border:1px solid #f0c419;border-radius:999px;padding:8px 16px;font-size:12.5px;font-weight:600;color:#f0c419;background:rgba(0,0,0,0.25);backdrop-filter:blur(6px)">Pet friendly</span>
       </div>
       <div style="display:flex;align-items:center;gap:18px;margin-top:26px;flex-wrap:wrap">
-        <a href="#" style="display:inline-flex;align-items:center;gap:12px;background:#f0c419;color:#1c2b1c;border-radius:999px;padding:15px 30px;font-size:14.5px;font-weight:800;box-shadow:0 12px 30px rgba(240,196,25,0.3)">Elige tu cabaña <span style="font-size:16px">→</span></a>
+        <a href="#reservas" style="display:inline-flex;align-items:center;gap:12px;background:#f0c419;color:#1c2b1c;border-radius:999px;padding:15px 30px;font-size:14.5px;font-weight:800;box-shadow:0 12px 30px rgba(240,196,25,0.3)">Elige tu cabaña <span style="font-size:16px">→</span></a>
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:26px">
         <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,0.45);border-radius:10px;padding:8px 12px;font-size:15px;font-weight:800;color:#ffffff"><span style="color:#f0c419;font-size:13px">★</span>4.9</span>
@@ -468,7 +474,7 @@ window.VA_OCUPACION = {
   </div>
 </div>
 
-<div data-screen-label="Tu camino" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 26px 8px">
+<div data-screen-label="Tu camino" id="contacto" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 26px 8px">
   <div style="position:relative;width:100%;max-width:1240px;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);background:#0e1c30;padding:44px 54px;box-sizing:border-box">
   <div style="position:absolute;inset:0;background:url('uploads/fondo-b.webp') center 65% / cover no-repeat;pointer-events:none"></div>
   <div style="position:absolute;inset:0;background:rgba(13,27,46,0.35);pointer-events:none"></div>

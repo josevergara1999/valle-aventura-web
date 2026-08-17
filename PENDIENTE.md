@@ -1,62 +1,80 @@
 # Lo que falta, en orden
 
-Cuatro cosas. Ninguna necesita escribir código: son datos que yo no tengo o
-acciones que la extensión del navegador bloquea por seguridad.
+Tres cosas. Ninguna necesita escribir código: son datos que yo no tengo,
+credenciales que no debo manejar, o decisiones tuyas.
 
 ---
 
-## 1 · La clave anónima de Supabase  ·  2 minutos
+## ✅ Ya hecho — Supabase y la sincronía
 
-El proyecto ya existe: **Valle Aventura**, organización propia (separada de
-INMERSIA), región São Paulo.
-URL: `https://wxxlqszadprwizporhbg.supabase.co`
+El proyecto existe y está conectado de punta a punta.
 
-Falta una línea:
+- **Proyecto:** Valle Aventura, organización propia (separada de INMERSIA),
+  región São Paulo · `https://wxxlqszadprwizporhbg.supabase.co`
+- **Tablas creadas** con `db/schema.sql`: 5 tablas, `cotizar()`,
+  `disponible()`, `tinaja_libre()`, RLS, permisos y el bucket `comprobantes`.
+  Cargadas las 3 cabañas arrendables + la Host, y la tarifa base de $180.000.
+- **Clave publicable** puesta en `datos.js` y en `panel/config.js`.
+- **`index.html` y `movil.html` leen la misma fuente.** Antes el teléfono
+  mostraba la disponibilidad real y el notebook una inventada.
 
-1. Supabase → proyecto **Valle Aventura** → *Project Settings* → *API Keys*
-2. Copia la clave **publicable / anon** (empieza por `sb_publishable_`)
-3. Pégala en `datos.js`, en `SUPABASE_ANON_KEY`
+Verificado con una reserva de prueba en las tres cabañas: el calendario tacha
+la noche completa y pinta en diagonal el día de entrada y el de salida
+(check-out 11:00 / check-in 16:00 — el día de salida queda libre). La prueba
+se borró después.
 
-> No la pude sacar yo: la extensión de Chrome bloquea la lectura de claves en
-> la página. Es una protección deliberada y preferí no esquivarla.
+### Cómo quedaron los permisos
 
-**La clave secreta (`service_role`) no va ahí nunca.** Se salta RLS y quedaría
-a la vista de cualquiera que abra el código de la página.
+| Rol | `cabanas` `reglas` `tarifas` | `bloqueos` | `pellet` |
+|---|---|---|---|
+| `anon` (la web) | solo lectura | 5 columnas: id, cabana_id, desde, hasta, origen | sin acceso |
+| `authenticated` (el panel) | lectura y escritura | lectura y escritura | lectura y escritura |
 
-En cuanto pegues la clave, el aviso de "disponibilidad de ejemplo" desaparece
-solo y el calendario pasa a leer la agenda real.
+Comprobado desde fuera con la clave pública: `bloqueos.nombre`,
+`bloqueos.telefono`, `select=*`, `pellet` y cualquier escritura devuelven
+**401**. El nombre y el teléfono del huésped no salen por la web.
 
----
-
-## 2 · Crear las tablas  ·  5 minutos
-
-1. Supabase → proyecto Valle Aventura → **SQL Editor** → *New query*
-2. Pega entero el contenido de
-   `C:\Users\PC\Projects\plataforma reservas valle aventura\db\schema.sql`
-3. *Run*
-
-Crea las 5 tablas, `cotizar()`, `disponible()`, `tinaja_libre()`, las políticas
-RLS, los permisos columna por columna y el bucket `comprobantes`. Deja cargadas
-las 3 cabañas y la tarifa base de $180.000.
-
-Ya dejé configurado, al crear el proyecto:
-
-- **Data API activa** — la web necesita leer con la clave anónima
-- **Exposición automática de tablas DESACTIVADA** — lo recomienda Supabase y
-  encaja con tu regla: los datos de huésped no salen con la clave anónima
-- **RLS automática ACTIVA** — toda tabla nueva nace protegida
+> **Dos cosas que costaron y conviene no repetir:**
+>
+> El proyecto se creó con la **exposición automática de tablas desactivada**.
+> Es la postura correcta, pero significa que *nada* tiene permisos salvo lo
+> que el schema escriba. Las políticas RLS no bastan: una política filtra
+> filas dentro de lo que el permiso de tabla ya permite, no concede nada. El
+> panel entraba bien y se caía con `permission denied for table reglas`.
+>
+> Y `anon` venía del bootstrap de Supabase con **TRUNCATE** sobre tres tablas.
+> `TRUNCATE` vacía una tabla entera y RLS no lo puede impedir, porque las
+> políticas filtran filas y `TRUNCATE` no lee filas. La clave publicable va
+> dentro de la web, así que todo lo que `anon` pueda hacer lo puede hacer
+> cualquiera. Revocado.
+>
+> Las dos correcciones están en `db/schema.sql` con su explicación.
 
 > **La cabaña Host no se arrienda.** `datos.js` la filtra en tres sitios
 > (consulta, recepción y entrega), así que aunque esté en la tabla nunca puede
-> aparecer como disponible. Comprobado simulando que la base la devuelve.
+> aparecer como disponible. Está ahí porque consume pellet.
 
 ---
 
-## 3 · Los datos de contacto  ·  1 minuto
+## 1 · Rotar la clave secreta  ·  1 minuto  ·  **hazlo primero**
+
+La `sb_secret_` se pegó en un chat. Esa clave **se salta RLS y todos los
+permisos de arriba**: con ella se lee el teléfono de cada huésped y se puede
+borrar la agenda entera.
+
+*Project Settings* → *API Keys* → **Rotate** sobre la `sb_secret_`.
+
+No hay que tocar ningún archivo del proyecto: esa clave no está en el código,
+solo la usarían las funciones de pago y todavía no están desplegadas.
+
+---
+
+## 2 · Los datos de contacto  ·  1 minuto
 
 En el pie están marcados en amarillo. Me faltan:
 
-- **Teléfono** (para el `wa.me`, el pie y la página de retorno del pago)
+- **Teléfono** (para el `wa.me`, el pie y la página de retorno del pago —
+  en `gracias.html` la constante `WA` está a medias)
 - **Dirección exacta**
 
 La razón social ya está: *Sociedad Inmobiliaria Valle Aventura*.
@@ -66,7 +84,7 @@ WhatsApp, TikTok e Instagram.
 
 ---
 
-## 4 · Los dos medios de pago
+## 3 · Los dos medios de pago
 
 El cliente elige con cuál paga. La página lista **solo los que tengan endpoint
 configurado** en `pagos.js`: si no configuras ninguno, no aparece ningún botón
@@ -137,4 +155,9 @@ puede editar lo que envía el navegador antes de mandarlo.
 | Vuelta atrás | `git checkout pre-fusion-2026-08-16` |
 
 La **variante B** es la que lleva la portada nueva, la cinta del valle, la
-barra fija y la pantalla de medios de pago.
+barra fija y la pantalla de medios de pago. **Falta decidir si reemplaza a
+`movil.html`**, que es lo que hoy ve cualquiera que entre desde el teléfono.
+
+El panel de reservas vive en el otro proyecto
+(`plataforma reservas valle aventura`) y hoy se sirve a mano en el puerto
+8300. Si algún día tiene que estar siempre disponible, hay que alojarlo.

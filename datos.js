@@ -17,10 +17,12 @@
     SUPABASE_URL: 'https://wxxlqszadprwizporhbg.supabase.co',
 
     /* Clave PUBLICABLE (anon). Es pública por diseño: viaja al navegador de
-       todas formas, y solo puede hacer lo que las políticas RLS permitan —
-       leer cabañas, tarifas, reglas, y de `bloqueos` únicamente las columnas
-       del grant (id, cabana_id, desde, hasta, origen). Nombre y teléfono del
-       huésped quedan fuera.
+       todas formas, y solo puede hacer lo que la base le permita — leer
+       cabañas, tarifas, reglas, y la ocupación a través de la vista
+       `ocupacion`. Sobre la tabla `bloqueos` no tiene ningún permiso, así que
+       el nombre, el teléfono y el email del huésped no pueden salir por aquí.
+       Escribir no puede: la única forma de tocar la agenda desde la web es
+       `solicitar_reserva()`, que valida todo antes de anotar nada.
        La clave SECRETA (sb_secret_ / service_role) NO va aquí nunca: se salta
        RLS y quedaría a la vista de cualquiera que abra el código. */
     SUPABASE_ANON_KEY: 'sb_publishable_2AuGtg42OxMoFDm7t3TbKA_ukrx_wDM'
@@ -80,9 +82,15 @@
       '/rest/v1/cabanas?select=id,nombre,capacidad_max,arrienda,activa' +
       '&arrienda=eq.true&activa=eq.true&order=orden.asc';
   };
+  /* `ocupacion` es una vista, no la tabla `bloqueos`. La tabla tiene nombre,
+     teléfono y email del huésped; la vista solo tiene qué cabaña y qué días.
+     Aunque mañana alguien añada un campo delicado a la tabla, aquí no puede
+     aparecer sin que alguien lo escriba a mano.
+     La vista además esconde las reservas pendientes que ya caducaron: si un
+     cliente abandona el pago, esas fechas vuelven a salir libres solas. */
   var blo = function () {
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
-      '/rest/v1/bloqueos?select=cabana_id,desde,hasta&order=desde.asc';
+      '/rest/v1/ocupacion?select=cabana_id,desde,hasta&order=desde.asc';
   };
   var cabecera = function () {
     return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY };

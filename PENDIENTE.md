@@ -23,8 +23,8 @@ Falta una línea:
 **La clave secreta (`service_role`) no va ahí nunca.** Se salta RLS y quedaría
 a la vista de cualquiera que abra el código de la página.
 
-En cuanto pegues la clave, el aviso naranjo de "disponibilidad de ejemplo"
-desaparece solo y el calendario pasa a leer la agenda real.
+En cuanto pegues la clave, el aviso de "disponibilidad de ejemplo" desaparece
+solo y el calendario pasa a leer la agenda real.
 
 ---
 
@@ -35,64 +35,95 @@ desaparece solo y el calendario pasa a leer la agenda real.
    `C:\Users\PC\Projects\plataforma reservas valle aventura\db\schema.sql`
 3. *Run*
 
-Crea las 5 tablas, `cotizar()`, `disponible()`, `tinaja_libre()`, las
-políticas RLS, los permisos columna por columna y el bucket `comprobantes`.
-Deja cargadas las 3 cabañas y la tarifa base de $180.000.
+Crea las 5 tablas, `cotizar()`, `disponible()`, `tinaja_libre()`, las políticas
+RLS, los permisos columna por columna y el bucket `comprobantes`. Deja cargadas
+las 3 cabañas y la tarifa base de $180.000.
 
-Es el paso 1 del README del panel. El proyecto está vacío, así que no puede
-romper nada.
+Ya dejé configurado, al crear el proyecto:
 
-> Lo intenté por el navegador y el editor SQL no llegó a cargar en el contexto
-> automatizado.
-
-Ya dejé configurado, en la creación del proyecto:
 - **Data API activa** — la web necesita leer con la clave anónima
 - **Exposición automática de tablas DESACTIVADA** — lo recomienda Supabase y
   encaja con tu regla: los datos de huésped no salen con la clave anónima
 - **RLS automática ACTIVA** — toda tabla nueva nace protegida
 
+> **La cabaña Host no se arrienda.** `datos.js` la filtra en tres sitios
+> (consulta, recepción y entrega), así que aunque esté en la tabla nunca puede
+> aparecer como disponible. Comprobado simulando que la base la devuelve.
+
 ---
 
 ## 3 · Los datos de contacto  ·  1 minuto
 
-En el pie de `nuevo.html` están marcados en amarillo. Me faltan:
+En el pie están marcados en amarillo. Me faltan:
 
-- **Teléfono** (para el `wa.me` y el pie)
+- **Teléfono** (para el `wa.me`, el pie y la página de retorno del pago)
 - **Dirección exacta**
 
 La razón social ya está: *Sociedad Inmobiliaria Valle Aventura*.
 
 Y tres enlaces sociales siguen en `href="#"` porque no tengo las cuentas:
-WhatsApp, TikTok e Instagram, en la cabecera.
+WhatsApp, TikTok e Instagram.
 
 ---
 
-## 4 · Transbank  ·  cuando lo tengas
+## 4 · Los dos medios de pago
 
-Necesito el **código de comercio** y la **API Key Secret** de Webpay Plus.
+El cliente elige con cuál paga. La página lista **solo los que tengan endpoint
+configurado** en `pagos.js`: si no configuras ninguno, no aparece ningún botón
+de pagar y el flujo se queda en "Enviar solicitud de reserva".
 
-No entré a buscarlas todavía a propósito: hasta que exista la Edge Function
-desplegada no hay dónde ponerlas de forma segura, y **en este repositorio no
-pueden entrar nunca** — es público en GitHub, subir ahí una llave de
-producción de Transbank es publicarla.
+### Mercado Pago  ·  ya tienes la cuenta
 
-El sitio para ellas son los secretos de la función:
+1. Panel de Mercado Pago → **Tus integraciones** → tu aplicación → **Credenciales**
+2. Copia el **Access Token**: `APP_USR-…` en producción, `TEST-…` en pruebas
+3. En **Webhooks**, crea la clave secreta de firma
+
+```
+supabase secrets set MP_ACCESS_TOKEN=... MP_WEBHOOK_SECRET=... MP_ENV=prueba
+supabase functions deploy mercadopago --no-verify-jwt
+```
+
+Empieza con `MP_ENV=prueba` y las credenciales `TEST-…`. Cuando el flujo
+completo funcione de punta a punta, cambias a las de producción.
+
+### Webpay
+
+Necesitas el **código de comercio** y la **API Key Secret** de Transbank.
 
 ```
 supabase secrets set TBK_COMMERCE_CODE=... TBK_API_KEY=... TBK_ENV=produccion
 supabase functions deploy webpay --no-verify-jwt
 ```
 
-(La CLI no está instalada; corre con `npx supabase ...` sin instalar nada.)
+Sin configurar, funciona contra el ambiente de **integración** de Transbank,
+con credenciales públicas de prueba que no mueven dinero.
 
-Mientras tanto el código funciona contra el ambiente de **integración** de
-Transbank con sus credenciales públicas de prueba, que no mueven dinero.
+### Después de desplegar
 
-Y quedan dos `TODO` marcados en `supabase/functions/webpay/index.ts`, ambos
-dependientes de las tablas del paso 2: anotar la reserva como pendiente
-**antes** de ir a Transbank, y confirmarla al volver. Sin el primero, un
-cliente que abandona el pago deja la fecha bloqueada; sin el segundo, la
-reserva no existe aunque haya pagado.
+Pega las URLs de las funciones en `pagos.js`, en `ENDPOINTS`. Nada más.
+
+**En el repositorio no entra ninguna credencial.** Es público en GitHub: subir
+ahí un access token es publicarlo.
+
+### Lo que falta en las funciones, y depende de la base
+
+Marcado como `TODO` en el código de las dos:
+
+1. **Anotar la reserva como pendiente ANTES de mandar a pagar**, y liberarla
+   sola si en 30 minutos no llega la confirmación. Sin eso, un cliente que
+   abandona el pago deja la fecha bloqueada para siempre.
+2. **Confirmarla al recibir el aviso, de forma idempotente.** Mercado Pago
+   reintenta el mismo webhook varias veces y no puede acabar en dos reservas.
+
+Y el monto: hoy la función acepta el que manda la página, acotado a un rango.
+En producción tiene que recalcularlo con `cotizar()` en Postgres — cualquiera
+puede editar lo que envía el navegador antes de mandarlo.
+
+> **Por qué el webhook manda y no la vuelta del cliente:** `back_urls` depende
+> de que el cliente regrese. Si cierra la pestaña, se queda sin batería o
+> pierde señal en la montaña, la reserva nunca se confirmaría aunque haya
+> pagado. El webhook llega igual y reintenta. La vuelta del cliente sirve solo
+> para enseñarle el resultado.
 
 ---
 
@@ -100,8 +131,10 @@ reserva no existe aunque haya pagado.
 
 | | |
 |---|---|
-| Publicado y sirviendo | `index.html` + `movil.html` (sin tocar) |
-| A revisar | `nuevo.html` — la fusión responsive |
+| Publicado y sirviendo | `index.html` (PC) + `movil.html` (teléfono) |
+| A elegir | `variante-a.html` y `variante-b.html` |
+| Descartada | `nuevo.html` — la fusión que salió mal |
 | Vuelta atrás | `git checkout pre-fusion-2026-08-16` |
 
-`nuevo.html` no reemplaza a nada hasta que tú lo apruebes.
+La **variante B** es la que lleva la portada nueva, la cinta del valle, la
+barra fija y la pantalla de medios de pago.

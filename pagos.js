@@ -1,53 +1,98 @@
-/* Lado navegador de Webpay. Define `window.VA_PAGOS` SOLO si hay endpoint
- * configurado: mientras ENDPOINT esté vacío este archivo no define nada, y
- * `nuevo.html` se queda en el flujo honesto de "Enviar solicitud" en vez de
- * mostrar un botón de pagar que no cobra.
+/* Medios de pago. Aquí NO va ninguna credencial: los secretos que mueven
+ * dinero viven en los secretos de las Edge Functions. Lo único que hay aquí es
+ * a qué endpoint llamar.
  *
- * Para activarlo: despliega supabase/functions/webpay y pega su URL aquí.
+ * La página pinta SOLO los medios que tengan endpoint. Si no configuras
+ * ninguno, `window.VA_PAGOS` no existe y el flujo se queda en "Enviar
+ * solicitud de reserva" — nunca un botón de pagar que no cobra.
+ *
+ * Para activar uno: despliega su función y pega la URL abajo.
+ *   supabase functions deploy mercadopago --no-verify-jwt
+ *   supabase functions deploy webpay      --no-verify-jwt
  */
 (function () {
   'use strict';
 
-  var ENDPOINT = '';   // p. ej. https://xxxx.supabase.co/functions/v1/webpay
+  var ENDPOINTS = {
+    // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago
+    mercadopago: '',
+    // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/webpay
+    webpay: ''
+  };
 
-  if (!ENDPOINT) return;
-
-  /* Webpay no es una ventana ni un iframe: es una salida del sitio. Se llega
-     con un POST de formulario llevando token_ws, y se vuelve por el retorno de
-     la Edge Function. Por eso hay que dejar la reserva anotada ANTES de irse. */
-  function irAWebpay(url, token) {
-    var f = document.createElement('form');
-    f.method = 'POST';
-    f.action = url;
-    var i = document.createElement('input');
-    i.type = 'hidden';
-    i.name = 'token_ws';
-    i.value = token;
-    f.appendChild(i);
-    document.body.appendChild(f);
-    f.submit();
+  /* Mercado Pago: se va a Checkout Pro y vuelve por back_urls. La confirmación
+     de verdad llega por webhook al servidor, no en la vuelta del cliente. */
+  function porMercadoPago(base, datos) {
+    return fetch(base.replace(/\/$/, '') + '/crear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+      .then(leer)
+      .then(function (d) {
+        if (!d.url) throw new Error('respuesta sin enlace de pago');
+        recordar(d.ref);
+        location.href = d.url;
+        return nuncaResuelve();
+      });
   }
 
+  /* Webpay: la salida es un POST de formulario con token_ws, no una
+     redirección. Por eso hace falta construir el formulario a mano. */
+  function porWebpay(base, datos) {
+    return fetch(base.replace(/\/$/, '') + '/crear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+      .then(leer)
+      .then(function (d) {
+        if (!d.url || !d.token) throw new Error('respuesta incompleta');
+        recordar(d.orden);
+        var f = document.createElement('form');
+        f.method = 'POST';
+        f.action = d.url;
+        var i = document.createElement('input');
+        i.type = 'hidden'; i.name = 'token_ws'; i.value = d.token;
+        f.appendChild(i);
+        document.body.appendChild(f);
+        f.submit();
+        return nuncaResuelve();
+      });
+  }
+
+  function leer(r) {
+    return r.json().then(function (d) {
+      if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+      return d;
+    });
+  }
+  /* Se guarda la referencia ANTES de salir: si el cliente vuelve y el webhook
+     todavía no llegó, al menos puede decirle su número de reserva. */
+  function recordar(ref) { try { sessionStorage.setItem('va_ref', ref || ''); } catch (e) {} }
+  // La página se está yendo: no hay nada que resolver.
+  function nuncaResuelve() { return new Promise(function () {}); }
+
+  var CATALOGO = [
+    { id: 'mercadopago', nombre: 'Mercado Pago', detalle: 'Crédito, débito y saldo en cuenta', iniciar: porMercadoPago },
+    { id: 'webpay',      nombre: 'Webpay',       detalle: 'Tarjetas chilenas y débito Redcompra', iniciar: porWebpay }
+  ];
+
+  var activos = CATALOGO.filter(function (m) { return !!ENDPOINTS[m.id]; })
+    .map(function (m) {
+      return {
+        id: m.id, nombre: m.nombre, detalle: m.detalle,
+        iniciar: function (datos) { return m.iniciar(ENDPOINTS[m.id], datos); }
+      };
+    });
+
+  // Sin medios configurados no se define nada: la página se queda en el flujo
+  // honesto en vez de enseñar botones que no cobran.
+  if (!activos.length) return;
+
   window.VA_PAGOS = {
-    iniciar: function (datos) {
-      return fetch(ENDPOINT.replace(/\/$/, '') + '/crear', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
-      })
-        .then(function (r) {
-          return r.json().then(function (d) {
-            if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
-            return d;
-          });
-        })
-        .then(function (d) {
-          if (!d.url || !d.token) throw new Error('respuesta incompleta');
-          try { sessionStorage.setItem('va_orden', d.orden || ''); } catch (e) {}
-          irAWebpay(d.url, d.token);
-          // No resuelve: la página se está yendo a Transbank.
-          return new Promise(function () {});
-        });
-    }
+    metodos: activos,
+    /* Atajo para cuando solo hay uno configurado. */
+    iniciar: function (datos) { return activos[0].iniciar(datos); }
   };
 })();

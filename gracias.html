@@ -10,9 +10,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@800&amp;family=Manrope:wght@400;700;800&amp;display=swap" rel="stylesheet">
 <style>
-/* Página de retorno de Webpay. A propósito es HTML plano, sin el runtime ni
-   React: es la pantalla donde el cliente descubre si su plata se movió, y no
-   puede depender de que cargue nada más. */
+/* Página de retorno de Mercado Pago. A propósito es HTML plano, sin el runtime
+   ni React: es la pantalla donde el cliente descubre si su plata se movió, y
+   no puede depender de que cargue nada más.
+   Ojo: esta página solo ENSEÑA el resultado. La verdad la escribe el webhook
+   en el servidor, porque el cliente puede no volver nunca. */
 :root{
   --navy:#0d1b2e;--navy-2:#0e1c30;--tx:#fff;--tx-2:rgba(255,255,255,.78);
   --tx-3:rgba(255,255,255,.62);--linea:rgba(255,255,255,.18);
@@ -64,29 +66,36 @@ a.bt{display:flex;align-items:center;justify-content:center;min-height:48px;padd
       cls:'ok',
       icono:'<path d="M4 12.5 L9.5 18 L20 6.5"></path>',
       t:'¡Reserva confirmada!',
-      d:'Recibimos el 50% del total. El saldo se paga en la cabaña al llegar. Te escribiremos por WhatsApp para coordinar la entrega de llaves.',
-      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','nuevo.html']]
+      d:'Recibimos el anticipo del 50%. El saldo se paga en la cabaña al llegar. Te escribimos por WhatsApp para coordinar la llegada y las llaves.',
+      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','variante-b.html']]
     },
     rechazado: {
       cls:'mal',
       icono:'<path d="M12 7v7"></path><circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="9"></circle>',
       t:'El pago fue rechazado',
-      d:'Tu banco no autorizó la transacción y no se cobró nada. La fecha sigue disponible: puedes intentar con otra tarjeta o coordinar por WhatsApp.',
-      bts:[['bt--oro','Intentar de nuevo','nuevo.html#reservar'],['bt--wa','Coordinar por WhatsApp',WA]]
+      d:'Mercado Pago no autorizó el pago y no se cobró nada. La fecha sigue disponible: puedes intentar con otra tarjeta o coordinar por WhatsApp.',
+      bts:[['bt--oro','Intentar de nuevo','variante-b.html#reservar'],['bt--wa','Coordinar por WhatsApp',WA]]
     },
     anulado: {
       cls:'neutro',
       icono:'<path d="M9 9l6 6M15 9l-6 6"></path><circle cx="12" cy="12" r="9"></circle>',
       t:'Cancelaste el pago',
       d:'No se cobró nada y tu reserva no quedó tomada. Las fechas que elegiste siguen libres por ahora.',
-      bts:[['bt--oro','Volver a reservar','nuevo.html#reservar'],['bt--fant','Ir al inicio','nuevo.html']]
+      bts:[['bt--oro','Volver a reservar','variante-b.html#reservar'],['bt--fant','Ir al inicio','variante-b.html']]
+    },
+    pendiente: {
+      cls:'neutro',
+      icono:'<circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5l3 1.8"></path>',
+      t:'Tu pago está en proceso',
+      d:'Mercado Pago todavía no confirma la transacción. En cuanto lo haga te avisamos por WhatsApp. La fecha queda apartada mientras tanto: no hace falta que pagues de nuevo.',
+      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','variante-b.html']]
     },
     error: {
       cls:'mal',
       icono:'<path d="M12 7v7"></path><circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="9"></circle>',
       t:'No pudimos confirmar el pago',
-      d:'Algo falló al volver desde Webpay. Si te llegó el cobro, escríbenos por WhatsApp con tu número de reserva y lo resolvemos al tiro — no vuelvas a pagar.',
-      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','nuevo.html']]
+      d:'Algo falló al volver desde Mercado Pago. Si te llegó el cobro, escríbenos por WhatsApp con tu número de reserva y lo resolvemos al tiro — no vuelvas a pagar.',
+      bts:[['bt--wa','Escríbenos por WhatsApp',WA],['bt--fant','Volver al sitio','variante-b.html']]
     }
   };
 

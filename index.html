@@ -218,7 +218,7 @@ window.VA_OCUPACION = {
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
             <div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:12px 14px">
-              <div style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Pagas ahora · online</div>
+              <div style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#7fd6e2">{{ bkAbonoMini }}</div>
               <div style="font-size:19px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkHalfFmt }}</div>
               <div style="font-size:10.5px;color:rgba(255,255,255,0.65);margin-top:2px">50% del total</div>
             </div>
@@ -232,7 +232,7 @@ window.VA_OCUPACION = {
           <div style="font-size:10.5px;color:rgba(255,255,255,0.55);margin-top:10px;text-align:center;line-height:1.6">Check-in 16:00 · Check-out 11:00 · Cancelación gratuita hasta 7 días antes</div>
         </sc-if>
         <sc-if value="{{ bkS2 }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">Pagas ahora (50%) {{ bkHalfFmt }}</b></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkHalfFmt }}</b></div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
             <input placeholder="Nombre y apellido" value="{{ nombre }}" onChange="{{ setNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:13.5px;outline:none;width:100%;box-sizing:border-box">
             <input placeholder="Teléfono (+56 9…)" value="{{ fono }}" onChange="{{ setFono }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:13.5px;outline:none;width:100%;box-sizing:border-box">
@@ -245,18 +245,34 @@ window.VA_OCUPACION = {
           </div>
         </sc-if>
         <sc-if value="{{ bkS3 }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">Pagas ahora (50%) {{ bkHalfFmt }}</b></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkHalfFmt }}</b></div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
-            <button onClick="{{ mpPay }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(53,183,201,0.18);border:1.5px solid #3fc8da;border-radius:12px;padding:14px 16px;color:#ffffff;font-family:'Manrope',sans-serif;cursor:pointer;text-align:left;width:100%;box-sizing:border-box">
-              <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">Mercado Pago</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Crédito, débito y saldo en cuenta</span></span>
-              <span style="font-size:11.5px;font-weight:800;color:#7fd6e2;white-space:nowrap">{{ mpLabel }} →</span>
-            </button>
+            <!-- Mientras no haya pago online, el que funciona es WhatsApp y va
+                 ARRIBA, en verde y con su propio nombre. Antes este botón
+                 estaba metido dentro de la tarjeta de Mercado Pago, que decía
+                 "crédito, débito y saldo en cuenta": el cliente pulsaba
+                 creyendo que iba a pagar con tarjeta y se encontraba un chat. -->
+            <sc-if value="{{ sinPagos }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ mpPay }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(37,211,102,0.18);border:1.5px solid #25d366;border-radius:12px;padding:14px 16px;color:#ffffff;font-family:'Manrope',sans-serif;cursor:pointer;text-align:left;width:100%;box-sizing:border-box">
+                <span style="display:flex;align-items:center;gap:11px">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="1.9" style="flex-shrink:0"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1.1-4.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9.5c.5 2.5 3 5 5.5 5.5l1-1.5-2-1-1 .5c-.8-.5-1.5-1.2-2-2l.5-1-1-2z"></path></svg>
+                  <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">WhatsApp</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Coordinamos la transferencia contigo</span></span>
+                </span>
+                <span style="font-size:11.5px;font-weight:800;color:#4ade80;white-space:nowrap">{{ mpLabel }} →</span>
+              </button>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:14px 16px;opacity:0.55">
+                <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">Mercado Pago</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Crédito, débito y saldo en cuenta</span></span>
+                <span style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:5px 10px;white-space:nowrap">Próximamente</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hayPagos }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ mpPay }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(53,183,201,0.18);border:1.5px solid #3fc8da;border-radius:12px;padding:14px 16px;color:#ffffff;font-family:'Manrope',sans-serif;cursor:pointer;text-align:left;width:100%;box-sizing:border-box">
+                <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">Mercado Pago</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Crédito, débito y saldo en cuenta</span></span>
+                <span style="font-size:11.5px;font-weight:800;color:#7fd6e2;white-space:nowrap">{{ mpLabel }} →</span>
+              </button>
+            </sc-if>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:14px 16px;opacity:0.55">
               <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">Webpay</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Tarjetas chilenas</span></span>
-              <span style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:5px 10px;white-space:nowrap">Próximamente</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:14px 16px;opacity:0.55">
-              <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:14px">Otros medios</b><span style="font-size:11px;color:rgba(255,255,255,0.65)">Transferencia y más</span></span>
               <span style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:5px 10px;white-space:nowrap">Próximamente</span>
             </div>
           </div>
@@ -738,7 +754,7 @@ window.VA_OCUPACION = {
       stopProp: e => e.stopPropagation(),
       bkOpen: s.bkOpen, bkS1: s.bkStep === 1, bkS2: s.bkStep === 2, bkS3: s.bkStep === 3, bkS4: s.bkStep === 4,
       bkStepTxt: s.bkStep === 4 ? 'Reserva' : 'Paso ' + s.bkStep + ' de 3',
-      bkTitle: s.bkStep === 1 ? 'Confirma tu reserva' : s.bkStep === 2 ? 'Tus datos' : s.bkStep === 3 ? 'Medio de pago' : 'Todo listo',
+      bkTitle: s.bkStep === 1 ? 'Confirma tu reserva' : s.bkStep === 2 ? 'Tus datos' : s.bkStep === 3 ? (window.VA_PAGOS ? 'Medio de pago' : 'Cómo reservar') : 'Todo listo',
       bkInTxt: s.calStart ? this.fmtDate(s.calStart) : '—', bkOutTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
       bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
       resDis: !(s.calStart && s.calEnd), resOp: (s.calStart && s.calEnd) ? '1' : '0.45', resCur: (s.calStart && s.calEnd) ? 'pointer' : 'not-allowed',
@@ -764,6 +780,13 @@ window.VA_OCUPACION = {
         ? 'Te enviamos el comprobante por correo.'
         : 'Se abrió una conversación con tus fechas y el total ya escritos. Envíala y te confirmamos la disponibilidad al momento. Todavía no se ha cobrado nada y la fecha no queda tomada hasta que confirmemos.',
       bkPagoLabel: window.VA_PAGOS ? 'Pagado ahora (50%)' : 'Abono para reservar (50%)',
+      hayPagos: !!window.VA_PAGOS,
+      sinPagos: !window.VA_PAGOS,
+      /* "Pagas ahora" solo si de verdad se paga ahora. Sin pasarela, ese 50%
+         es lo que se transfiere para tomar la fecha, no algo que ocurra en
+         esta pantalla. */
+      bkAbonoTxt: window.VA_PAGOS ? 'Pagas ahora (50%)' : 'Abono para reservar (50%)',
+      bkAbonoMini: window.VA_PAGOS ? 'Pagas ahora · online' : 'Abono por transferencia',
       bkNext: () => {
         if (this.state.bkStep === 1) { this.setState({ bkStep: 2, formError: '' }); return; }
         const st = this.state;

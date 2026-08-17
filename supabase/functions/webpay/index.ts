@@ -32,8 +32,31 @@ const TBK = {
   key: Deno.env.get('TBK_API_KEY') ?? INTEGRACION.key,
 };
 
-const SITIO = Deno.env.get('SITIO_URL') ?? 'https://josevergara1999.github.io/valle-aventura-web';
+const SITIO = Deno.env.get('SITIO_URL') ?? 'https://valleaventura-chile.com';
 const API = '/rswebpaytransaction/api/webpay/v1.2/transactions';
+
+/* Supabase inyecta estas dos solas en toda Edge Function. La de servicio se
+   salta RLS, y por eso vive aquí —en el servidor— y nunca en la página. */
+const SB_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SB_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+/* Toda la lógica de reservas vive en Postgres y no aquí: las mismas funciones
+   las usan la web, el panel, Mercado Pago y mañana el bot. Si cada uno llevara
+   su copia, acabarían discrepando en qué está libre y a qué precio. */
+async function rpc(fn: string, args: Record<string, unknown>) {
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  const t = await r.text();
+  if (!r.ok) {
+    let m = t;
+    try { m = JSON.parse(t).message ?? t; } catch { /* deja el texto */ }
+    throw new Error(m);
+  }
+  return t ? JSON.parse(t) : null;
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': Deno.env.get('ORIGEN_PERMITIDO') ?? '*',
@@ -64,31 +87,47 @@ Deno.serve(async (req) => {
   if (ruta === 'crear' && req.method === 'POST') {
     try {
       const b = await req.json();
-      const monto = Math.round(Number(b.monto));
-
-      // El monto NUNCA se acepta tal cual del navegador en producción: se
-      // recalcula con cotizar() en Postgres. Mientras esa función no esté
-      // conectada, al menos se valida que sea un entero positivo razonable.
-      if (!Number.isFinite(monto) || monto <= 0 || monto > 5_000_000) {
-        return json({ error: 'Monto fuera de rango' }, 400);
-      }
       if (!b.desde || !b.hasta || !b.nombre || !b.email) {
         return json({ error: 'Faltan datos de la reserva' }, 400);
       }
 
-      const orden = nuevaOrden();
+      /* PRIMERO se aparta la cabaña, DESPUÉS se cobra. Al revés, dos personas
+         pueden pagar la misma noche y una se queda sin dónde dormir.
+         La reserva nace pendiente y caduca sola a los 30 minutos, así que si
+         algo falla más abajo no hay que deshacer nada. */
+      let reserva;
+      try {
+        reserva = await rpc('solicitar_reserva', {
+          p_desde: b.desde, p_hasta: b.hasta,
+          p_adultos: Number(b.adultos ?? b.personas ?? 0),
+          p_ninos: Number(b.ninos ?? 0),
+          p_nombre: b.nombre, p_telefono: b.fono ?? b.telefono ?? '',
+          p_email: b.email, p_medio: 'webpay',
+        });
+      } catch (e) {
+        // El mensaje viene de la base y ya está escrito para el cliente.
+        return json({ error: String((e as Error).message) }, 409);
+      }
 
-      // TODO al conectar la base: insertar la reserva en estado 'pendiente'
-      // ANTES de redirigir, con esta orden como referencia. Si el cliente
-      // abandona el pago, un job la libera. Sin ese paso, un abandono deja la
-      // fecha bloqueada para siempre o, peor, se cobra una fecha ya vendida.
+      /* El monto lo pone Postgres, no el navegador: lo que manda la página se
+         puede editar antes de enviarlo. */
+      const monto = Math.round(Number(reserva?.cotizacion?.anticipo));
+      if (!Number.isFinite(monto) || monto <= 0) {
+        return json({ error: 'No pudimos calcular el anticipo de esa reserva' }, 500);
+      }
+
+      /* La orden de compra de Transbank admite 26 caracteres y el id de la
+         reserva es un UUID de 36, así que no cabe. Se manda una orden corta y
+         el id real viaja en `session_id`, que sí admite 61. */
+      const orden = nuevaOrden();
+      const idReserva = String(reserva.id);
 
       const r = await fetch(TBK.host + API, {
         method: 'POST',
         headers: cab(),
         body: JSON.stringify({
           buy_order: orden,
-          session_id: orden,
+          session_id: idReserva,   // el UUID vuelve intacto en el commit
           amount: monto,
           return_url: `${url.origin}${url.pathname.replace(/\/crear$/, '/retorno')}`,
         }),
@@ -128,10 +167,29 @@ Deno.serve(async (req) => {
       const d = await r.json();
       const ok = d.status === 'AUTHORIZED' && d.response_code === 0;
 
-      // TODO al conectar la base: pasar la reserva de 'pendiente' a 'confirmada'
-      // usando d.buy_order, y guardar d.authorization_code. Esta confirmación
-      // es la única prueba de que el dinero se movió: sin ella la reserva no
-      // existe, aunque el cliente haya visto la pantalla de Webpay.
+      if (ok) {
+        try {
+          /* El id de la reserva viajó en session_id. `confirmar_reserva` es
+             idempotente, así que si el cliente recarga la pantalla de vuelta
+             no se duplica nada. */
+          await rpc('confirmar_reserva', {
+            p_id: d.session_id,
+            p_pago_ref: String(d.authorization_code ?? d.buy_order),
+            p_medio: 'webpay',
+          });
+        } catch (e) {
+          /* Se cobró pero la reserva ya no se puede honrar: caducó y esas
+             fechas se vendieron mientras tanto. Se deja constancia con esta
+             etiqueta en los logs de la función — hay que devolver el dinero. */
+          console.error(JSON.stringify({
+            evento: 'DEVOLVER_DINERO', reserva: d.session_id, orden: d.buy_order,
+            monto: d.amount, motivo: String((e as Error).message),
+          }));
+          return volver('error', `&orden=${encodeURIComponent(d.buy_order ?? '')}`);
+        }
+      }
+      /* Si el pago fue rechazado no se toca la reserva: caduca sola en su media
+         hora y la fecha vuelve a estar libre sin que nadie intervenga. */
 
       return volver(ok ? 'ok' : 'rechazado', `&orden=${encodeURIComponent(d.buy_order ?? '')}`);
     } catch {

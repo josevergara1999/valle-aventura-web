@@ -14,7 +14,20 @@
   'use strict';
 
   var ENDPOINTS = {
-    // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago
+    /* Desplegada y pública (sin verificación de JWT, porque el webhook de
+       Mercado Pago no manda ninguno). Se protege sola: `/crear` valida todo
+       en la base y `/webhook` comprueba la firma HMAC.
+       Ojo: la función responde 503 mientras no exista el secreto
+       MP_ACCESS_TOKEN, así que esta línea solo debe estar activa cuando el
+       secreto esté puesto. Un botón de pagar que no cobra es peor que no
+       tener botón. */
+    /* La función YA ESTÁ DESPLEGADA y conectada a la base. Solo falta que
+       existan los secretos MP_ACCESS_TOKEN y MP_WEBHOOK_SECRET; sin ellos
+       responde 503. Para activar el pago online, cuando Mercado Pago apruebe
+       la cuenta, basta con quitar las dos barras de la línea de abajo:
+       // mercadopago: 'https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago',
+       Mientras esté comentada, la página lleva la reserva a WhatsApp con las
+       fechas ya escritas, que es lo que de verdad pasa hoy. */
     mercadopago: '',
     // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/webpay
     webpay: ''

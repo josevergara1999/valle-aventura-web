@@ -29,6 +29,34 @@ const SITIO = Deno.env.get('SITIO_URL') ?? 'https://josevergara1999.github.io/va
 
 const MP = 'https://api.mercadopago.com';
 
+/* Supabase inyecta estas dos solas en toda Edge Function; no hay que
+   configurarlas ni ponerlas en ningún archivo. La de servicio se salta RLS,
+   y por eso vive aquí —en el servidor— y nunca en la página. */
+const SB_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SB_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+/* Llama a una función de Postgres. Toda la lógica de reservas vive allí y no
+   aquí: la misma función la usan la web, el panel y mañana el bot, y si cada
+   uno llevara su copia acabarían discrepando. */
+async function rpc(fn: string, args: Record<string, unknown>) {
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+  const texto = await r.text();
+  if (!r.ok) {
+    let msg = texto;
+    try { msg = JSON.parse(texto).message ?? texto; } catch { /* deja el texto */ }
+    throw new Error(msg);
+  }
+  return texto ? JSON.parse(texto) : null;
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': Deno.env.get('ORIGEN_PERMITIDO') ?? '*',
   'Access-Control-Allow-Headers': 'content-type',
@@ -37,10 +65,6 @@ const CORS = {
 
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...CORS, 'Content-Type': 'application/json' } });
-
-/* La referencia externa es el hilo que une el pago con la reserva. Viaja a
-   Mercado Pago y vuelve en el webhook. */
-const nuevaRef = () => 'VA-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 
 /* Validación de firma del webhook. SIN ESTO cualquiera puede mandar un POST
    diciendo "pagado" y quedarse con una reserva gratis. Mercado Pago firma con
@@ -83,20 +107,44 @@ Deno.serve(async (req) => {
   if (ruta === 'crear' && req.method === 'POST') {
     try {
       const b = await req.json();
-      const monto = Math.round(Number(b.monto));
-
-      /* El monto NO se acepta del navegador en producción: se recalcula con
-         cotizar() en Postgres. Cualquiera puede editar lo que manda la página.
-         Mientras esa función no esté conectada, al menos se acota. */
-      if (!Number.isFinite(monto) || monto <= 0 || monto > 5_000_000) return json({ error: 'Monto fuera de rango' }, 400);
       if (!b.desde || !b.hasta || !b.nombre || !b.email) return json({ error: 'Faltan datos de la reserva' }, 400);
 
-      const ref = nuevaRef();
+      /* PRIMERO se aparta la cabaña, DESPUÉS se cobra. Al revés, dos personas
+         pueden pagar la misma noche y una se queda sin dónde dormir.
+         `solicitar_reserva` valida fechas, mínimo de noches y disponibilidad,
+         elige la cabaña y la deja tomada 30 minutos. Si el cliente abandona el
+         pago, se suelta sola: por eso no hace falta deshacer nada si algo
+         falla más abajo. */
+      let reserva;
+      try {
+        reserva = await rpc('solicitar_reserva', {
+          p_desde: b.desde,
+          p_hasta: b.hasta,
+          p_adultos: Number(b.adultos ?? b.personas ?? 0),
+          p_ninos: Number(b.ninos ?? 0),
+          p_nombre: b.nombre,
+          p_telefono: b.fono ?? b.telefono ?? '',
+          p_email: b.email,
+          p_medio: 'mercadopago',
+        });
+      } catch (e) {
+        // El mensaje viene de la base y ya está escrito para el cliente
+        // ("La estadía mínima es de 2 noches", "No queda ninguna cabaña...").
+        return json({ error: String((e as Error).message) }, 409);
+      }
 
-      // TODO al conectar la base: escribir la reserva en estado 'pendiente'
-      // con esta referencia ANTES de mandar a pagar, y liberarla sola si en
-      // 30 minutos no llega el webhook. Sin eso, un abandono deja la fecha
-      // bloqueada; sin lo otro, se cobra una fecha ya vendida.
+      /* El monto lo pone Postgres, no el navegador. Cualquiera puede editar lo
+         que manda la página antes de enviarlo; si nos fiáramos de ese número,
+         alguien reservaría un fin de semana largo por mil pesos. */
+      const monto = Math.round(Number(reserva?.cotizacion?.anticipo));
+      if (!Number.isFinite(monto) || monto <= 0) {
+        return json({ error: 'No pudimos calcular el anticipo de esa reserva' }, 500);
+      }
+
+      /* La referencia que une el pago con la reserva es el id de la reserva
+         misma. Así el webhook sabe exactamente cuál confirmar sin tener que
+         buscarla por fechas y nombre. */
+      const ref = String(reserva.id);
 
       const noches = Math.max(1, Math.round(
         (new Date(b.hasta + 'T00:00:00').getTime() - new Date(b.desde + 'T00:00:00').getTime()) / 86400000,
@@ -172,11 +220,34 @@ Deno.serve(async (req) => {
       const aprobado = pago.status === 'approved';
       const ref = pago.external_reference;
 
-      // TODO al conectar la base: si aprobado, pasar la reserva de 'pendiente'
-      // a 'confirmada' usando `ref`, guardando pago.id y pago.transaction_amount.
-      // Debe ser IDEMPOTENTE: Mercado Pago reintenta el mismo aviso varias
-      // veces y no puede acabar en dos reservas ni en dos cobros contados.
-      console.log(JSON.stringify({ evento: 'pago', ref, id: pago.id, estado: pago.status, aprobado }));
+      if (!aprobado) {
+        /* Rechazado o cancelado: no se toca la reserva. Caduca sola en su
+           media hora y la fecha vuelve a estar libre sin que nadie intervenga. */
+        console.log(JSON.stringify({ evento: 'pago_no_aprobado', ref, id: pago.id, estado: pago.status }));
+        return new Response('ok', { status: 200 });
+      }
+
+      try {
+        /* `confirmar_reserva` es idempotente: Mercado Pago manda este mismo
+           aviso varias veces y el segundo pasa sin crear nada ni fallar. */
+        const res = await rpc('confirmar_reserva', {
+          p_id: ref,
+          p_pago_ref: String(pago.id),
+          p_medio: 'mercadopago',
+        });
+        console.log(JSON.stringify({ evento: 'reserva_confirmada', ref, id: pago.id, ya_estaba: res?.ya_estaba }));
+      } catch (e) {
+        /* Llegó el pago pero la reserva ya no se puede honrar: caducó y esas
+           fechas se vendieron mientras tanto. Devolver 500 haría que Mercado
+           Pago reintentara para siempre sin arreglar nada, así que se acepta
+           el aviso y se deja constancia: esto hay que devolverlo a mano.
+           Sale en los logs de la función con esta etiqueta. */
+        console.error(JSON.stringify({
+          evento: 'DEVOLVER_DINERO', ref, id: pago.id,
+          monto: pago.transaction_amount, email: pago.payer?.email,
+          motivo: String((e as Error).message),
+        }));
+      }
 
       // 200 siempre que se haya procesado: si no, MP sigue reintentando.
       return new Response('ok', { status: 200 });

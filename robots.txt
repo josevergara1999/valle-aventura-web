@@ -1,0 +1,15 @@
+# Cabañas Valle Aventura — valleaventura-chile.com
+
+User-agent: *
+Allow: /
+
+# `gracias.html` es la pantalla de vuelta de un pago: no tiene sentido en un
+# buscador y aparecer ahí solo confundiría a quien la encuentre suelta.
+Disallow: /gracias.html
+
+# Variantes de diseño que no se sirven a nadie. Indexarlas seria competir
+# contra la propia portada con el mismo contenido.
+Disallow: /variante-a.html
+Disallow: /variante-b.html
+
+Sitemap: https://valleaventura-chile.com/sitemap.xml

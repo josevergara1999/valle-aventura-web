@@ -6,14 +6,14 @@
 <title>Cabañas Valle Aventura — Las Trancas, Nevados de Chillán</title>
 <meta name="description" content="Tres cabañas equipadas para 8 y 9 personas en el Valle Las Trancas, a 15 minutos de las Termas de Chillán. Tina caliente, WiFi Starlink y estufa a pellet.">
 <meta name="theme-color" content="#0d1b2e">
-<link rel="canonical" href="https://josevergara1999.github.io/valle-aventura-web/">
+<link rel="canonical" href="https://valleaventura-chile.com/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Cabañas Valle Aventura">
 <meta property="og:title" content="Cabañas Valle Aventura — Las Trancas, Nevados de Chillán">
 <meta property="og:description" content="Tres cabañas equipadas para 8 y 9 personas, a 15 minutos de las Termas de Chillán. Consulta disponibilidad y reserva.">
-<meta property="og:url" content="https://josevergara1999.github.io/valle-aventura-web/">
-<meta property="og:image" content="https://josevergara1999.github.io/valle-aventura-web/uploads/cabana-invierno.webp">
+<meta property="og:url" content="https://valleaventura-chile.com/">
+<meta property="og:image" content="https://valleaventura-chile.com/uploads/cabana-invierno.webp">
 <meta property="og:image:alt" content="Cabaña de Valle Aventura en la nieve, en el Valle Las Trancas">
 <meta name="twitter:card" content="summary_large_image">
 <script>
@@ -29,6 +29,82 @@
 <script src="./datos.js?v=2"></script>
 <script src="./pagos.js?v=2"></script>
 <script src="./support.js"></script>
+
+<!-- Datos estructurados. Es lo que permite a Google mostrar precio,
+     ubicacion y servicios en el resultado, y lo que leen los asistentes de
+     IA al responder "donde me alojo en Las Trancas" — de ahi venia el
+     tramo de trafico que mas crecia. La direccion esta a nivel de
+     localidad porque la exacta todavia no la tengo: es preferible a
+     inventarla, que seria peor que no ponerla.
+     Si cambia el precio base, cambiar tambien aqui. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LodgingBusiness",
+  "@id": "https://valleaventura-chile.com/#negocio",
+  "name": "Cabañas Valle Aventura",
+  "description": "Tres cabañas equipadas para 8 y 9 personas en el Valle Las Trancas, a 15 minutos de las Termas de Chillán. Tinaja caliente, WiFi Starlink, estufa a pellet y piscina. Pet friendly.",
+  "url": "https://valleaventura-chile.com/",
+  "image": "https://valleaventura-chile.com/uploads/cabana-invierno.webp",
+  "telephone": "+56982398527",
+  "priceRange": "$$",
+  "currenciesAccepted": "CLP",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Valle Las Trancas, Pinto",
+    "addressRegion": "Ñuble",
+    "addressCountry": "CL"
+  },
+  "petsAllowed": true,
+  "numberOfRooms": 3,
+  "checkinTime": "16:00",
+  "checkoutTime": "11:00",
+  "amenityFeature": [
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Tinaja caliente",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "WiFi Starlink",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Estufa a pellet",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Piscina",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Cocina equipada",
+      "value": true
+    },
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "Estacionamiento",
+      "value": true
+    }
+  ],
+  "makesOffer": {
+    "@type": "Offer",
+    "name": "Arriendo por noche",
+    "price": "180000",
+    "priceCurrency": "CLP",
+    "description": "Precio por noche. Estadía mínima 2 noches. Anticipo del 50% para tomar la fecha.",
+    "availability": "https://schema.org/InStock"
+  },
+  "sameAs": [
+    "https://www.instagram.com/valleaventurachile/",
+    "https://www.tiktok.com/@valle.aventura.ch"
+  ]
+}
+</script>
 </head>
 <body>
 <x-dc>

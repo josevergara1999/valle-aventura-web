@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Solo la portada. `movil.html` NO va aquí a propósito: es la misma página para
+  otro tamaño de pantalla, y su canonical ya apunta aquí. Listarla haría que
+  Google la tratara como una segunda página con el mismo contenido, y las dos
+  competirían entre sí por la misma búsqueda.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://valleaventura-chile.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

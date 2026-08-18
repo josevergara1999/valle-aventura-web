@@ -70,7 +70,10 @@
   var TARIFAS_EJEMPLO = [{ nombre: 'Base', desde: null, hasta: null, precio_base: 180000, prioridad: 0 }];
   var REGLAS_EJEMPLO = {
     personas_incluidas: 5, precio_persona_extra: 5000,
-    minimo_noches: 2, porcentaje_anticipo: 50, edad_nino_max: 11
+    minimo_noches: 2, porcentaje_anticipo: 50, edad_nino_max: 11,
+    /* Sin respuesta de la base NO se inventa un recargo: cobrar de mas por un
+       fallo de red seria mucho peor que perder la comision de una reserva. */
+    recargo_pasarela_pct: 0
   };
 
   var estado = {
@@ -116,7 +119,7 @@
   var reg = function () {
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
       '/rest/v1/reglas?select=personas_incluidas,precio_persona_extra,minimo_noches,' +
-      'porcentaje_anticipo,edad_nino_max&limit=1';
+      'porcentaje_anticipo,edad_nino_max,recargo_pasarela_pct&limit=1';
   };
 
   var cabecera = function () {
@@ -173,7 +176,33 @@
       d.setDate(d.getDate() + 1);
     }
     var anticipo = Math.round(total * (r.porcentaje_anticipo / 100));
-    return { ok: true, noches: noches, total: total, anticipo: anticipo, saldo: total - anticipo, local: true };
+    var recargo = recargoPasarela(anticipo);
+    return {
+      ok: true, noches: noches, total: total,
+      anticipo: anticipo, saldo: total - anticipo,
+      /* `recargo` es lo que se suma por pagar online; `aPagar` es lo que se
+         cobra de verdad. El `saldo` de la cabaña NO lo lleva. */
+      recargo: recargo, aPagar: anticipo + recargo,
+      local: true
+    };
+  }
+
+  /* Recargo por pagar con pasarela. ESPEJO EXACTO de `recargo_pasarela()` en
+     Postgres, y por la misma razón que el resto: la página lo ENSEÑA, la base
+     lo COBRA, y si discreparan el cliente veria un numero y pagaria otro.
+
+     Se despeja al reves, no se multiplica. Sumarle el 3,8% al anticipo deja
+     corto, porque Mercado Pago cobra su comision tambien sobre el recargo:
+     de 180.000 + 6.833 se llevaria 7.102 y quedarian 179.731. La cuenta buena
+     es monto / (1 - comision).
+
+     Y va sobre el ANTICIPO, no sobre el total: por la pasarela solo pasa el
+     50%, el resto se paga en la cabaña y no tiene comision. */
+  function recargoPasarela(anticipo) {
+    var r = estado.reglas || REGLAS_EJEMPLO;
+    var pct = Number(r.recargo_pasarela_pct) || 0;
+    if (!(anticipo > 0) || pct <= 0) return 0;
+    return Math.round(anticipo / (1 - pct / 100)) - anticipo;
   }
 
   /* La cotización de verdad: la calcula Postgres, la misma función que usa el
@@ -291,6 +320,7 @@
     reglas: function () { return estado.reglas || REGLAS_EJEMPLO; },
     precioBase: precioBase,
     precioNoche: precioNoche,
+    recargoPasarela: recargoPasarela,
     cotizarLocal: cotizarLocal,
     cotizar: cotizar
   };

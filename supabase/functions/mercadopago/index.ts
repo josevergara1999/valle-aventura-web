@@ -164,6 +164,23 @@ Deno.serve(async (req) => {
         return json({ error: 'No pudimos calcular el anticipo de esa reserva' }, 500);
       }
 
+      /* Recargo por pagar con pasarela. También lo pone Postgres, por la misma
+         razón que el precio: la web lo ENSEÑA, pero si lo calculara ella,
+         bastaría con editarlo en el navegador para pagar sin recargo.
+
+         Va como un ítem aparte de la preferencia, no sumado al primero, para
+         que el cliente lo vea desglosado en la pantalla de Mercado Pago igual
+         que lo vio en la nuestra. Si al llegar allí el importe cambiara sin
+         explicación, la mitad se cae del pago. */
+      let recargo = 0;
+      try {
+        recargo = Math.max(0, Math.round(Number(await rpc('recargo_pasarela', { p_monto: monto }))));
+      } catch {
+        /* Si la función no responde se cobra sin recargo. Perder la comisión de
+           una reserva es mucho más barato que perder la reserva entera. */
+        recargo = 0;
+      }
+
       /* La referencia que une el pago con la reserva es el id de la reserva
          misma. Así el webhook sabe exactamente cuál confirmar sin tener que
          buscarla por fechas y nombre. */
@@ -196,7 +213,15 @@ Deno.serve(async (req) => {
             quantity: 1,
             currency_id: 'CLP',
             unit_price: monto,
-          }],
+          }, ...(recargo > 0 ? [{
+            id: ref + '-recargo',
+            // ASCII, por lo mismo que el titulo de arriba.
+            title: 'Comision de la pasarela de pago',
+            description: 'Costo de cobrar en linea',
+            quantity: 1,
+            currency_id: 'CLP',
+            unit_price: recargo,
+          }] : [])],
           payer: { name: String(b.nombre).slice(0, 80), email: String(b.email).slice(0, 120) },
           external_reference: ref,
           statement_descriptor: 'VALLE AVENTURA',

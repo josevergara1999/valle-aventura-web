@@ -304,12 +304,18 @@ window.VA_OCUPACION = {
             <div style="display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.18);padding-top:8px;margin-top:3px"><span style="color:rgba(255,255,255,0.65)">Noches × tarifa</span><b>{{ bkBreakdown }}</b></div>
             <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#7fd6e2">{{ bkExtraNote }}</div></sc-if>
             <div style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span style="color:rgba(255,255,255,0.65)">Total</span><b>{{ bkTotalFmt }}</b></div>
+            <!-- Solo aparece si hay recargo. Va aqui, ANTES de la cifra grande,
+                 para que el numero de "pagas ahora" ya lo incluya y nadie se
+                 encuentre una sorpresa en la pantalla de Mercado Pago. -->
+            <sc-if value="{{ bkHayRecargo }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;justify-content:space-between;gap:12px;font-size:12.5px"><span style="color:rgba(255,255,255,0.6)">{{ bkRecargoTxt }}</span><b style="color:rgba(255,255,255,0.85)">+{{ bkRecargoFmt }}</b></div>
+            </sc-if>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
             <div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:12px 14px">
               <div style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#7fd6e2">{{ bkAbonoMini }}</div>
-              <div style="font-size:19px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkHalfFmt }}</div>
-              <div style="font-size:10.5px;color:rgba(255,255,255,0.65);margin-top:2px">50% del total</div>
+              <div style="font-size:19px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkPagarFmt }}</div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.65);margin-top:2px">{{ bkPagarPie }}</div>
             </div>
             <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 14px">
               <div style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.7)">Al llegar · en la cabaña</div>
@@ -321,7 +327,7 @@ window.VA_OCUPACION = {
           <div style="font-size:10.5px;color:rgba(255,255,255,0.55);margin-top:10px;text-align:center;line-height:1.6">Check-in 16:00 · Check-out 11:00 · Cancelación gratuita hasta 7 días antes</div>
         </sc-if>
         <sc-if value="{{ bkS2 }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkHalfFmt }}</b></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkPagarFmt }}</b></div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
             <input placeholder="Nombre y apellido" value="{{ nombre }}" onChange="{{ setNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:13.5px;outline:none;width:100%;box-sizing:border-box">
             <input placeholder="Teléfono (+56 9…)" value="{{ fono }}" onChange="{{ setFono }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:13.5px;outline:none;width:100%;box-sizing:border-box">
@@ -334,7 +340,7 @@ window.VA_OCUPACION = {
           </div>
         </sc-if>
         <sc-if value="{{ bkS3 }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkHalfFmt }}</b></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:11px 14px;font-size:12.5px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">{{ bkAbonoTxt }} {{ bkPagarFmt }}</b></div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
             <!-- Mientras no haya pago online, el que funciona es WhatsApp y va
                  ARRIBA, en verde y con su propio nombre. Antes este botón
@@ -394,7 +400,7 @@ window.VA_OCUPACION = {
             <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">Fechas</span><b>{{ bkRange }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">Cabaña</span><b>{{ bkCabTxt }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">Huéspedes</span><b>{{ bkGuestsTxt }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">{{ bkPagoLabel }}</span><b style="color:#7fd6e2">{{ bkHalfFmt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">{{ bkPagoLabel }}</span><b style="color:#7fd6e2">{{ bkPagarFmt }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:rgba(255,255,255,0.65)">Saldo en la cabaña</span><b>{{ bkBalFmt }}</b></div>
           </div>
           <button onClick="{{ finishBk }}" style="display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.35);border-radius:999px;background:rgba(255,255,255,0.1);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:14px 22px;cursor:pointer;width:100%;margin-top:16px">Listo</button>
@@ -703,8 +709,12 @@ window.VA_OCUPACION = {
       if (c) total = c.total;
     }
     const half = Math.round(total * (r.porcentaje_anticipo / 100));
+    /* Lo que se cobra online lleva el recargo de la pasarela; el saldo de la
+       cabaña no, porque ese no pasa por Mercado Pago. */
+    const recargo = (D && D.recargoPasarela) ? D.recargoPasarela(half) : 0;
     return {
       nightly, noches, total, half, bal: total - half,
+      recargo, aPagar: half + recargo,
       /* Para la nota del desglose: también salen de la base, porque "sobre el
          5º" y "menores de 12" son política de negocio, no constantes. */
       incluidas: r.personas_incluidas,
@@ -926,6 +936,13 @@ window.VA_OCUPACION = {
       bkNights, bkCabTxt: 'Para ' + s.cabin + ' personas',
       bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
       bkNightlyFmt: this.fmt(nightly), bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf), bkBalFmt: this.fmt(bkBal),
+      /* El recargo solo existe si se paga online. Con el flujo de WhatsApp no
+         hay pasarela y no hay nada que recargar. */
+      bkHayRecargo: !!(window.VA_PAGOS && q.recargo > 0),
+      bkRecargoTxt: 'Comisión de Mercado Pago',
+      bkRecargoFmt: this.fmt(q.recargo),
+      bkPagarFmt: this.fmt(window.VA_PAGOS ? q.aPagar : bkHalf),
+      bkPagarPie: (window.VA_PAGOS && q.recargo > 0) ? '50% + comisión' : '50% del total',
       bkExtraNote: q.extraAdultos > 0 ? 'Incluye +' + this.fmt(q.extraPorNoche) + '/noche por cada adulto sobre el ' + q.incluidas + 'º (los niños −' + q.edadNino + ' no suman extra)' : false,
       nombre: s.nombre, email: s.email, fono: s.fono,
       setNombre: e => this.setState({ nombre: e.target.value }),
@@ -936,7 +953,7 @@ window.VA_OCUPACION = {
          Pago. El cliente esta a punto de salir del sitio: tiene que reconocer
          la pantalla que viene, o cree que se equivoco y se vuelve. */
       mpLabel: s.paying ? (window.VA_PAGOS ? 'Abriendo Mercado Pago…' : 'Abriendo WhatsApp…')
-             : (window.VA_PAGOS ? 'Pagar ' + this.fmt(bkHalf) : 'Reservar por WhatsApp'),
+             : (window.VA_PAGOS ? 'Pagar ' + this.fmt(q.aPagar) : 'Reservar por WhatsApp'),
       waHref: this.waReserva(bkTotal, bkHalf),
       /* Antes esta pantalla decía "¡Reserva confirmada!" con un check verde
          después de un setTimeout de 1,2 s que no cobraba nada. La letra
@@ -946,13 +963,17 @@ window.VA_OCUPACION = {
       bkS4Texto: window.VA_PAGOS
         ? 'Te enviamos el comprobante por correo.'
         : 'Se abrió una conversación con tus fechas y el total ya escritos. Envíala y te confirmamos la disponibilidad al momento. Todavía no se ha cobrado nada y la fecha no queda tomada hasta que confirmemos.',
-      bkPagoLabel: window.VA_PAGOS ? 'Pagado ahora (50%)' : 'Abono para reservar (50%)',
+      bkPagoLabel: window.VA_PAGOS
+        ? (q.recargo > 0 ? 'Pagado ahora' : 'Pagado ahora (50%)')
+        : 'Abono para reservar (50%)',
       hayPagos: !!window.VA_PAGOS,
       sinPagos: !window.VA_PAGOS,
       /* "Pagas ahora" solo si de verdad se paga ahora. Sin pasarela, ese 50%
          es lo que se transfiere para tomar la fecha, no algo que ocurra en
          esta pantalla. */
-      bkAbonoTxt: window.VA_PAGOS ? 'Pagas ahora (50%)' : 'Abono para reservar (50%)',
+      bkAbonoTxt: window.VA_PAGOS
+        ? (q.recargo > 0 ? 'Pagas ahora' : 'Pagas ahora (50%)')
+        : 'Abono para reservar (50%)',
       bkAbonoMini: window.VA_PAGOS ? 'Pagas ahora · online' : 'Abono por transferencia',
       bkNext: () => {
         if (this.state.bkStep === 1) { this.setState({ bkStep: 2, formError: '' }); return; }
@@ -966,7 +987,7 @@ window.VA_OCUPACION = {
         if (this.state.paying) return;
         this.setState({ paying: true });
         if (window.VA_PAGOS && window.VA_PAGOS.iniciar) {
-          window.VA_PAGOS.iniciar({ monto: bkHalf, nombre: s.nombre, email: s.email, fono: s.fono,
+          window.VA_PAGOS.iniciar({ monto: q.aPagar, nombre: s.nombre, email: s.email, fono: s.fono,
                                     desde: s.calStart, hasta: s.calEnd, adultos: s.guests, ninos: s.kids })
             .catch(err => this.setState({ paying: false,
               formError: 'No pudimos abrir el pago (' + err.message + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));

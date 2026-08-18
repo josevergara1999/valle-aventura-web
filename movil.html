@@ -434,6 +434,11 @@
             <div style="display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.18);padding-top:9px"><dt style="color:rgba(255,255,255,0.65);margin:0">Noches × tarifa</dt><dd style="margin:0"><b>{{ bkBreakdown }}</b></dd></div>
             <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#7fd6e2;line-height:1.5">{{ bkExtraNote }}</div></sc-if>
             <div style="display:flex;justify-content:space-between;gap:12px;font-size:16px"><dt style="color:rgba(255,255,255,0.65);margin:0">Total</dt><dd style="margin:0"><b>{{ bkTotalFmt }}</b></dd></div>
+            <!-- Solo si hay recargo. Antes de la cifra grande, para que "pagas
+                 ahora" ya lo incluya y no haya sorpresa en Mercado Pago. -->
+            <sc-if value="{{ bkHayRecargo }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;justify-content:space-between;gap:12px;font-size:12.5px"><dt style="color:rgba(255,255,255,0.6);margin:0">{{ bkRecargoTxt }}</dt><dd style="margin:0"><b style="color:rgba(255,255,255,0.85)">+{{ bkRecargoFmt }}</b></dd></div>
+            </sc-if>
           </dl>
 
           <!-- El 50/50 como dos tarjetas del mismo peso. Es como se cobra de
@@ -441,8 +446,8 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
             <div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:12px 13px">
               <div style="font-size:10px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Pagas ahora</div>
-              <div style="font-size:18px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkHalfFmt }}</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">50% online</div>
+              <div style="font-size:18px;font-weight:800;margin-top:4px;color:#7fd6e2">{{ bkPagarFmt }}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">{{ bkPagarPie }}</div>
             </div>
             <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 13px">
               <div style="font-size:10px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.7)">Al llegar</div>
@@ -510,7 +515,7 @@
             <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Fechas</span><b>{{ bkRange }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Cabaña</span><b>{{ bkCabTxt }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Huéspedes</span><b>{{ bkGuestsTxt }}</b></div>
-            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">{{ bkPagoLabel }}</span><b style="color:#7fd6e2">{{ bkHalfFmt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">{{ bkPagoLabel }}</span><b style="color:#7fd6e2">{{ bkPagarFmt }}</b></div>
             <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Saldo en la cabaña</span><b>{{ bkHalfFmt }}</b></div>
           </div>
           <button onClick="{{ finishBk }}" style="display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.35);border-radius:999px;background:rgba(255,255,255,0.1);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:12px 8px;cursor:pointer;width:100%;margin-top:12px">Listo</button>
@@ -877,8 +882,12 @@ class Component extends DCLogic {
       if (c) total = c.total;
     }
     const half = Math.round(total * (r.porcentaje_anticipo / 100));
+    /* Lo que se cobra online lleva el recargo de la pasarela; el saldo de la
+       cabaña no, porque ese no pasa por Mercado Pago. */
+    const recargo = (D && D.recargoPasarela) ? D.recargoPasarela(half) : 0;
     return {
       nightly, noches, total, half, bal: total - half,
+      recargo, aPagar: half + recargo,
       /* Para la nota del desglose: también salen de la base, porque "sobre el
          5º" y "menores de 12" son política de negocio, no constantes. */
       incluidas: r.personas_incluidas,
@@ -1298,6 +1307,11 @@ class Component extends DCLogic {
       bkRange: (s.calStart ? this.fmtDate(s.calStart) : '—') + ' → ' + (s.calEnd ? this.fmtDate(s.calEnd) : '—'),
       bkNights, bkCabTxt: 'Te asignamos una de las 3',
       bkNightlyFmt: this.fmt(nightly), bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf),
+      bkHayRecargo: !!(window.VA_PAGOS && q.recargo > 0),
+      bkRecargoTxt: 'Comisión de Mercado Pago',
+      bkRecargoFmt: this.fmt(q.recargo),
+      bkPagarFmt: this.fmt(window.VA_PAGOS ? q.aPagar : bkHalf),
+      bkPagarPie: (window.VA_PAGOS && q.recargo > 0) ? '50% + comisión' : '50% online',
       /* El desglose y el saldo: sin ellos el total era un número que había
          que creerse. Con "2 × $180.000" se comprueba de un vistazo. */
       bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
@@ -1322,7 +1336,7 @@ class Component extends DCLogic {
         /* Mientras se abre la pasarela se dice a DONDE se va, no un "Abriendo…"
            a secas: el cliente esta a punto de salir del sitio y tiene que
            reconocer la pantalla que viene. */
-        accion: s.paying ? 'Abriendo ' + m.nombre + '…' : 'Pagar ' + this.fmt(bkHalf) + ' →',
+        accion: s.paying ? 'Abriendo ' + m.nombre + '…' : 'Pagar ' + this.fmt(q.aPagar) + ' →',
         off: s.paying,
         logo: m.logo, logoAlto: (m.logoAlto || 40) + 'px',
         fondo: m.fondo, tinta: m.tinta, tintaSuave: m.tintaSuave, linea: m.linea, acento: m.acento,
@@ -1333,7 +1347,7 @@ class Component extends DCLogic {
           if (!s.nombre.trim() || !s.email.trim() || !s.fono.trim()) { this.setState({ formError: 'Completa tu nombre, email y teléfono antes de pagar.' }); return; }
           if (!/^[^@s]+@[^@s]+.[^@s]+$/.test(s.email)) { this.setState({ formError: 'Revisa el formato de tu email.' }); return; }
           this.setState({ paying: true, formError: '' });
-          m.iniciar({ monto: bkHalf, nombre: s.nombre, email: s.email, fono: s.fono,
+          m.iniciar({ monto: q.aPagar, nombre: s.nombre, email: s.email, fono: s.fono,
                       desde: s.calStart, hasta: s.calEnd, adultos: s.guests, ninos: s.kids, personas: this.groupSize() })
             .catch(err => this.setState({ paying: false,
               formError: 'No pudimos abrir ' + m.nombre + ' (' + err.message + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));
@@ -1348,7 +1362,9 @@ class Component extends DCLogic {
       waHref: this.waReserva(bkTotal, bkHalf),
       bkDoneTitulo: window.VA_PAGOS ? 'Solicitud enviada' : 'Te llevamos a WhatsApp',
       // "Pagado" solo cuando de verdad se pagó.
-      bkPagoLabel: window.VA_PAGOS ? 'Pagado ahora (50%)' : 'Anticipo al reservar (50%)',
+      bkPagoLabel: window.VA_PAGOS
+        ? (q.recargo > 0 ? 'Pagado ahora' : 'Pagado ahora (50%)')
+        : 'Anticipo al reservar (50%)',
       /* Avisar antes de pulsar, no después. Quien espera pagar con tarjeta y
          se encuentra WhatsApp se va; quien lo sabe de antemano, escribe. */
       bkPie: window.VA_PAGOS
@@ -1367,7 +1383,7 @@ class Component extends DCLogic {
         this.setState({ paying: true, formError: '' });
 
         if (window.VA_PAGOS && window.VA_PAGOS.iniciar) {
-          window.VA_PAGOS.iniciar({ monto: bkHalf, nombre: s.nombre, email: s.email, fono: s.fono,
+          window.VA_PAGOS.iniciar({ monto: q.aPagar, nombre: s.nombre, email: s.email, fono: s.fono,
                                     desde: s.calStart, hasta: s.calEnd, adultos: s.guests, ninos: s.kids, personas: this.groupSize() })
             .catch(err => this.setState({ paying: false,
               formError: 'No pudimos abrir el pago (' + err.message + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));

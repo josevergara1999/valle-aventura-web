@@ -476,12 +476,15 @@
             <div style="font-size:11px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.72);margin-top:16px">¿Cómo prefieres pagar?</div>
             <div style="display:flex;flex-direction:column;gap:9px;margin-top:9px">
               <sc-for list="{{ metodosPago }}" as="m" hint-placeholder-count="2">
-                <button onClick="{{ m.elegir }}" disabled="{{ m.off }}" type="button" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;min-height:56px;background:{{ m.bg }};border:{{ m.borde }};border-radius:14px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;text-align:left;cursor:pointer;touch-action:manipulation">
-                  <span style="display:flex;flex-direction:column;gap:2px">
-                    <b style="font-size:14px">{{ m.nombre }}</b>
-                    <span style="font-size:11.5px;color:rgba(255,255,255,.68);line-height:1.4">{{ m.detalle }}</span>
+                <button onClick="{{ m.elegir }}" disabled="{{ m.off }}" type="button" style="display:flex;flex-direction:column;gap:9px;width:100%;box-sizing:border-box;background:{{ m.fondo }};border:none;border-radius:14px;padding:13px 15px;font-family:'Manrope',sans-serif;text-align:left;cursor:pointer;touch-action:manipulation;box-shadow:{{ m.sombra }};opacity:{{ m.opacidad }}">
+                  <span style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%">
+                    <img src="{{ m.logo }}" alt="{{ m.nombre }}" style="display:block;flex-shrink:0;height:{{ m.logoAlto }};width:auto">
+                    <span style="font-size:13px;font-weight:800;color:{{ m.tinta }};white-space:nowrap">{{ m.accion }}</span>
                   </span>
-                  <span style="font-size:12px;font-weight:800;color:#7fd6e2;white-space:nowrap">{{ m.accion }}</span>
+                  <span style="display:flex;align-items:center;gap:6px;width:100%;font-size:10.5px;font-weight:500;line-height:1.4;color:{{ m.tintaSuave }};border-top:1px solid {{ m.linea }};padding-top:8px;align-items:flex-start">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ m.acento }}" stroke-width="2.2" style="flex-shrink:0;margin-top:1px"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg>
+                    <span>{{ m.detalle }} · tu tarjeta no pasa por nosotros</span>
+                  </span>
                 </button>
               </sc-for>
             </div>
@@ -1316,10 +1319,15 @@ class Component extends DCLogic {
       metodosPago: ((window.VA_PAGOS && window.VA_PAGOS.metodos) || []).map(m => ({
         nombre: m.nombre,
         detalle: m.detalle,
-        accion: s.paying ? 'Abriendo…' : 'Pagar ' + this.fmt(bkHalf) + ' →',
+        /* Mientras se abre la pasarela se dice a DONDE se va, no un "Abriendo…"
+           a secas: el cliente esta a punto de salir del sitio y tiene que
+           reconocer la pantalla que viene. */
+        accion: s.paying ? 'Abriendo ' + m.nombre + '…' : 'Pagar ' + this.fmt(bkHalf) + ' →',
         off: s.paying,
-        bg: s.paying ? 'rgba(255,255,255,.06)' : 'rgba(53,183,201,.14)',
-        borde: s.paying ? '1px solid rgba(255,255,255,.14)' : '1.5px solid rgba(63,200,218,.55)',
+        logo: m.logo, logoAlto: (m.logoAlto || 40) + 'px',
+        fondo: m.fondo, tinta: m.tinta, tintaSuave: m.tintaSuave, linea: m.linea, acento: m.acento,
+        opacidad: s.paying ? '0.6' : '1',
+        sombra: s.paying ? 'none' : '0 10px 24px rgba(0,0,0,.32)',
         elegir: () => {
           if (this.state.paying) return;
           if (!s.nombre.trim() || !s.email.trim() || !s.fono.trim()) { this.setState({ formError: 'Completa tu nombre, email y teléfono antes de pagar.' }); return; }

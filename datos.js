@@ -63,8 +63,20 @@
     return (lista || []).filter(function (c) { return c && c.arrienda !== false; });
   }
 
+  /* Lo que se usa mientras la base no responde. Son los mismos números que
+     tiene la base hoy, para que una caída no cambie el precio en pantalla. Si
+     algún día divergen, manda la base: esto solo existe para el rato en que no
+     hay respuesta. */
+  var TARIFAS_EJEMPLO = [{ nombre: 'Base', desde: null, hasta: null, precio_base: 180000, prioridad: 0 }];
+  var REGLAS_EJEMPLO = {
+    personas_incluidas: 5, precio_persona_extra: 5000,
+    minimo_noches: 2, porcentaje_anticipo: 50, edad_nino_max: 11
+  };
+
   var estado = {
     cabanas: EJEMPLO.cabanas,
+    tarifas: TARIFAS_EJEMPLO,
+    reglas: REGLAS_EJEMPLO,
     real: false,          // ¿son datos de la base o del ejemplo?
     error: null
   };
@@ -92,9 +104,113 @@
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
       '/rest/v1/ocupacion?select=cabana_id,desde,hasta&order=desde.asc';
   };
+  /* Precios y reglas. Antes la página los llevaba escritos a mano —$180.000 en
+     el hero, 5.000 por persona extra, mínimo 2 noches— y el cobro real lo hacía
+     `cotizar()` en Postgres. Bastaba con que José cambiara una tarifa en el
+     panel para que la web prometiera un precio y la pasarela cobrara otro. */
+  var tar = function () {
+    return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
+      '/rest/v1/tarifas?select=nombre,desde,hasta,precio_base,prioridad' +
+      '&activa=eq.true&order=prioridad.desc';
+  };
+  var reg = function () {
+    return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
+      '/rest/v1/reglas?select=personas_incluidas,precio_persona_extra,minimo_noches,' +
+      'porcentaje_anticipo,edad_nino_max&limit=1';
+  };
+
   var cabecera = function () {
     return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY };
   };
+
+  /* MISMO CRITERIO QUE `cotizar()` EN POSTGRES, a propósito y palabra por
+     palabra: `order by (desde is not null) desc, prioridad desc limit 1`. Una
+     temporada con fechas le gana siempre a la tarifa por defecto, aunque la de
+     por defecto tenga más prioridad; entre dos con fechas, la de más prioridad.
+     Si esto se separa de la función de la base, la página vuelve a mostrar un
+     número distinto del que se cobra, que es justo el problema que vino a
+     resolver. */
+  function precioNoche(fechaISO) {
+    var mejor = null;
+    for (var i = 0; i < estado.tarifas.length; i++) {
+      var t = estado.tarifas[i];
+      if (t.desde && fechaISO < t.desde) continue;
+      if (t.hasta && fechaISO > t.hasta) continue;   // `hasta` es inclusivo
+      if (!mejor) { mejor = t; continue; }
+      var conFecha = !!t.desde, mejorConFecha = !!mejor.desde;
+      if (conFecha !== mejorConFecha) { if (conFecha) mejor = t; continue; }
+      if ((t.prioridad || 0) > (mejor.prioridad || 0)) mejor = t;
+    }
+    return mejor ? mejor.precio_base : null;
+  }
+
+  /* El precio "de portada": el de la tarifa por defecto, la que no tiene
+     fechas. No se usa el mínimo ni el promedio de las temporadas porque el hero
+     dice "$X / noche" a secas, y ese es el precio de un día cualquiera. */
+  function precioBase() {
+    var sinFechas = estado.tarifas.filter(function (t) { return !t.desde && !t.hasta; });
+    sinFechas.sort(function (a, b) { return (b.prioridad || 0) - (a.prioridad || 0); });
+    return sinFechas.length ? sinFechas[0].precio_base : 180000;
+  }
+
+  /* Cotización local, para pintar algo mientras la de verdad viaja y para
+     cuando no hay red. Replica la regla de `cotizar()`: el recargo lo pagan los
+     ADULTOS que exceden los incluidos —los niños ocupan cama pero no suman— y
+     el precio se busca noche a noche, porque una estadía puede cruzar de
+     temporada. La cotización que manda sigue siendo la de la base. */
+  function cotizarLocal(desde, hasta, adultos, ninos) {
+    var r = estado.reglas || REGLAS_EJEMPLO;
+    var noches = Math.round((new Date(hasta) - new Date(desde)) / 86400000);
+    if (!(noches > 0)) return null;
+    var extra = Math.max(0, (adultos || 0) - r.personas_incluidas) * r.precio_persona_extra;
+    var total = 0, d = new Date(desde + 'T00:00:00');
+    for (var i = 0; i < noches; i++) {
+      var f = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+            + '-' + String(d.getDate()).padStart(2, '0');
+      var base = precioNoche(f);
+      if (base == null) return null;      // sin tarifa no se inventa un precio
+      total += base + extra;
+      d.setDate(d.getDate() + 1);
+    }
+    var anticipo = Math.round(total * (r.porcentaje_anticipo / 100));
+    return { ok: true, noches: noches, total: total, anticipo: anticipo, saldo: total - anticipo, local: true };
+  }
+
+  /* La cotización de verdad: la calcula Postgres, la misma función que usa el
+     panel y la que decide cuánto cobra Mercado Pago. `stable` y con permiso
+     para `anon`, así que la web puede preguntarla sin exponer nada. */
+  function cotizar(cabana, desde, hasta, adultos, ninos) {
+    if (!conectado()) return Promise.resolve(null);
+    return fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/cotizar', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, cabecera()),
+      body: JSON.stringify({
+        p_cabana: cabana, p_entrada: desde, p_salida: hasta,
+        p_adultos: adultos, p_ninos: ninos || 0
+      })
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+
+  /* El precio que Google enseña en el resultado de búsqueda sale del bloque
+     `application/ld+json` de la cabecera, que está escrito en el HTML y por
+     tanto también se quedaba fijo. Aquí se reescribe con el de la base en
+     cuanto llega, junto con el mínimo de noches y el porcentaje de anticipo
+     que aparecen en la descripción. Si el bloque no existe o cambió de forma,
+     no pasa nada: se deja como estaba. */
+  function marcado() {
+    try {
+      var et = document.querySelector('script[type="application/ld+json"]');
+      if (!et) return;
+      var d = JSON.parse(et.textContent);
+      if (!d || !d.makesOffer) return;
+      var r = estado.reglas || REGLAS_EJEMPLO;
+      d.makesOffer.price = String(precioBase());
+      d.makesOffer.description = 'Precio por noche. Estadía mínima ' + r.minimo_noches
+        + ' noches. Anticipo del ' + r.porcentaje_anticipo + '% para tomar la fecha.';
+      et.textContent = JSON.stringify(d, null, 2);
+    } catch (e) { /* el marcado nunca puede romper la página */ }
+  }
 
   /* Lee el catálogo y los bloqueos con la clave anónima. El schema da permiso
      columna por columna: id, cabana_id, desde, hasta. Nombre y teléfono quedan
@@ -110,10 +226,22 @@
       });
     };
 
-    return Promise.all([pide(cab()), pide(blo())])
+    /* Precios y reglas van con `catch` propio y no dentro del `Promise.all`
+       duro: si la tabla de tarifas fallara, el calendario y la disponibilidad
+       —que es lo que la gente viene a ver— tienen que seguir funcionando. */
+    var opcional = function (url, siFalla) {
+      return pide(url).catch(function () { return siFalla; });
+    };
+
+    return Promise.all([
+      pide(cab()), pide(blo()),
+      opcional(tar(), null), opcional(reg(), null),
+    ])
       .then(function (res) {
         var catalogo = soloArrendables(res[0]);   // SEGUNDO filtro
         var filas = res[1];
+        if (Array.isArray(res[2]) && res[2].length) estado.tarifas = res[2];
+        if (Array.isArray(res[3]) && res[3].length) estado.reglas = res[3][0];
         var porCabana = {};
         filas.forEach(function (f) {
           (porCabana[f.cabana_id] = porCabana[f.cabana_id] || []).push([f.desde, f.hasta]);
@@ -134,6 +262,7 @@
         }).filter(function (c) { return c.capacidad > 0; });
         estado.real = catalogo.length > 0;
         estado.error = null;
+        marcado();
         return estado;
       })
       .catch(function (e) {
@@ -156,6 +285,13 @@
     esReal: function () { return estado.real; },
     error: function () { return estado.error; },
     conectado: conectado,
-    cargar: cargar
+    cargar: cargar,
+
+    /* Precios. Ninguna página vuelve a escribir un número de estos a mano. */
+    reglas: function () { return estado.reglas || REGLAS_EJEMPLO; },
+    precioBase: precioBase,
+    precioNoche: precioNoche,
+    cotizarLocal: cotizarLocal,
+    cotizar: cotizar
   };
 })();

@@ -420,7 +420,7 @@ window.VA_OCUPACION = {
       <div style="font-family:'Manrope',sans-serif;font-size:30px;font-weight:800;margin-top:34px">8–9</div>
       <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:3px">Huéspedes por cabaña</div>
       <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:34px">desde</div>
-      <div style="font-family:'Manrope',sans-serif;font-size:clamp(22px, 2.2vw, 30px);font-weight:800;margin-top:3px;color:#f0c419;white-space:nowrap">$180.000 <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.85)">/ noche</span></div>
+      <div style="font-family:'Manrope',sans-serif;font-size:clamp(22px, 2.2vw, 30px);font-weight:800;margin-top:3px;color:#f0c419;white-space:nowrap">{{ precioDesde }} <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.85)">/ noche</span></div>
       <span style="display:block;width:100%;height:1px;background:rgba(255,255,255,0.5);margin-top:30px"></span>
     </div>
     <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:26px;top:96px;width:20%;color:#ffffff;font-size:13px;line-height:1.6;text-shadow:0 2px 10px rgba(0,0,0,0.5)">La escapada<br>de tu vida</div>
@@ -620,7 +620,19 @@ window.VA_OCUPACION = {
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:760},&quot;opacidadAventura&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:90,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;sombraValle&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:25,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;}}">class Component extends DCLogic {
   state = { gal: 0, prog: 0, cur: 0, navOpen: false, tourOn: false, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '' };
-  CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
+  /* Se calcula desde HOY, no se escribe a mano. La lista fija terminaba en
+     diciembre de 2026 mientras la base ya aceptaba reservas a un año vista: si
+     alguien quería marzo, el calendario simplemente no llegaba y no había
+     forma de pedirlo. Trece meses para que el año completo sea alcanzable
+     aunque estemos a fin de mes. */
+  CAL_MONTHS = (function () {
+    const hoy = new Date(), meses = [];
+    for (let i = 0; i < 13; i++) {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth() + i, 1);
+      meses.push([d.getFullYear(), d.getMonth()]);
+    }
+    return meses;
+  })();
   NAV_ITEMS = [
     { label: 'Inicio', sec: 0, path: 'M3 11 L12 3 L21 11 M5 9.5 V21 H19 V9.5 M10 21 V15 H14 V21' },
     { label: 'Reservas', sec: 1, path: 'M4 6 H20 V21 H4 Z M4 10 H20 M8 3.5 V7.5 M16 3.5 V7.5' },
@@ -637,6 +649,57 @@ window.VA_OCUPACION = {
     if (window.VA_DATOS) return window.VA_DATOS.cabanas();
     return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || [];
   }
+
+  /* ── Precios: los pone la base, no esta página ───────────────────────────
+     Los números vivían aquí escritos a mano (180.000 el hero, 5.000 la persona
+     extra, 2 el mínimo de noches) mientras el cobro real lo calculaba
+     `cotizar()` en Postgres. Bastaba con que José tocara una tarifa en el panel
+     para que la web prometiera un precio y Mercado Pago cobrara otro.
+
+     Peor todavía: esta página contaba a los niños como personas extra y el
+     teléfono no. La base tampoco los cuenta —un niño ocupa cama pero no paga
+     recargo—, así que el notebook mostraba de más. Dos páginas, dos precios,
+     ninguno el verdadero. */
+  REGLAS() {
+    return (window.VA_DATOS && window.VA_DATOS.reglas)
+      ? window.VA_DATOS.reglas()
+      : { personas_incluidas: 5, precio_persona_extra: 5000, minimo_noches: 2, porcentaje_anticipo: 50 };
+  }
+  minNoches() { return this.REGLAS().minimo_noches; }
+
+  /* Todo el dinero de la pantalla sale de aquí: el total, el abono y el saldo.
+     Un solo sitio, para que no puedan discrepar entre secciones. El desglose
+     por noche lo hace datos.js, que replica la regla de `cotizar()` —incluido
+     que una estadía puede cruzar de temporada y no todas las noches valen lo
+     mismo—. */
+  cotiza() {
+    const s = this.state, D = window.VA_DATOS, r = this.REGLAS();
+    const noches = (s.calStart && s.calEnd)
+      ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
+
+    const base = (D && s.calStart && D.precioNoche(s.calStart) != null)
+      ? D.precioNoche(s.calStart)
+      : (D ? D.precioBase() : 180000);
+    const extra = Math.max(0, s.guests - r.personas_incluidas) * r.precio_persona_extra;
+    const nightly = base + extra;
+
+    let total = noches * nightly;
+    if (noches > 0 && D && D.cotizarLocal) {
+      const c = D.cotizarLocal(s.calStart, s.calEnd, s.guests, s.kids);
+      if (c) total = c.total;
+    }
+    const half = Math.round(total * (r.porcentaje_anticipo / 100));
+    return {
+      nightly, noches, total, half, bal: total - half,
+      /* Para la nota del desglose: también salen de la base, porque "sobre el
+         5º" y "menores de 12" son política de negocio, no constantes. */
+      incluidas: r.personas_incluidas,
+      extraAdultos: Math.max(0, s.guests - r.personas_incluidas),
+      extraPorNoche: r.precio_persona_extra,
+      edadNino: (r.edad_nino_max != null ? r.edad_nino_max : 11) + 1
+    };
+  }
+
   cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
   groupSize() { return this.state.guests + this.state.kids; }
   fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
@@ -680,7 +743,7 @@ window.VA_OCUPACION = {
   rangeFree(inStr, nights) { return this.freeCabsRange(inStr, this.shiftDate(inStr, nights), this.fitCabs()).length > 0; }
   monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
   doSearch() {
-    const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
+    const s = this.state, minN = this.minNoches(), today = this.todayStr();
     if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Elige fecha de entrada y de salida.', searchMsg: '' }); return; }
     if (s.searchIn < today) { this.setState({ searchError: 'La fecha de entrada no puede ser en el pasado.', searchMsg: '' }); return; }
     if (s.searchOut <= s.searchIn) { this.setState({ searchError: 'La salida debe ser después de la entrada.', searchMsg: '' }); return; }
@@ -753,7 +816,7 @@ window.VA_OCUPACION = {
     if (ins[1] && b) ins[1].value = b;
   }
   pickDay(di) {
-    const s = this.state, minN = this.props.minNoches ?? 2;
+    const s = this.state, minN = this.minNoches();
     if (!s.calStart || (s.calStart && s.calEnd) || di <= s.calStart) {
       if (this.dayOcc(di)) { this.setState({ calError: 'Esa noche ya está reservada en todas las cabañas donde cabe tu grupo. Elige otra fecha de entrada.' }); return; }
       this.setState({ calStart: di, calEnd: null, calError: '' }); return;
@@ -793,11 +856,9 @@ window.VA_OCUPACION = {
     const selCab = c => { const g = Math.min(this.state.guests, c); this.setState({ cabin: c, guests: g, kids: Math.min(this.state.kids, c - g) }); };
     const availFor = cap => { const need = Math.max(cap, this.groupSize()); return this.OCC().filter(c => c.capacidad >= need).filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length; };
     const subTxt = n => n === 0 ? ((s.calStart && s.calEnd) ? 'Sin disponibilidad en esas fechas' : 'No disponible para tu grupo') : n === 1 ? '1 cabaña disponible' : n + ' cabañas disponibles';
-    const baseP = this.props.precioBase ?? 180000, extraP = this.props.extraPersona ?? 5000;
-    const extraAdults = Math.min(s.guests, Math.max(0, s.guests + s.kids - 5));
-    const nightly = baseP + extraAdults * extraP;
-    const bkNights = s.calStart && s.calEnd ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
-    const bkTotal = bkNights * nightly, bkHalf = Math.round(bkTotal / 2), bkBal = bkTotal - bkHalf;
+    const q = this.cotiza();
+    const nightly = q.nightly, bkNights = q.noches;
+    const bkTotal = q.total, bkHalf = q.half, bkBal = q.bal;
     const vw = this.state.vw || (typeof window !== 'undefined' ? window.innerWidth : 1400);
     const w = Math.min(1240, vw - 164);
     const tabW = Math.min(784, w - 160);
@@ -851,7 +912,7 @@ window.VA_OCUPACION = {
       bkNights, bkCabTxt: 'Para ' + s.cabin + ' personas',
       bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
       bkNightlyFmt: this.fmt(nightly), bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf), bkBalFmt: this.fmt(bkBal),
-      bkExtraNote: extraAdults > 0 ? 'Incluye +' + this.fmt(extraP) + '/noche por cada adulto sobre el 5º (los niños −12 no suman extra)' : false,
+      bkExtraNote: q.extraAdultos > 0 ? 'Incluye +' + this.fmt(q.extraPorNoche) + '/noche por cada adulto sobre el ' + q.incluidas + 'º (los niños −' + q.edadNino + ' no suman extra)' : false,
       nombre: s.nombre, email: s.email, fono: s.fono,
       setNombre: e => this.setState({ nombre: e.target.value }),
       setEmail: e => this.setState({ email: e.target.value }),
@@ -909,7 +970,9 @@ window.VA_OCUPACION = {
       kPlus: () => this.setState({ kids: Math.min(s.cabin - s.guests, s.kids + 1) }),
       pick8: () => selCab(8),
       pick9: () => selCab(9),
-      cab8Sub: subTxt(availFor(8)), cab9Sub: subTxt(availFor(9)), minNoches: this.props.minNoches ?? 2,
+      cab8Sub: subTxt(availFor(8)), cab9Sub: subTxt(availFor(9)), minNoches: this.minNoches(),
+      /* El precio de portada sale de la tarifa por defecto de la base. */
+      precioDesde: this.fmt(window.VA_DATOS ? window.VA_DATOS.precioBase() : 180000),
       cab8Bg: s.cabin === 8 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab9Bg: s.cabin === 9 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
       cab8Border: s.cabin === 8 ? '1.5px solid #3fc8da' : '1px solid rgba(255,255,255,0.3)',

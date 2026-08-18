@@ -540,7 +540,7 @@
       <div data-anim="up" data-anim-delay="0.2" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.25);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px)">
         <div>
           <div style="font-size:9.5px;color:rgba(255,255,255,0.75)">desde</div>
-          <div style="font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#f0c419;white-space:nowrap">$180.000 <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85)">/ noche</span></div>
+          <div style="font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#f0c419;white-space:nowrap">{{ precioDesde }} <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85)">/ noche</span></div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
           <div style="font-size:14px;font-weight:800;white-space:nowrap">8–9 <span style="font-size:9.5px;font-weight:600;color:rgba(255,255,255,0.75)">huéspedes</span></div>
@@ -797,7 +797,19 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;yearSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:24,&quot;max&quot;:90,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;}}">
 class Component extends DCLogic {
   state = { gal: 0, calM: 0, calStart: null, calEnd: null, guests: 0, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', viveOpen: -1, buscando: false, buscado: false, avisoPersonas: false };
-  CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
+  /* Se calcula desde HOY, no se escribe a mano. La lista fija terminaba en
+     diciembre de 2026 mientras la base ya aceptaba reservas a un año vista: si
+     alguien quería marzo, el calendario simplemente no llegaba y no había
+     forma de pedirlo. Trece meses para que el año completo sea alcanzable
+     aunque estemos a fin de mes. */
+  CAL_MONTHS = (function () {
+    const hoy = new Date(), meses = [];
+    for (let i = 0; i < 13; i++) {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth() + i, 1);
+      meses.push([d.getFullYear(), d.getMonth()]);
+    }
+    return meses;
+  })();
 
   CAB_GAL = ['img-5798-2.webp','img-5639-jpg-1-2.webp','img-5651-jpg-2.webp',
     '20221028123202-img-4961-1-2.webp','20221028121841-img-4945-1-2-39a52ee2.webp',
@@ -822,6 +834,57 @@ class Component extends DCLogic {
     if (window.VA_DATOS) return window.VA_DATOS.cabanas();
     return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || [];
   }
+
+  /* ── Precios: los pone la base, no esta página ───────────────────────────
+     Los números vivían aquí escritos a mano (180.000 el hero, 5.000 la persona
+     extra, 2 el mínimo de noches) mientras el cobro real lo calculaba
+     `cotizar()` en Postgres. Bastaba con que José tocara una tarifa en el panel
+     para que la web prometiera un precio y Mercado Pago cobrara otro.
+
+     Peor todavía: esta página contaba a los niños como personas extra y el
+     teléfono no. La base tampoco los cuenta —un niño ocupa cama pero no paga
+     recargo—, así que el notebook mostraba de más. Dos páginas, dos precios,
+     ninguno el verdadero. */
+  REGLAS() {
+    return (window.VA_DATOS && window.VA_DATOS.reglas)
+      ? window.VA_DATOS.reglas()
+      : { personas_incluidas: 5, precio_persona_extra: 5000, minimo_noches: 2, porcentaje_anticipo: 50 };
+  }
+  minNoches() { return this.REGLAS().minimo_noches; }
+
+  /* Todo el dinero de la pantalla sale de aquí: el total, el abono y el saldo.
+     Un solo sitio, para que no puedan discrepar entre secciones. El desglose
+     por noche lo hace datos.js, que replica la regla de `cotizar()` —incluido
+     que una estadía puede cruzar de temporada y no todas las noches valen lo
+     mismo—. */
+  cotiza() {
+    const s = this.state, D = window.VA_DATOS, r = this.REGLAS();
+    const noches = (s.calStart && s.calEnd)
+      ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
+
+    const base = (D && s.calStart && D.precioNoche(s.calStart) != null)
+      ? D.precioNoche(s.calStart)
+      : (D ? D.precioBase() : 180000);
+    const extra = Math.max(0, s.guests - r.personas_incluidas) * r.precio_persona_extra;
+    const nightly = base + extra;
+
+    let total = noches * nightly;
+    if (noches > 0 && D && D.cotizarLocal) {
+      const c = D.cotizarLocal(s.calStart, s.calEnd, s.guests, s.kids);
+      if (c) total = c.total;
+    }
+    const half = Math.round(total * (r.porcentaje_anticipo / 100));
+    return {
+      nightly, noches, total, half, bal: total - half,
+      /* Para la nota del desglose: también salen de la base, porque "sobre el
+         5º" y "menores de 12" son política de negocio, no constantes. */
+      incluidas: r.personas_incluidas,
+      extraAdultos: Math.max(0, s.guests - r.personas_incluidas),
+      extraPorNoche: r.precio_persona_extra,
+      edadNino: (r.edad_nino_max != null ? r.edad_nino_max : 11) + 1
+    };
+  }
+
   cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
   groupSize() { return this.state.guests + this.state.kids; }
   fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
@@ -871,7 +934,7 @@ class Component extends DCLogic {
   rangeFree(inStr, nights) { return this.freeCabsRange(inStr, this.shiftDate(inStr, nights), this.fitCabs()).length > 0; }
   monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
   doSearch() {
-    const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
+    const s = this.state, minN = this.minNoches(), today = this.todayStr();
     if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Primero marca tu entrada y tu salida en el calendario de abajo.', searchMsg: '' }); return; }
     if (s.searchIn < today) { this.setState({ searchError: 'La fecha de entrada no puede ser en el pasado.', searchMsg: '' }); return; }
     if (s.searchOut <= s.searchIn) { this.setState({ searchError: 'La salida debe ser después de la entrada.', searchMsg: '' }); return; }
@@ -964,7 +1027,7 @@ class Component extends DCLogic {
     if (ins[1] && b) ins[1].value = b;
   }
   pickDay(di) {
-    const s = this.state, minN = this.props.minNoches ?? 2;
+    const s = this.state, minN = this.minNoches();
     if (!s.calStart || (s.calStart && s.calEnd)) { this.setState({ calStart: di, calEnd: null, calError: '', buscado: false }); return; }
     if (di <= s.calStart) { this.setState({ calStart: di, calEnd: null, calError: '', buscado: false }); return; }
     /* Red de seguridad: los días inalcanzables ya salen deshabilitados en
@@ -1103,13 +1166,14 @@ class Component extends DCLogic {
       .filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length;
     const conFechas = !!(s.calStart && s.calEnd);
     const sinGente = this.groupSize() === 0;
-    const baseP = this.props.precioBase ?? 180000, extraP = this.props.extraPersona ?? 5000;
-    const nightly = baseP + Math.max(0, s.guests - 5) * extraP;
-    const bkNights = s.calStart && s.calEnd ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
-    const bkTotal = bkNights * nightly, bkHalf = Math.round(bkTotal / 2);
+    const q = this.cotiza();
+    const nightly = q.nightly, bkNights = q.noches;
+    const bkTotal = q.total, bkHalf = q.half;
     const g = s.gal;
     return {
       yearSize,
+      /* El precio de portada sale de la tarifa por defecto de la base. */
+      precioDesde: this.fmt(window.VA_DATOS ? window.VA_DATOS.precioBase() : 180000),
       tourUrl: 'https://my.matterport.com/show/?m=UCuZEHFc1Xp&play=1&title=0&brand=0&help=0',
       tourOn: !!s.tourOn,
       tourOff: !s.tourOn,
@@ -1235,7 +1299,7 @@ class Component extends DCLogic {
          que creerse. Con "2 × $180.000" se comprueba de un vistazo. */
       bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
       bkBalFmt: this.fmt(bkTotal - bkHalf),
-      bkExtraNote: s.guests > 5 ? 'Incluye +' + this.fmt(extraP) + '/noche por cada adulto sobre el 5º (los niños −12 no suman extra)' : false,
+      bkExtraNote: q.extraAdultos > 0 ? 'Incluye +' + this.fmt(q.extraPorNoche) + '/noche por cada adulto sobre el ' + q.incluidas + 'º (los niños −' + q.edadNino + ' no suman extra)' : false,
       bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
       nombre: s.nombre, email: s.email, fono: s.fono,
       setNombre: e => this.setState({ nombre: e.target.value }),

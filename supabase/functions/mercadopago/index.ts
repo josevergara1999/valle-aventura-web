@@ -12,8 +12,14 @@
  * --------------------------------------------------
  * `back_urls` depende de que el cliente vuelva. Cierra la pestaña, se queda
  * sin batería o pierde la señal en la montaña, y la reserva nunca se confirma
- * aunque haya pagado. El webhook llega igual, y reintenta. La vuelta del
- * cliente sirve solo para ENSEÑARLE algo; la verdad la escribe el webhook.
+ * aunque haya pagado. La vuelta del cliente sirve solo para ENSEÑARLE algo;
+ * nunca es la que escribe "pagado".
+ *
+ * ...PERO EL WEBHOOK TAMPOCO MANDA SOLO
+ * -------------------------------------
+ * El 17-ago-2026 un pago real se acreditó y el webhook no llegó nunca. Por eso
+ * la verdad se establece PREGUNTANDO a Mercado Pago (ruta `conciliar`), y el
+ * webhook queda como el atajo rápido cuando sí llama. Ver la ruta 2.
  *
  * DESPLIEGUE
  *   supabase functions deploy mercadopago --no-verify-jwt
@@ -33,7 +39,15 @@ const MP = 'https://api.mercadopago.com';
    configurarlas ni ponerlas en ningún archivo. La de servicio se salta RLS,
    y por eso vive aquí —en el servidor— y nunca en la página. */
 const SB_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SB_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
+/* `SUPABASE_SERVICE_ROLE_KEY` es la que inyecta Supabase sola, pero en este
+   proyecto es de la generación vieja y ya no vale: PostgREST la rechaza y cae a
+   `anon`, que no tiene permiso sobre `bloqueos`. La buena es la `sb_secret_`,
+   guardada a mano como `VA_SERVICE_KEY` —la misma que usa la función de avisos—.
+   Se prueba esa primero y la vieja queda de reserva. Este error costó caro dos
+   veces: se manifiesta como "no se pudo leer" sin decir que es de permisos. */
+const SB_KEY = Deno.env.get('VA_SERVICE_KEY')
+            ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
 /* Llama a una función de Postgres. Toda la lógica de reservas vive allí y no
    aquí: la misma función la usan la web, el panel y mañana el bot, y si cada
@@ -212,7 +226,88 @@ Deno.serve(async (req) => {
     }
   }
 
-  /* ── 2. Webhook: la única fuente de verdad sobre si se pagó ───────────── */
+  /* ── 2. Conciliación: la red de seguridad cuando el webhook no llega ───
+     El 17-ago-2026 un pago real quedó acreditado en Mercado Pago y la reserva
+     siguió `pendiente`: el webhook nunca llegó a esta función (cero registros,
+     con el pago ya aprobado). Depender de que un tercero nos llame es depender
+     de algo que no controlamos.
+
+     Aquí la pregunta va al revés: le preguntamos NOSOTROS a Mercado Pago si esa
+     reserva está pagada. Por eso esta ruta puede ser pública sin riesgo — no
+     confirma nada por lo que diga quien llama, sino por lo que responde la API
+     de Mercado Pago. Pedirla para una reserva impaga no hace absolutamente nada.
+
+     La llaman dos: `gracias.html` cuando el cliente vuelve del pago (cubre el
+     caso normal, al instante) y un cron cada dos minutos que barre las
+     pendientes (cubre al que cerró la pestaña). */
+  if (ruta === 'conciliar' && (req.method === 'POST' || req.method === 'GET')) {
+    try {
+      const cuerpo = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+      const unaRef = String(cuerpo?.ref ?? url.searchParams.get('ref') ?? '').trim();
+
+      let refs: string[];
+      if (unaRef) {
+        refs = [unaRef];
+      } else {
+        /* Barrido completo: esto sí necesita autorización, porque lista
+           reservas. La ruta con `ref` no lista nada. */
+        /* El barrido no lleva clave propia y no hace falta: no DEVUELVE ningún
+           identificador, solo cuántas revisó y cuántas confirmó. Quien lo llame
+           no se entera de nada que no supiera. Lo único que puede provocar es
+           que le preguntemos a Mercado Pago por hasta 50 reservas, y eso lo
+           acota el propio filtro de abajo. */
+
+        /* Solo las de la última hora: más atrás la reserva ya caducó y soltó la
+           fecha, y confirmarla ahí sería vender una noche que quizá ya se
+           vendió. Ese caso se revisa a mano. */
+        const desde = new Date(Date.now() - 3600_000).toISOString();
+        const r = await fetch(
+          `${SB_URL}/rest/v1/bloqueos?select=id&estado=eq.pendiente&pago_medio=eq.mercadopago`
+          + `&creado_at=gt.${desde}&limit=50`,
+          { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
+        );
+        /* Si esto falla es casi siempre permisos: `service_role` necesita
+           GRANT SELECT (id, estado, pago_medio, creado_at) ON bloqueos. Los
+           revoke que endurecieron el esquema se lo habían quitado, y el error
+           que devuelve PostgREST no dice "permisos" en ninguna parte. */
+        if (!r.ok) return json({ error: 'no se pudo leer las pendientes', estado: r.status }, 500);
+        refs = (await r.json()).map((x: { id: string }) => String(x.id));
+      }
+
+      const confirmadas: string[] = [];
+      for (const ref of refs) {
+        const b = await fetch(
+          `${MP}/v1/payments/search?external_reference=${encodeURIComponent(ref)}&sort=date_created&criteria=desc&limit=5`,
+          { headers: { Authorization: `Bearer ${TOKEN}` } },
+        );
+        if (!b.ok) continue;
+        const pagos = (await b.json())?.results ?? [];
+        const pago = pagos.find((p: { status: string }) => p.status === 'approved');
+        if (!pago) continue;
+
+        try {
+          // Idempotente: si el webhook llegó a tiempo, esto no hace nada.
+          const res = await rpc('confirmar_reserva', {
+            p_id: ref, p_pago_ref: String(pago.id), p_medio: 'mercadopago',
+          });
+          if (!res?.ya_estaba) confirmadas.push(ref);
+          console.log(JSON.stringify({ evento: 'conciliada', ref, id: pago.id, ya_estaba: res?.ya_estaba }));
+        } catch (e) {
+          console.error(JSON.stringify({
+            evento: 'DEVOLVER_DINERO', ref, id: pago.id,
+            monto: pago.transaction_amount, motivo: String((e as Error).message),
+          }));
+        }
+      }
+      /* Con `ref` se devuelve cuál se confirmó —quien pregunta ya la conocía—;
+         en el barrido solo el número, para no repartir ids de reservas. */
+      return json({ revisadas: refs.length, confirmadas: unaRef ? confirmadas : confirmadas.length });
+    } catch (e) {
+      return json({ error: String((e as Error).message ?? e) }, 500);
+    }
+  }
+
+  /* ── 3. Webhook: la vía rápida cuando Mercado Pago sí nos llama ────────── */
   if (ruta === 'webhook' && req.method === 'POST') {
     try {
       const cuerpo = await req.json().catch(() => ({}));

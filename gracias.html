@@ -115,6 +115,20 @@ a.bt{display:flex;align-items:center;justify-content:center;min-height:48px;padd
   document.getElementById('acciones').innerHTML = c.bts.map(function(b){
     return '<a class="bt ' + b[0] + '" href="' + b[2] + '">' + b[1] + '</a>';
   }).join('');
+
+  /* El cliente vuelve de pagar: aprovechamos que está aquí para pedirle al
+     servidor que le pregunte a Mercado Pago si esa reserva quedó pagada.
+     No es esta página la que confirma nada —solo pide que se revise—, y la
+     respuesta la da la API de Mercado Pago, no el navegador. Es una red de
+     seguridad: el 17-ago-2026 un pago real se acreditó y el webhook no llegó
+     nunca. Si el webhook sí llegó, esto no hace nada (es idempotente). */
+  if (orden && (estado === 'ok' || estado === 'pendiente')) {
+    fetch('https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago/conciliar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: orden }),
+    }).catch(function(){ /* si falla, el barrido del servidor la agarra igual */ });
+  }
 })();
 </script>
 </body>

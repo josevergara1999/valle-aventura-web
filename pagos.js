@@ -28,7 +28,12 @@
    
        Mientras esté comentada, la página lleva la reserva a WhatsApp con las
        fechas ya escritas, que es lo que de verdad pasa hoy. */
-    mercadopago: 'https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago',
+    /* APAGADO 17-ago-2026. Un pago real entro correctamente (.000, operacion
+       173438683867) pero la reserva se quedo en 'pendiente': el webhook no la
+       confirmo. El cliente vio "Reserva confirmada" --esa pantalla la pinta la
+       vuelta del cliente, no la verdad-- y la fecha se solto sola a la media
+       hora. Cobrar sin confirmar es peor que no cobrar. */
+    mercadopago: '',
     // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/webpay
     webpay: ''
   };

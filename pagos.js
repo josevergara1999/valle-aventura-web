@@ -25,10 +25,10 @@
        existan los secretos MP_ACCESS_TOKEN y MP_WEBHOOK_SECRET; sin ellos
        responde 503. Para activar el pago online, cuando Mercado Pago apruebe
        la cuenta, basta con quitar las dos barras de la línea de abajo:
-       // mercadopago: 'https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago',
+   
        Mientras esté comentada, la página lleva la reserva a WhatsApp con las
        fechas ya escritas, que es lo que de verdad pasa hoy. */
-    mercadopago: '',
+    mercadopago: 'https://wxxlqszadprwizporhbg.supabase.co/functions/v1/mercadopago',
     // p. ej. https://wxxlqszadprwizporhbg.supabase.co/functions/v1/webpay
     webpay: ''
   };

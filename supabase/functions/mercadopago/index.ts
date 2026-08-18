@@ -173,8 +173,12 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           items: [{
             id: ref,
-            title: `Cabaña Valle Aventura · ${noches} ${noches === 1 ? 'noche' : 'noches'}`,
-            description: `Del ${b.desde} al ${b.hasta} · anticipo 50%`,
+            /* SIN ACENTOS A PROPOSITO. La API de Mercado Pago decodifica el
+               cuerpo como latin-1 aunque se declare charset=utf-8, y el titulo
+               llegaba al cliente como "CabaA+-a Valle Aventura A- 2 noches"
+               justo en la pantalla donde paga. Un texto ASCII se lee bien. */
+            title: `Cabana Valle Aventura - ${noches} ${noches === 1 ? 'noche' : 'noches'}`,
+            description: `Del ${b.desde} al ${b.hasta} - anticipo 50%`,
             quantity: 1,
             currency_id: 'CLP',
             unit_price: monto,

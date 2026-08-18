@@ -289,6 +289,7 @@ Deno.serve(async (req) => {
           // Idempotente: si el webhook llegó a tiempo, esto no hace nada.
           const res = await rpc('confirmar_reserva', {
             p_id: ref, p_pago_ref: String(pago.id), p_medio: 'mercadopago',
+            p_monto: Math.round(Number(pago.transaction_amount)),
           });
           if (!res?.ya_estaba) confirmadas.push(ref);
           console.log(JSON.stringify({ evento: 'conciliada', ref, id: pago.id, ya_estaba: res?.ya_estaba }));
@@ -346,6 +347,8 @@ Deno.serve(async (req) => {
           p_id: ref,
           p_pago_ref: String(pago.id),
           p_medio: 'mercadopago',
+          // Lo que cobro Mercado Pago, no lo que decia la cotizacion.
+          p_monto: Math.round(Number(pago.transaction_amount)),
         });
         console.log(JSON.stringify({ evento: 'reserva_confirmada', ref, id: pago.id, ya_estaba: res?.ya_estaba }));
       } catch (e) {

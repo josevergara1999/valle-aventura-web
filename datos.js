@@ -113,7 +113,8 @@
      panel para que la web prometiera un precio y la pasarela cobrara otro. */
   var tar = function () {
     return CONFIG.SUPABASE_URL.replace(/\/$/, '') +
-      '/rest/v1/tarifas?select=nombre,desde,hasta,precio_base,prioridad' +
+      '/rest/v1/tarifas?select=id,nombre,desde,hasta,precio_base,prioridad,' +
+      'desde_dia,desde_mes,hasta_dia,hasta_mes' +
       '&activa=eq.true&order=prioridad.desc';
   };
   var reg = function () {
@@ -126,34 +127,81 @@
     return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY };
   };
 
-  /* MISMO CRITERIO QUE `cotizar()` EN POSTGRES, a propósito y palabra por
-     palabra: `order by (desde is not null) desc, prioridad desc limit 1`. Una
-     temporada con fechas le gana siempre a la tarifa por defecto, aunque la de
-     por defecto tenga más prioridad; entre dos con fechas, la de más prioridad.
-     Si esto se separa de la función de la base, la página vuelve a mostrar un
-     número distinto del que se cobra, que es justo el problema que vino a
-     resolver. */
+  /* MISMO CRITERIO QUE `tarifa_de()` EN POSTGRES, a proposito y palabra por
+     palabra. Si esto se separa de la funcion de la base, la pagina vuelve a
+     mostrar un numero distinto del que se cobra, que es justo el problema que
+     vino a resolver.
+
+     Tres niveles de especificidad, de mas a menos:
+       2 · rango con anio exacto  → la excepcion puntual
+       1 · temporada recurrente   → dia y mes, se repite todos los anios
+       0 · base sin fechas        → la red de seguridad
+     Dentro del mismo nivel manda la prioridad, y si empatan, el id: el mismo
+     desempate estable que hace Postgres, para que la web no pueda elegir una
+     temporada distinta de la que cobrara la pasarela. */
   function precioNoche(fechaISO) {
-    var mejor = null;
+    var f = new Date(fechaISO + 'T00:00:00');
+    /* El dia del anio como numero MMDD: el 15 de junio es 615. Asi el rango
+       se compara sin que el anio estorbe. */
+    var md = (f.getMonth() + 1) * 100 + f.getDate();
+    var mejor = null, nivelMejor = -1;
+
     for (var i = 0; i < estado.tarifas.length; i++) {
-      var t = estado.tarifas[i];
-      if (t.desde && fechaISO < t.desde) continue;
-      if (t.hasta && fechaISO > t.hasta) continue;   // `hasta` es inclusivo
-      if (!mejor) { mejor = t; continue; }
-      var conFecha = !!t.desde, mejorConFecha = !!mejor.desde;
-      if (conFecha !== mejorConFecha) { if (conFecha) mejor = t; continue; }
-      if ((t.prioridad || 0) > (mejor.prioridad || 0)) mejor = t;
+      var t = estado.tarifas[i], nivel, aplica;
+
+      if (t.desde || t.hasta) {
+        nivel  = 2;
+        aplica = (!t.desde || fechaISO >= t.desde) &&
+                 (!t.hasta || fechaISO <= t.hasta);   // `hasta` es inclusivo
+      } else if (t.desde_mes) {
+        nivel = 1;
+        var dd = t.desde_mes * 100 + t.desde_dia;
+        /* "Hasta el 28 de febrero" quiere decir hasta que se acabe febrero.
+           Sin esta linea, en anio bisiesto el 29 se queda fuera de la
+           temporada y se vende al precio base: una noche de plena alta de
+           verano al precio mas bajo del anio, cada cuatro anios, sin que
+           nadie lo note hasta que ya paso. */
+        var hh = (t.hasta_mes === 2 && t.hasta_dia >= 28)
+                   ? 229
+                   : t.hasta_mes * 100 + t.hasta_dia;
+        /* Cuando la temporada CRUZA EL ANIO NUEVO —la alta de verano, del 15
+           de diciembre al 28 de febrero— su inicio es mayor que su fin. Un
+           rango ingenuo daria vacio justo en las noches mas caras del anio. */
+        aplica = dd <= hh ? (md >= dd && md <= hh) : (md >= dd || md <= hh);
+      } else {
+        nivel = 0; aplica = true;
+      }
+
+      if (!aplica) continue;
+      if (!mejor || nivel > nivelMejor) { mejor = t; nivelMejor = nivel; continue; }
+      if (nivel < nivelMejor) continue;
+
+      var pt = t.prioridad || 0, pm = mejor.prioridad || 0;
+      if (pt > pm) mejor = t;
+      else if (pt === pm && String(t.id) < String(mejor.id)) mejor = t;
     }
     return mejor ? mejor.precio_base : null;
   }
 
-  /* El precio "de portada": el de la tarifa por defecto, la que no tiene
-     fechas. No se usa el mínimo ni el promedio de las temporadas porque el hero
-     dice "$X / noche" a secas, y ese es el precio de un día cualquiera. */
+  /* El precio "de portada", el del hero. Antes era la tarifa por defecto: la
+     unica que habia. Con temporadas esa tarifa puede no cobrarse NUNCA —si las
+     temporadas cubren el anio entero, la base queda de red de seguridad y de
+     nada mas—, y el hero estaria anunciando un precio que no existe.
+
+     Ahora es el MINIMO de los proximos doce meses, que es lo que la palabra
+     "desde" promete. Se recorren los 365 dias con la misma `precioNoche()` que
+     cobra en vez de mirar la tabla: una temporada tapada por otra no aparece,
+     igual que no aparecera en la factura. */
   function precioBase() {
-    var sinFechas = estado.tarifas.filter(function (t) { return !t.desde && !t.hasta; });
-    sinFechas.sort(function (a, b) { return (b.prioridad || 0) - (a.prioridad || 0); });
-    return sinFechas.length ? sinFechas[0].precio_base : 180000;
+    var min = null, d = new Date();
+    for (var i = 0; i < 365; i++) {
+      var f = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+            + '-' + String(d.getDate()).padStart(2, '0');
+      var p = precioNoche(f);
+      if (p != null && (min === null || p < min)) min = p;
+      d.setDate(d.getDate() + 1);
+    }
+    return min !== null ? min : 180000;
   }
 
   /* Cotización local, para pintar algo mientras la de verdad viaja y para

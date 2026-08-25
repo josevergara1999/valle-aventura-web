@@ -183,25 +183,26 @@
     return mejor ? mejor.precio_base : null;
   }
 
-  /* El precio "de portada", el del hero. Antes era la tarifa por defecto: la
-     unica que habia. Con temporadas esa tarifa puede no cobrarse NUNCA —si las
-     temporadas cubren el anio entero, la base queda de red de seguridad y de
-     nada mas—, y el hero estaria anunciando un precio que no existe.
+  /* El precio "de portada", el del hero: el de la temporada que rige HOY.
+     Es el numero que ve alguien que entra sin haber elegido fechas todavia.
 
-     Ahora es el MINIMO de los proximos doce meses, que es lo que la palabra
-     "desde" promete. Se recorren los 365 dias con la misma `precioNoche()` que
-     cobra en vez de mirar la tabla: una temporada tapada por otra no aparece,
-     igual que no aparecera en la factura. */
+     Estuvo un rato siendo el MINIMO de los proximos doce meses, y era
+     defendible sobre el papel —"desde" promete el mas barato del anio— pero
+     en la practica es cebo: el 25 de agosto anunciaba $100.000 y quien
+     reservaba para septiembre pagaba $180.000. Ver un precio y que te cobren
+     otro no se lee como una temporada distinta, se lee como una trampa.
+
+     Al reves no pasa nada: quien entra en agosto viendo $180.000 y busca
+     fechas de abril se encuentra $100.000, y esa sorpresa juega a favor.
+
+     La palabra "desde" del hero sigue siendo cierta: el precio sube con los
+     adultos que pasan de los incluidos. */
   function precioBase() {
-    var min = null, d = new Date();
-    for (var i = 0; i < 365; i++) {
-      var f = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
-            + '-' + String(d.getDate()).padStart(2, '0');
-      var p = precioNoche(f);
-      if (p != null && (min === null || p < min)) min = p;
-      d.setDate(d.getDate() + 1);
-    }
-    return min !== null ? min : 180000;
+    var h = new Date();
+    var hoy = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0')
+            + '-' + String(h.getDate()).padStart(2, '0');
+    var p = precioNoche(hoy);
+    return p != null ? p : 180000;
   }
 
   /* Cotización local, para pintar algo mientras la de verdad viaja y para

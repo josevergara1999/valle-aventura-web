@@ -270,6 +270,42 @@
       .catch(function () { return null; });
   }
 
+  /* ---- Cotizaciones con precio pactado ----------------------------------
+     José cierra por WhatsApp a un precio que no es el de la web y le manda un
+     código. Aquí solo se pregunta: el precio, quién es y si sigue valiendo lo
+     decide Postgres. Esta función no puede rebajar nada por su cuenta, y esa
+     es exactamente la idea. */
+  function cotizacion(codigo, nombre) {
+    if (!conectado()) return Promise.resolve(null);
+    return fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/cotizacion_ver', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, cabecera()),
+      body: JSON.stringify({ p_codigo: codigo, p_nombre: nombre })
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+
+  /* Los textos de por qué un código no sirve, en UN solo sitio. La base
+     devuelve el motivo en seco (`vencida`, `ya_usada`) y quien lo enseñe usa
+     esto: la página al canjear y la función de pago al cobrar dan el mismo
+     motivo, así que tienen que dar la misma frase.
+
+     "No encontramos esa cotización" vale para el código que no existe Y para
+     el nombre que no cuadra, a propósito: si se distinguieran, el formulario
+     serviría para averiguar qué códigos hay. */
+  var MOTIVOS = {
+    no_encontrada:    'No encontramos esa cotización. Revisa que el nombre y el código estén tal cual te los enviamos.',
+    vencida:          'Esa cotización ya venció. Escríbenos por WhatsApp y te hacemos una nueva.',
+    ya_usada:         'Ese código ya se usó para tomar una reserva.',
+    anulada:          'Esa cotización ya no está disponible. Escríbenos por WhatsApp.',
+    fecha_pasada:     'Las fechas de esa cotización ya pasaron.',
+    ya_no_disponible: 'Esas fechas se ocuparon mientras tanto. Escríbenos y buscamos otras.',
+    noche_extra_no_disponible: 'La noche extra ya no está libre. Puedes seguir con tus fechas originales.'
+  };
+  function motivoCotizacion(m) {
+    return MOTIVOS[m] || 'No pudimos abrir esa cotización. Escríbenos por WhatsApp.';
+  }
+
   /* El precio que Google enseña en el resultado de búsqueda sale del bloque
      `application/ld+json` de la cabecera, que está escrito en el HTML y por
      tanto también se quedaba fijo. Aquí se reescribe con el de la base en
@@ -371,6 +407,10 @@
     precioNoche: precioNoche,
     recargoPasarela: recargoPasarela,
     cotizarLocal: cotizarLocal,
-    cotizar: cotizar
+    cotizar: cotizar,
+
+    /* Cotizaciones con precio pactado. */
+    cotizacion: cotizacion,
+    motivoCotizacion: motivoCotizacion
   };
 })();

@@ -130,7 +130,17 @@ Deno.serve(async (req) => {
   if (ruta === 'crear' && req.method === 'POST') {
     try {
       const b = await req.json();
-      if (!b.desde || !b.hasta || !b.nombre || !b.email) return json({ error: 'Faltan datos de la reserva' }, 400);
+
+      /* Con codigo de cotizacion las fechas NO vienen de la pagina: vienen de
+         lo que Jose pacto. Pedirlas aqui seria darle a la peticion la ultima
+         palabra sobre que noches se cobran al precio rebajado. */
+      const codigo = String(b.codigo ?? '').trim().toUpperCase();
+      const conCodigo = codigo.length > 0;
+
+      if (!b.nombre || !b.email) return json({ error: 'Faltan datos de la reserva' }, 400);
+      if (!conCodigo && (!b.desde || !b.hasta)) {
+        return json({ error: 'Faltan datos de la reserva' }, 400);
+      }
 
       /* PRIMERO se aparta la cabaña, DESPUÉS se cobra. Al revés, dos personas
          pueden pagar la misma noche y una se queda sin dónde dormir.
@@ -140,16 +150,38 @@ Deno.serve(async (req) => {
          falla más abajo. */
       let reserva;
       try {
-        reserva = await rpc('solicitar_reserva', {
-          p_desde: b.desde,
-          p_hasta: b.hasta,
-          p_adultos: Number(b.adultos ?? b.personas ?? 0),
-          p_ninos: Number(b.ninos ?? 0),
-          p_nombre: b.nombre,
-          p_telefono: b.fono ?? b.telefono ?? '',
-          p_email: b.email,
-          p_medio: 'mercadopago',
-        });
+        if (conCodigo) {
+          /* Funcion aparte, no la de siempre. `solicitar_reserva` lleva
+             cobrando desde agosto y no se toca: la de cotizaciones valida el
+             codigo, el nombre, que siga sin usarse y que las fechas sigan
+             libres, y saca el precio de la tabla — nunca de esta peticion. */
+          reserva = await rpc('solicitar_reserva_cotizada', {
+            p_codigo: codigo,
+            p_nombre: b.nombre,
+            p_noche_extra: b.noche_extra === true,
+            p_telefono: b.fono ?? b.telefono ?? '',
+            p_email: b.email,
+            p_medio: 'mercadopago',
+          });
+          /* Esta devuelve el fallo dentro del objeto en vez de lanzarlo, para
+             poder distinguir "el codigo no existe" de "se cayo la base". El
+             motivo va crudo: los textos para el cliente estan en un solo sitio,
+             en `datos.js`. */
+          if (!reserva?.ok) {
+            return json({ error: 'cotizacion', motivo: reserva?.motivo ?? 'no_encontrada' }, 409);
+          }
+        } else {
+          reserva = await rpc('solicitar_reserva', {
+            p_desde: b.desde,
+            p_hasta: b.hasta,
+            p_adultos: Number(b.adultos ?? b.personas ?? 0),
+            p_ninos: Number(b.ninos ?? 0),
+            p_nombre: b.nombre,
+            p_telefono: b.fono ?? b.telefono ?? '',
+            p_email: b.email,
+            p_medio: 'mercadopago',
+          });
+        }
       } catch (e) {
         // El mensaje viene de la base y ya está escrito para el cliente
         // ("La estadía mínima es de 2 noches", "No queda ninguna cabaña...").
@@ -186,8 +218,13 @@ Deno.serve(async (req) => {
          buscarla por fechas y nombre. */
       const ref = String(reserva.id);
 
+      /* De la reserva ya creada y no del cuerpo de la peticion: con codigo el
+         cuerpo no trae fechas, y si el cliente acepto la noche extra tampoco
+         coincidirian con las pactadas. */
+      const fDesde = String(reserva.desde ?? b.desde);
+      const fHasta = String(reserva.hasta ?? b.hasta);
       const noches = Math.max(1, Math.round(
-        (new Date(b.hasta + 'T00:00:00').getTime() - new Date(b.desde + 'T00:00:00').getTime()) / 86400000,
+        (new Date(fHasta + 'T00:00:00').getTime() - new Date(fDesde + 'T00:00:00').getTime()) / 86400000,
       ));
 
       const r = await fetch(`${MP}/checkout/preferences`, {
@@ -209,7 +246,7 @@ Deno.serve(async (req) => {
                llegaba al cliente como "CabaA+-a Valle Aventura A- 2 noches"
                justo en la pantalla donde paga. Un texto ASCII se lee bien. */
             title: `Cabana Valle Aventura - ${noches} ${noches === 1 ? 'noche' : 'noches'}`,
-            description: `Del ${b.desde} al ${b.hasta} - anticipo 50%`,
+            description: `Del ${fDesde} al ${fHasta} - anticipo 50%`,
             quantity: 1,
             currency_id: 'CLP',
             unit_price: monto,

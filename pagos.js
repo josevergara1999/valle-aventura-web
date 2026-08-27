@@ -76,7 +76,16 @@
 
   function leer(r) {
     return r.json().then(function (d) {
-      if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+      if (!r.ok) {
+        var e = new Error(d.error || ('HTTP ' + r.status));
+        /* El motivo viaja aparte del mensaje. Cuando falla una cotizacion la
+           funcion devuelve el motivo en seco (`vencida`, `ya_usada`) para que
+           el texto lo ponga `datos.js` y sea el MISMO que se ve al canjear.
+           Sin esto, el cliente lee una frase al meter el codigo y otra
+           distinta al pagar por la misma causa. */
+        e.motivo = d.motivo;
+        throw e;
+      }
       return d;
     });
   }

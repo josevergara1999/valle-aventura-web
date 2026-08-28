@@ -829,17 +829,17 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { if (this._animTimer) clearInterval(this._animTimer); }
   GAL = [
-    ['IMG_2558-2.jpg', 'Living'],
-    ['IMG_2559-2.jpg', 'Living'],
-    ['IMG_2565 (1)-2.jpg', 'Living'],
-    ['IMG_2557-2.jpg', 'Cocina'],
-    ['IMG_2590-2.jpg', 'Cocina'],
-    ['IMG_2569-2.jpg', 'Habitación 1'],
-    ['IMG_2571-2.jpg', 'Habitación 1'],
-    ['IMG_2578-2.jpg', 'Habitación 2'],
-    ['IMG_2584-2.jpg', 'Habitación 2'],
-    ['IMG_2585-2.jpg', 'Habitación 3'],
-    ['PSX_20211023_160323-1 (1)-2.jpg', 'Habitación 3']
+    ['img-2558-2.webp', 'Living'],
+    ['img-2559-2.webp', 'Living'],
+    ['img-2565-1-2.webp', 'Living'],
+    ['img-2557-2.webp', 'Cocina'],
+    ['img-2590-2.webp', 'Cocina'],
+    ['img-2569-2.webp', 'Habitación 1'],
+    ['img-2571-2.webp', 'Habitación 1'],
+    ['img-2578-2.webp', 'Habitación 2'],
+    ['img-2584-2.webp', 'Habitación 2'],
+    ['img-2585-2.webp', 'Habitación 3'],
+    ['psx-20211023-160323-1-1-2.webp', 'Habitación 3']
   ];
   renderVals() {
     const s = this.state;
@@ -899,7 +899,7 @@ class Component extends DCLogic {
       calStartTxt: s.calStart ? this.fmtDate(s.calStart) : '—',
       calEndTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
       ...this.actVals(),
-      cabFotos: ['IMG_5798-2.jpg','IMG_5639.JPG (1)-2.jpg','IMG_5651.JPG-2.jpg','20221028123202_IMG_4961 (1)-2.jpg','20221028121841_IMG_4945 (1)-2-39a52ee2.jpg','IMG_7692-2.jpg','Res-2.jpg','WhatsApp Image 2026-06-13 at 2.34.39 PM-2.jpg','20211126125339_IMG_3870-2-2.jpg','20220124133723_IMG_4343-2-7a252455.jpg','20221028121416_IMG_4933 (1)-2-4ab1fe67.jpg','20221028121649_IMG_4941-2-1a78f0cf.jpg','IMG_5485 (1)-2-63961128.jpg'].map(f => ({ bgStyle: { flex: '0 0 100%', width: '100%', height: 340, scrollSnapAlign: 'start', backgroundImage: 'url("uploads/' + encodeURIComponent(f) + '")', backgroundSize: 'cover', backgroundPosition: 'center' } })),
+      cabFotos: ['img-5798-2.webp','img-5639-jpg-1-2.webp','img-5651-jpg-2.webp','20221028123202-img-4961-1-2.webp','20221028121841-img-4945-1-2-39a52ee2.webp','img-7692-2.webp','res-2.webp','whatsapp-image-2026-06-13-at-2-34-39-pm-2.webp','20211126125339-img-3870-2-2.webp','20220124133723-img-4343-2-7a252455.webp','20221028121416-img-4933-1-2-4ab1fe67.webp','20221028121649-img-4941-2-1a78f0cf.webp','img-5485-1-2-63961128.webp'].map(f => ({ bgStyle: { flex: '0 0 100%', width: '100%', height: 340, scrollSnapAlign: 'start', backgroundImage: 'url("uploads/' + encodeURIComponent(f) + '")', backgroundSize: 'cover', backgroundPosition: 'center' } })),
       searchIn: s.searchIn, searchOut: s.searchOut, todayMin: this.todayStr(),
       setSearchIn: e => this.setState({ searchIn: e.target.value, searchError: '' }),
       setSearchOut: e => this.setState({ searchOut: e.target.value, searchError: '' }),

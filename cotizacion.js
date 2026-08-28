@@ -129,6 +129,7 @@
   }
 
   function pintarCotizacion(c, nombre) {
+    var dentro = abrirPopup();
     /* En un objeto y no en una variable suelta: el manejador de pagar se
        crea antes de que la ruleta se acepte, y una copia leeria false. */
     var aceptadoRef = { v: false };
@@ -226,7 +227,9 @@
       el.addEventListener('rechazar', function () { aceptadoRef.v = false; pintarCuentas(false); });
     }
 
-    dentro.querySelector('#cot-otro').addEventListener('click', function () { pintarFormulario(); });
+    dentro.querySelector('#cot-otro').addEventListener('click', function () {
+      cerrarPopup(); pintarFormulario();
+    });
     dentro.querySelector('#cot-pagar').addEventListener('click', function () {
       var email = dentro.querySelector('#cot-email').value.trim();
       var err = dentro.querySelector('#cot-error');
@@ -281,6 +284,44 @@
   /* La ruleta vive fuera de la tarjeta: es un pop-up a pantalla completa y
      tiene que poder taparlo todo. */
   var ruleta = null;
+
+  /* La cotizacion se enseña en un pop-up, igual que la reserva normal del
+     sitio. Las medidas salen del propio HTML —velo rgba(6,14,24,.74), tarjeta
+     de 400px, borde a .25, radio 16, padding 20/18 y 88vh de alto maximo— para
+     que sea el mismo objeto y no uno parecido. */
+  var velo = null;
+  function abrirPopup() {
+    if (velo) return velo.querySelector('.cot-cuerpo');
+    velo = document.createElement('div');
+    velo.setAttribute('role', 'dialog');
+    velo.setAttribute('aria-modal', 'true');
+    velo.setAttribute('aria-label', 'Tu reserva');
+    velo.setAttribute('style', 'position:fixed;inset:0;z-index:90;' +
+      'background:rgba(6,14,24,0.74);display:flex;align-items:center;' +
+      'justify-content:center;padding:14px;box-sizing:border-box');
+    var tarjeta = document.createElement('div');
+    tarjeta.className = 'cot-cuerpo';
+    tarjeta.setAttribute('style', 'width:100%;max-width:400px;background:#0e1c30;' +
+      'border:1px solid rgba(255,255,255,0.25);border-radius:16px;padding:20px 18px;' +
+      'box-sizing:border-box;box-shadow:0 40px 90px rgba(0,0,0,0.6);color:#ffffff;' +
+      "font-family:'Manrope',sans-serif;max-height:88vh;overflow:auto");
+    velo.appendChild(tarjeta);
+    /* Se cierra tocando fuera y con Escape, como el de reservar. */
+    velo.addEventListener('click', function (e) { if (e.target === velo) cerrarPopup(); });
+    document.addEventListener('keydown', escPopup);
+    document.body.appendChild(velo);
+    document.body.style.overflow = 'hidden';
+    return tarjeta;
+  }
+  function escPopup(e) { if (e.key === 'Escape') cerrarPopup(); }
+  function cerrarPopup() {
+    if (!velo) return;
+    document.removeEventListener('keydown', escPopup);
+    if (velo.parentNode) velo.parentNode.removeChild(velo);
+    velo = null;
+    document.body.style.overflow = '';
+  }
+
   function laRuleta() {
     if (!ruleta) {
       ruleta = document.createElement('va-ruleta');

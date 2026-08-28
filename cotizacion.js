@@ -267,12 +267,22 @@
      que no vale con insertarlo una vez: hay que vigilar que siga puesto. Es la
      misma razon por la que `mejoras.js` trabaja por delegacion. */
   function anclaReservar() {
+    /* El boton que cierra el cotizador NO se llama igual en las dos paginas:
+       en el escritorio es "Reservar esta cabaña" y en el telefono "Buscar
+       disponibilidad". Buscar solo uno dejaba el movil sin nada, que es por
+       donde entra casi todo el mundo.
+
+       Y "Reservar" a secas NO vale: en el movil ese es el de la cabecera, que
+       ademas viene en versalitas y le pegaba el uppercase al formulario. */
     var bs = document.querySelectorAll('button, a');
+    var mejor = null, masAbajo = -1;
     for (var i = 0; i < bs.length; i++) {
       var t = (bs[i].textContent || '').trim();
-      if (t.indexOf('Reservar esta caba') === 0) return bs[i];
+      if (t.indexOf('Reservar esta caba') !== 0 && t.indexOf('Buscar disponibilidad') !== 0) continue;
+      var y = bs[i].getBoundingClientRect().top + (window.scrollY || 0);
+      if (y > masAbajo) { masAbajo = y; mejor = bs[i]; }
     }
-    return null;
+    return mejor;
   }
 
   function montar() {

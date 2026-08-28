@@ -59,42 +59,72 @@
               'letter-spacing:1px;text-transform:uppercase;font-family:inherit;cursor:pointer';
 
   function pintarFormulario(error) {
+    /* Sin titulo ni explicacion: la etiqueta del campo ya lo dice todo, y
+       quien tiene un codigo no necesita que le cuenten de donde salio. */
     dentro.innerHTML =
-      '<h2 style="font-family:Raleway,system-ui,sans-serif;font-size:24px;' +
-      'font-weight:800;margin:0 0 6px">¿Tienes un código?</h2>' +
-      '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:rgba(255,255,255,0.65)">' +
-      'Si conversamos por WhatsApp y te pasamos un código, escríbelo aquí y ' +
-      'te mostramos el precio que acordamos.</p>' +
-      (error ? '<p role="alert" style="margin:0 0 16px;padding:12px 14px;' +
-        'border-radius:8px;background:#f6e3df;color:#8c3a2e;font-size:14px;' +
-        'line-height:1.45">' + esc(error) + '</p>' : '') +
-      '<label style="' + rotulo + '">Código' +
-      /* En mayúsculas y monoespaciada: el código se copia a mano desde
-         WhatsApp y así se ve si sobró un espacio. */
-      '<input id="cot-codigo" type="text" autocomplete="off" placeholder="VA-0000" ' +
-      'style="' + campo + ';text-transform:uppercase;letter-spacing:.08em;' +
-      'font-family:ui-monospace,Menlo,Consolas,monospace"></label>' +
-      '<button id="cot-ver" type="button" style="' + boton + '">Ver mi precio</button>';
+      (error ? '<p role="alert" style="margin:0 0 12px;padding:11px 13px;' +
+        'border-radius:9px;background:rgba(214,84,64,0.22);color:#ffc9c0;' +
+        'font-size:13.5px;line-height:1.45">' + esc(error) + '</p>' : '') +
+      '<label style="' + rotulo + '" for="cot-codigo">Ingresa tu código de reserva</label>' +
+      /* El boton VA DENTRO de la caja, pegado al campo: el borde es del
+         contenedor y el input va sin el suyo. Asi se lee como una sola pieza
+         —escribe aqui y pulsa ahi— en vez de dos cosas sueltas. */
+      '<div style="display:flex;align-items:stretch;margin-top:6px;' +
+      'border:1px solid rgba(255,255,255,0.28);border-radius:10px;' +
+      'background:rgba(255,255,255,0.08);overflow:hidden">' +
+        '<input id="cot-codigo" type="text" autocomplete="off" placeholder="VA-0000" ' +
+        'maxlength="7" style="flex:1;min-width:0;background:transparent;border:0;' +
+        'outline:none;padding:13px 14px;font-size:16px;color:' + TINTA + ';' +
+        'text-transform:uppercase;letter-spacing:.08em;' +
+        'font-family:ui-monospace,Menlo,Consolas,monospace">' +
+        '<button id="cot-validar" type="button" style="flex:none;border:0;' +
+        'border-left:1px solid rgba(255,255,255,0.22);background:' + ORO + ';' +
+        'color:#22271f;font-family:inherit;font-size:12.5px;font-weight:800;' +
+        'letter-spacing:1px;text-transform:uppercase;padding:0 16px;cursor:pointer">' +
+        'Validar</button>' +
+      '</div>' +
+      '<div id="cot-estado" style="margin-top:8px;font-size:13px;color:' + SUAVE + '"></div>';
 
-    dentro.querySelector('#cot-ver').addEventListener('click', canjear);
-    dentro.querySelector('#cot-codigo').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') canjear();
+    var campoCod = dentro.querySelector('#cot-codigo');
+    dentro.querySelector('#cot-validar').addEventListener('click', canjear);
+    campoCod.addEventListener('keydown', function (e) {
+      /* Enter tambien valida: con el teclado del telefono abierto, el boton
+         puede quedar debajo y no verse. */
+      if (e.key === 'Enter') { e.preventDefault(); canjear(); }
+    });
+  }
+
+  /* El campo, ya validado, se convierte en el boton de reservar: es el mismo
+     sitio y el mismo gesto, sin un paso intermedio que no aporta. */
+  function pintarBotonReservar(c) {
+    dentro.innerHTML =
+      '<div style="font-size:13px;color:' + SUAVE + ';margin-bottom:8px">' +
+        esc(c.cabana) + ' &middot; ' + fecha(c.desde) + ' al ' + fecha(c.hasta) +
+        ' &middot; ' + clp(c.precio_noche) + ' la noche</div>' +
+      '<button id="cot-reservar" type="button" style="' + boton + '">Reservar ahora</button>';
+    dentro.querySelector('#cot-reservar').addEventListener('click', function () {
+      pintarCotizacion(c, c.nombre || '');
     });
   }
 
   function canjear() {
-    var codigo = dentro.querySelector('#cot-codigo').value.trim().toUpperCase();
-    if (!codigo) return pintarFormulario('Escribe el código que te enviamos.');
+    var campoCod = dentro.querySelector('#cot-codigo');
+    if (!campoCod) return;
+    var codigo = campoCod.value.trim().toUpperCase();
+    if (!codigo) return;
     /* Sin nombre: el codigo basta. Quien lo tiene es porque se lo mandamos. */
-    var nombre = '';
+    var estado = dentro.querySelector('#cot-estado');
+    var bt = dentro.querySelector('#cot-validar');
+    estado.textContent = 'Comprobando...';
+    campoCod.disabled = true;
+    if (bt) { bt.disabled = true; bt.style.opacity = '.6'; }
 
-    var b = dentro.querySelector('#cot-ver');
-    b.disabled = true; b.textContent = 'Buscando...';
-
-    D.cotizacion(codigo, nombre).then(function (c) {
-      if (!c) return pintarFormulario('No pudimos conectar. Revisa tu señal e inténtalo de nuevo.');
-      if (!c.ok) return pintarFormulario(D.motivoCotizacion(c.motivo));
-      pintarCotizacion(c, nombre);
+    D.cotizacion(codigo, '').then(function (c) {
+      campoCod.disabled = false;
+      if (bt) { bt.disabled = false; bt.style.opacity = '1'; }
+      if (!c) { estado.textContent = 'No pudimos conectar. Revisa tu señal.'; return; }
+      if (!c.ok) { estado.textContent = D.motivoCotizacion(c.motivo); campoCod.focus(); return; }
+      pintarBotonReservar(c);
     });
   }
 

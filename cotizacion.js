@@ -128,84 +128,126 @@
     });
   }
 
+  /* La MISMA vista que el resumen de reserva del sitio: la lista de dt/dd, el
+     50/50 en dos tarjetas del mismo peso, el recargo antes de la cifra grande.
+     Las clases y medidas salen del propio HTML, no las elegí yo — si esto se
+     pareciera "bastante" en vez de ser igual, se notaría al momento.
+
+     Lo único que se añade es el botón de la ruleta y el nombre de quien
+     reserva, que aquí sí se sabe. */
   function pintarCotizacion(c, nombre) {
     var dentro = abrirPopup();
-    /* En un objeto y no en una variable suelta: el manejador de pagar se
-       crea antes de que la ruleta se acepte, y una copia leeria false. */
-    var aceptadoRef = { v: false };
     var extra = c.noche_extra;
-    var linea = function (izq, der, fuerte) {
-      return '<div style="display:flex;justify-content:space-between;gap:16px;' +
-        'padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.14);font-size:15px' +
-        (fuerte ? ';font-weight:700;font-size:17px;border-bottom:0' : '') + '">' +
-        '<span>' + izq + '</span><span>' + der + '</span></div>';
+    /* En un objeto y no en una variable suelta: el manejador de pagar se crea
+       antes de que la ruleta se acepte, y una copia leería false. */
+    var aceptadoRef = { v: false };
+
+    var fila = function (k, v, opts) {
+      opts = opts || {};
+      return '<div style="display:flex;justify-content:space-between;gap:12px' +
+        (opts.separa ? ';border-top:1px solid rgba(255,255,255,0.18);padding-top:9px' : '') +
+        (opts.grande ? ';font-size:16px' : '') +
+        (opts.chica ? ';font-size:12.5px' : '') + '">' +
+        '<dt style="color:rgba(255,255,255,0.65);margin:0">' + k + '</dt>' +
+        '<dd style="margin:0"><b' + (opts.tenue ? ' style="color:rgba(255,255,255,0.85)"' : '') +
+        '>' + v + '</b></dd></div>';
     };
 
+    var recargo = (D.recargoPasarela && window.VA_PAGOS) ? D.recargoPasarela(c.anticipo) : 0;
+    var total = c.total, anticipo = c.anticipo, saldo = c.saldo;
+
     dentro.innerHTML =
-      '<p style="margin:0 0 4px;font-size:14px;color:rgba(255,255,255,0.65)">Hola ' +
-        esc(String(c.nombre).split(/\s+/)[0]) + ',</p>' +
-      '<h2 style="font-family:Raleway,system-ui,sans-serif;font-size:24px;' +
-      'font-weight:800;margin:0 0 20px">este es el precio que acordamos</h2>' +
+      '<div style="font-size:10px;letter-spacing:1.8px;font-weight:800;' +
+        'text-transform:uppercase;color:#7fd6e2">Tu precio acordado</div>' +
+      '<h2 style="font-family:Raleway,system-ui,sans-serif;font-size:21px;' +
+        'font-weight:800;margin:6px 0 0;line-height:1.2">Reserva de ' +
+        esc(c.nombre || nombre || '') + '</h2>' +
+      '<div style="font-size:11.5px;color:rgba(255,255,255,0.6);margin:4px 0 14px">' +
+        'Código ' + esc(c.codigo) + '</div>' +
 
-      '<div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:12px;' +
-      'padding:18px 18px 14px">' +
-        '<div style="font-family:Raleway,system-ui,sans-serif;font-size:19px;' +
-        'font-weight:800;margin-bottom:2px">' + esc(c.cabana) + '</div>' +
-        '<div style="font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:14px">' +
-          'Del ' + fecha(c.desde) + ' al ' + fecha(c.hasta) +
-          ' &middot; ' + c.noches + (c.noches === 1 ? ' noche' : ' noches') +
-          ' &middot; ' + c.personas + (c.personas === 1 ? ' persona' : ' personas') +
-        '</div>' +
+      '<dl id="cot-detalle" style="margin:0;background:rgba(255,255,255,0.07);' +
+        'border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:14px 16px;' +
+        'display:flex;flex-direction:column;gap:9px;font-size:13px"></dl>' +
 
-        (extra
-          ? '<button type="button" id="cot-ruleta" style="display:flex;gap:11px;' +
-            'align-items:center;width:100%;box-sizing:border-box;padding:13px;' +
-            'margin-bottom:14px;border:1px solid ' + ORO + ';border-radius:9px;' +
-            'background:rgba(240,196,25,0.12);cursor:pointer;font-family:inherit;text-align:left">' +
-            '<span style="width:34px;height:34px;flex:none;border-radius:50%;' +
-            'background:' + ORO + ';color:#22271f;display:flex;align-items:center;' +
-            'justify-content:center;font-family:Raleway,sans-serif;font-weight:800;' +
-            'font-size:17px">?</span>' +
-            '<span style="font-size:14px;line-height:1.45">' +
-              '<b id="cot-ruleta-tit">Participa por una noche extra</b><br>' +
-              '<span id="cot-ruleta-sub" style="color:rgba(255,255,255,0.65)">Toca para descubrir tu beneficio</span>' +
-            '</span></button>'
-          : '') +
+      /* El botón de la ruleta, entre el detalle y las dos tarjetas del 50/50:
+         es lo último que puede cambiar el precio antes de pagarlo. */
+      (extra
+        ? '<button type="button" id="cot-ruleta" style="display:flex;gap:11px;' +
+          'align-items:center;width:100%;box-sizing:border-box;padding:12px 13px;' +
+          'margin-top:10px;border:1px solid rgba(240,196,25,0.55);border-radius:12px;' +
+          'background:rgba(240,196,25,0.12);cursor:pointer;font-family:inherit;' +
+          'text-align:left;color:#ffffff">' +
+          '<span style="width:32px;height:32px;flex:none;border-radius:50%;' +
+          'background:' + ORO + ';color:#22271f;display:flex;align-items:center;' +
+          'justify-content:center;font-family:Raleway,sans-serif;font-weight:800;' +
+          'font-size:16px">?</span>' +
+          '<span style="font-size:13px;line-height:1.45">' +
+            '<b id="cot-ruleta-tit">Participa por una noche extra</b><br>' +
+            '<span id="cot-ruleta-sub" style="color:rgba(255,255,255,0.65);font-size:11.5px">' +
+            'Toca para descubrir tu beneficio</span>' +
+          '</span></button>'
+        : '') +
 
-        '<div id="cot-cuentas">' +
-          linea(c.noches + ' &times; ' + clp(c.precio_noche), clp(c.total)) +
-          linea('Abonas ahora', clp(c.anticipo), true) +
-          '<div style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:2px">' +
-            'Y ' + clp(c.saldo) + ' al llegar a la cabaña.</div>' +
-        '</div>' +
-      '</div>' +
+      '<div id="cot-5050" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"></div>' +
 
-      '<label style="' + rotulo + ';margin-top:16px">Tu correo' +
-      '<input id="cot-email" type="email" autocomplete="email" style="' + campo + '"></label>' +
+      '<label style="display:block;font-size:12.5px;font-weight:700;' +
+        'color:rgba(255,255,255,0.65);margin:14px 0 0">Tu correo' +
+      '<input id="cot-email" type="email" autocomplete="email" style="width:100%;' +
+        'box-sizing:border-box;margin-top:8px;padding:14px 16px;border-radius:999px;' +
+        'border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.08);' +
+        'color:#ffffff;font-size:15px;font-family:inherit;outline:none"></label>' +
       '<div id="cot-error"></div>' +
       '<button id="cot-pagar" type="button" style="' + boton + '">Pagar el abono</button>' +
       '<button id="cot-otro" type="button" style="' + boton + ';background:transparent;' +
-      'color:rgba(255,255,255,0.65);font-weight:600;border:1px solid rgba(255,255,255,0.28);margin-top:8px">' +
-      'Usar otro código</button>';
+        'color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.28);' +
+        'margin-top:8px">Usar otro código</button>';
 
-    /* Las cuentas se repintan al marcar la noche extra, pero con los números
-       que YA vino diciendo la base — no se multiplica nada aquí. Y al pagar se
-       vuelve a validar todo en Postgres: esto es solo lo que se ve. */
+    /* El detalle y el 50/50 se repintan enteros al aceptar la noche extra: son
+       las dos cosas que cambian, y rehacerlas juntas evita que una quede con
+       la cifra vieja. */
+    function pintarNumeros(conExtra) {
+      var t = conExtra && extra ? extra.total_con_extra : total;
+      var a = Math.round(t * (anticipo / total));
+      var r = (D.recargoPasarela && window.VA_PAGOS) ? D.recargoPasarela(a) : 0;
+
+      dentro.querySelector('#cot-detalle').innerHTML =
+        fila('Fechas', fecha(c.desde) + ' → ' + fecha(conExtra && extra ? extra.hasta : c.hasta)) +
+        fila('Noches', String(c.noches + (conExtra && extra ? 1 : 0))) +
+        fila('Cabaña', esc(c.cabana)) +
+        fila('Huéspedes', c.adultos + (c.adultos === 1 ? ' adulto' : ' adultos') +
+             (c.ninos ? ' y ' + c.ninos + (c.ninos === 1 ? ' niño' : ' niños') : '')) +
+        fila('Noches × tarifa', c.noches + ' × ' + clp(c.precio_noche), { separa: true }) +
+        (conExtra && extra
+          ? fila('Noche extra (' + extra.pct + '%)', clp(extra.precio))
+          : '') +
+        fila('Total', clp(t), { grande: true }) +
+        (r > 0 ? fila('Comisión de la pasarela', '+' + clp(r), { chica: true, tenue: true }) : '');
+
+      dentro.querySelector('#cot-5050').innerHTML =
+        '<div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);' +
+          'border-radius:12px;padding:12px 13px">' +
+          '<div style="font-size:10px;letter-spacing:1.6px;font-weight:800;' +
+          'text-transform:uppercase;color:#7fd6e2">Pagas ahora</div>' +
+          '<div style="font-size:18px;font-weight:800;margin-top:4px;color:#7fd6e2">' +
+          clp(a + r) + '</div>' +
+          '<div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">' +
+          (r > 0 ? '50% + comisión' : '50% del total') + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);' +
+          'border-radius:12px;padding:12px 13px">' +
+          '<div style="font-size:10px;letter-spacing:1.6px;font-weight:800;' +
+          'text-transform:uppercase;color:rgba(255,255,255,0.7)">Al llegar</div>' +
+          '<div style="font-size:18px;font-weight:800;margin-top:4px">' + clp(t - a) + '</div>' +
+          '<div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px">' +
+          'en la cabaña</div>' +
+        '</div>';
+    }
+    pintarNumeros(false);
+
     if (extra) {
-      var pintarCuentas = function (on) {
-        var total = on ? extra.total_con_extra : c.total;
-        var anticipo = Math.round(total * (c.anticipo / c.total));
-        dentro.querySelector('#cot-cuentas').innerHTML =
-          linea(c.noches + ' &times; ' + clp(c.precio_noche), clp(c.total)) +
-          (on ? linea('Noche extra (' + extra.pct + '%)', clp(extra.precio)) : '') +
-          linea('Abonas ahora', clp(anticipo), true) +
-          '<div style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:2px">Y ' +
-          clp(total - anticipo) + ' al llegar a la cabaña.</div>';
-      };
-
       var el = laRuleta();
-      /* El premio SIEMPRE viene de la cotizacion: la ruleta lo revela, no lo
-         sortea. Si esta pantalla eligiera el gajo, el descuento lo decidiria
+      /* El premio SIEMPRE viene de la cotización: la ruleta lo revela, no lo
+         sortea. Si esta pantalla eligiera el gajo, el descuento lo decidiría
          el navegador del cliente. */
       dentro.querySelector('#cot-ruleta').addEventListener('click', function () {
         el.abrir({
@@ -219,29 +261,33 @@
       });
       el.addEventListener('aceptar', function () {
         aceptadoRef.v = true;
-        pintarCuentas(true);
+        pintarNumeros(true);
         dentro.querySelector('#cot-ruleta-tit').textContent =
           extra.pct === 100 ? 'Noche extra gratis' : 'Noche extra al ' + extra.pct + '%';
         dentro.querySelector('#cot-ruleta-sub').textContent = 'Ya está sumada a tu reserva';
       });
-      el.addEventListener('rechazar', function () { aceptadoRef.v = false; pintarCuentas(false); });
+      el.addEventListener('rechazar', function () {
+        aceptadoRef.v = false;
+        pintarNumeros(false);
+      });
     }
 
     dentro.querySelector('#cot-otro').addEventListener('click', function () {
       cerrarPopup(); pintarFormulario();
     });
+
     dentro.querySelector('#cot-pagar').addEventListener('click', function () {
       var email = dentro.querySelector('#cot-email').value.trim();
       var err = dentro.querySelector('#cot-error');
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        err.innerHTML = '<p style="margin:14px 0 0;font-size:14px;color:#8c3a2e">' +
+        err.innerHTML = '<p style="margin:12px 0 0;font-size:12.5px;color:#ffc9c0">' +
           'Escribe un correo válido: ahí te llega la confirmación.</p>';
         return;
       }
       err.innerHTML = '';
 
       if (!window.VA_PAGOS) {
-        err.innerHTML = '<p style="margin:14px 0 0;font-size:14px;color:#8c3a2e">' +
+        err.innerHTML = '<p style="margin:12px 0 0;font-size:12.5px;color:#ffc9c0">' +
           'El pago en línea no está disponible ahora. Escríbenos por WhatsApp.</p>';
         return;
       }
@@ -253,36 +299,22 @@
          si aquí mandáramos la cifra, cambiarla sería cosa de un momento. */
       window.VA_PAGOS.iniciar({
         codigo: c.codigo,
-        nombre: nombre,
+        nombre: c.nombre || nombre,
         email: email,
-        noche_extra: !!(extra && aceptadoRef.v)
+        noche_extra: aceptadoRef.v
       }).catch(function (e) {
         b.disabled = false; b.textContent = 'Pagar el abono';
-        /* Si el fallo es de la cotizacion, el texto sale de la misma tabla
-           que se uso al canjear: la causa es una y la frase tambien. */
+        /* Si el fallo es de la cotización, el texto sale de la misma tabla que
+           se usó al canjear: la causa es una y la frase también. */
         var texto = e && e.motivo
           ? D.motivoCotizacion(e.motivo)
           : (e && e.message) || 'No pudimos iniciar el pago. Inténtalo de nuevo.';
-        err.innerHTML = '<p style="margin:14px 0 0;font-size:14px;color:#8c3a2e">' +
+        err.innerHTML = '<p style="margin:12px 0 0;font-size:12.5px;color:#ffc9c0">' +
           esc(texto) + '</p>';
       });
     });
   }
 
-  /* SOLO se monta si el enlace trae `#cotizacion`, que es exactamente el que
-     José manda por WhatsApp con cada código. Quien entra a la web normal no ve
-     nada.
-
-     No es timidez: esta maquetación es provisional —se ve como una caja pegada
-     al final, con sus propios colores— y el diseño de verdad va a ser un pop-up
-     hecho en Claude Design. Mientras tanto, quien tiene un código puede pagar y
-     los otros 380 visitantes del día no se encuentran una sección a medio
-     terminar en un sitio que está vendiendo.
-
-     Cuando llegue el pop-up, esto pasa a abrirse desde un enlace junto al botón
-     de reservar y se quita esta condición. */
-  /* La ruleta vive fuera de la tarjeta: es un pop-up a pantalla completa y
-     tiene que poder taparlo todo. */
   var ruleta = null;
 
   /* La cotizacion se enseña en un pop-up, igual que la reserva normal del

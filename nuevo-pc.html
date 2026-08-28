@@ -45,7 +45,7 @@ window.VA_OCUPACION = {
 };
 </script>
 <script src="./actividades-data.js?v=1"></script>
-<script src="ruleta.js"></script>
+
 </helmet>
 <div data-screen-label="Hero Valle Aventura" style="font-family:'Manrope',sans-serif;background:#0d1b2e;display:flex;align-items:center;justify-content:center;box-sizing:border-box;position:relative;z-index:5;padding:34px 26px 0">
   <div style="position:relative;width:100%;max-width:1240px;height:640px;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);background:#1a2430">
@@ -874,6 +874,11 @@ window.VA_OCUPACION = {
        Mercado Pago, que pregunta a la MISMA funcion de Postgres. */
     const q = this.cotiza();
     const nightly = q.nightly, bkNights = q.noches;
+    /* El diseño las definia junto al precio fijo que se quito. Se siguen
+       usando en el desglose ("Incluye +$5.000 por persona"), asi que salen de
+       `cotiza()`, que las lee de las reglas de la base: el recargo y a partir
+       de cuantos adultos se aplica son politica del negocio, no constantes. */
+    const extraAdults = q.extraAdultos, extraP = q.extraPorNoche;
 
     /* La noche extra de la ruleta. El porcentaje no lo decide la pagina: viene
        de la cotizacion que Jose preparo para esta persona. Sin cotizacion no

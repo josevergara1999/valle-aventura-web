@@ -39,7 +39,7 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
 };
 </script>
 <script src="./actividades-data.js?v=1"></script>
-<script src="ruleta.js"></script>
+
 </helmet>
 <div style="font-family:'Manrope',sans-serif;background:#0d1b2e;max-width:430px;margin:0 auto;position:relative;padding:10px 10px 26px">
 
@@ -858,6 +858,11 @@ class Component extends DCLogic {
        Mercado Pago, que pregunta a la MISMA funcion de Postgres. */
     const q = this.cotiza();
     const nightly = q.nightly, bkNights = q.noches;
+    /* El diseño las definia junto al precio fijo que se quito. Se siguen
+       usando en el desglose ("Incluye +$5.000 por persona"), asi que salen de
+       `cotiza()`, que las lee de las reglas de la base: el recargo y a partir
+       de cuantos adultos se aplica son politica del negocio, no constantes. */
+    const extraAdults = q.extraAdultos, extraP = q.extraPorNoche;
 
     /* La noche extra de la ruleta. El porcentaje no lo decide la pagina: viene
        de la cotizacion que Jose preparo para esta persona. Sin cotizacion no

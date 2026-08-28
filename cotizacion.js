@@ -251,6 +251,7 @@
          el navegador del cliente. */
       dentro.querySelector('#cot-ruleta').addEventListener('click', function () {
         el.abrir({
+          codigo: c.codigo,
           nombre: String(c.nombre || '').split(/\s+/)[0],
           premio: Number(extra.pct),
           precio: clp(extra.precio),
@@ -273,6 +274,10 @@
     }
 
     dentro.querySelector('#cot-otro').addEventListener('click', function () {
+      /* Se borra la tirada anterior aqui mismo: si se dejara para cuando la
+         ruleta note el cambio de codigo, el boton del premio viejo aparecería
+         un instante sobre la cotizacion nueva. */
+      if (ruleta && ruleta.reiniciar) ruleta.reiniciar();
       cerrarPopup(); pintarFormulario();
     });
 

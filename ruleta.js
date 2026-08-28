@@ -97,6 +97,7 @@
       this._datos = {};
       this._pos = 0; this._anim = null; this._girando = false;
       const est = window.__vaRuletaEstado || {};
+      this._codigo = est.codigo || null;
       this._resultado = est.premio != null ? est.premio : null;
       this._decidido = est.decidido || null;
       const sh = this.attachShadow({ mode: 'open' });
@@ -135,7 +136,10 @@
       this._wireDrag();
       this._setPos(0);
     }
-    _guardar() { window.__vaRuletaEstado = { premio: this._resultado, decidido: this._decidido }; }
+    _guardar() {
+      window.__vaRuletaEstado = { premio: this._resultado, decidido: this._decidido,
+                                  codigo: this._codigo || null };
+    }
     /* ---- carrusel ---- */
     _setPos(p) {
       this._pos = p;
@@ -262,6 +266,13 @@
       this._$('.hint').hidden = true;
     }
     abrir(datos) {
+      /* Cada cotizacion tiene su premio. Si el codigo NO es el de la tirada
+         guardada, se empieza de cero: sin esto, canjear otro codigo mostraba
+         el premio del anterior y ademas sin girar, porque la ruleta se creia
+         ya jugada. */
+      var cod = (datos && datos.codigo) || null;
+      if (cod && this._codigo && cod !== this._codigo) this.reiniciar();
+      if (cod) this._codigo = cod;
       Object.assign(this._datos, datos || {});
       this._$('.ov').hidden = false;
       window.addEventListener('keydown', this._onKey);
@@ -365,6 +376,7 @@
     }
     reiniciar() {
       this._resultado = null; this._decidido = null; this._datos = {};
+      this._codigo = null;
       this._girando = false;
       window.__vaRuletaEstado = null;
       cancelAnimationFrame(this._anim); clearTimeout(this._animTo);

@@ -43,7 +43,7 @@
   caja.id = 'cotizacion';
   caja.setAttribute('style', [
     'color:' + TINTA, 'font-family:Manrope,system-ui,sans-serif',
-    'margin:0 0 16px'
+    'margin:18px 0 0'
   ].join(';'));
 
   var dentro = document.createElement('div');
@@ -53,9 +53,9 @@
   var campo = 'width:100%;box-sizing:border-box;padding:13px 14px;margin-top:6px;' +
               'border:1px solid rgba(255,255,255,0.28);border-radius:10px;font-size:16px;' +
               'font-family:inherit;color:' + TINTA + ';background:rgba(255,255,255,0.08)';
-  var rotulo = 'display:block;font-size:12.5px;font-weight:700;color:' + SUAVE;
-  var boton = 'width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;' +
-              'background:' + ORO + ';color:#22271f;font-size:14px;font-weight:800;' +
+  var rotulo = 'display:block;font-size:12.5px;font-weight:700;color:' + SUAVE + ';margin-bottom:8px';
+  var boton = 'width:100%;margin-top:10px;padding:15px 10px;border:0;border-radius:999px;' +
+              'background:' + ORO + ';color:#22271f;font-size:11.5px;font-weight:800;' +
               'letter-spacing:1px;text-transform:uppercase;font-family:inherit;cursor:pointer';
 
   function pintarFormulario(error) {
@@ -69,21 +69,21 @@
       /* El boton VA DENTRO de la caja, pegado al campo: el borde es del
          contenedor y el input va sin el suyo. Asi se lee como una sola pieza
          —escribe aqui y pulsa ahi— en vez de dos cosas sueltas. */
-      '<div style="display:flex;align-items:stretch;margin-top:6px;' +
-      'border:1px solid rgba(255,255,255,0.28);border-radius:10px;' +
+      '<div style="display:flex;align-items:stretch;' +
+      'border:1px solid rgba(255,255,255,0.28);border-radius:999px;' +
       'background:rgba(255,255,255,0.08);overflow:hidden">' +
         '<input id="cot-codigo" type="text" autocomplete="off" placeholder="VA-0000" ' +
         'maxlength="7" style="flex:1;min-width:0;background:transparent;border:0;' +
-        'outline:none;padding:13px 14px;font-size:16px;color:' + TINTA + ';' +
+        'outline:none;padding:15px 20px;font-size:15px;color:' + TINTA + ';' +
         'text-transform:uppercase;letter-spacing:.08em;' +
         'font-family:ui-monospace,Menlo,Consolas,monospace">' +
         '<button id="cot-validar" type="button" style="flex:none;border:0;' +
         'border-left:1px solid rgba(255,255,255,0.22);background:' + ORO + ';' +
-        'color:#22271f;font-family:inherit;font-size:12.5px;font-weight:800;' +
-        'letter-spacing:1px;text-transform:uppercase;padding:0 16px;cursor:pointer">' +
+        'color:#22271f;font-family:inherit;font-size:11.5px;font-weight:800;' +
+        'letter-spacing:1px;text-transform:uppercase;padding:0 20px;cursor:pointer">' +
         'Validar</button>' +
       '</div>' +
-      '<div id="cot-estado" style="margin-top:8px;font-size:13px;color:' + SUAVE + '"></div>';
+      '<div id="cot-estado" style="margin-top:10px;font-size:11.5px;line-height:1.5;color:' + SUAVE + '"></div>';
 
     var campoCod = dentro.querySelector('#cot-codigo');
     dentro.querySelector('#cot-validar').addEventListener('click', canjear);
@@ -98,7 +98,7 @@
      sitio y el mismo gesto, sin un paso intermedio que no aporta. */
   function pintarBotonReservar(c) {
     dentro.innerHTML =
-      '<div style="font-size:13px;color:' + SUAVE + ';margin-bottom:8px">' +
+      '<div style="font-size:11px;line-height:1.5;color:' + SUAVE + ';margin-bottom:8px">' +
         esc(c.cabana) + ' &middot; ' + fecha(c.desde) + ' al ' + fecha(c.hasta) +
         ' &middot; ' + clp(c.precio_noche) + ' la noche</div>' +
       '<button id="cot-reservar" type="button" style="' + boton + '">Reservar ahora</button>';

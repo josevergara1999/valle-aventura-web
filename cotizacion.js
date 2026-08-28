@@ -36,41 +36,38 @@
 
   /* Los colores van escritos aquí y no heredados de la página: esto tiene que
      verse igual antes y después del rediseño. Son los de la marca. */
-  var VERDE = '#2d4a2e', ORO = '#f0c419', CREMA = '#f7f5ef', TINTA = '#22271f';
+  var ORO = '#f0c419', TINTA = '#ffffff';
+  var SUAVE = 'rgba(255,255,255,0.65)';
 
   var caja = document.createElement('section');
   caja.id = 'cotizacion';
   caja.setAttribute('style', [
-    'background:' + CREMA, 'color:' + TINTA,
-    'font-family:Manrope,system-ui,sans-serif',
-    'padding:48px 20px', 'display:flex', 'justify-content:center'
+    'color:' + TINTA, 'font-family:Manrope,system-ui,sans-serif',
+    'margin:0 0 16px'
   ].join(';'));
 
   var dentro = document.createElement('div');
-  dentro.setAttribute('style', 'width:100%;max-width:460px');
+  dentro.setAttribute('style', 'width:100%');
   caja.appendChild(dentro);
 
   var campo = 'width:100%;box-sizing:border-box;padding:13px 14px;margin-top:6px;' +
-              'border:1px solid #d5d2c6;border-radius:8px;font-size:16px;' +
-              'font-family:inherit;color:' + TINTA + ';background:#fff';
-  var rotulo = 'display:block;font-size:13px;font-weight:600;color:#5d6152';
-  var boton = 'width:100%;margin-top:16px;padding:15px;border:0;border-radius:8px;' +
-              'background:' + VERDE + ';color:#fff;font-size:16px;font-weight:700;' +
-              'font-family:inherit;cursor:pointer';
+              'border:1px solid rgba(255,255,255,0.28);border-radius:10px;font-size:16px;' +
+              'font-family:inherit;color:' + TINTA + ';background:rgba(255,255,255,0.08)';
+  var rotulo = 'display:block;font-size:12.5px;font-weight:700;color:' + SUAVE;
+  var boton = 'width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;' +
+              'background:' + ORO + ';color:#22271f;font-size:14px;font-weight:800;' +
+              'letter-spacing:1px;text-transform:uppercase;font-family:inherit;cursor:pointer';
 
   function pintarFormulario(error) {
     dentro.innerHTML =
       '<h2 style="font-family:Raleway,system-ui,sans-serif;font-size:24px;' +
       'font-weight:800;margin:0 0 6px">¿Tienes un código?</h2>' +
-      '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#5d6152">' +
-      'Si conversamos por WhatsApp y te pasamos un código, escríbelo aquí con ' +
-      'tu nombre y te mostramos el precio que acordamos.</p>' +
+      '<p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:rgba(255,255,255,0.65)">' +
+      'Si conversamos por WhatsApp y te pasamos un código, escríbelo aquí y ' +
+      'te mostramos el precio que acordamos.</p>' +
       (error ? '<p role="alert" style="margin:0 0 16px;padding:12px 14px;' +
         'border-radius:8px;background:#f6e3df;color:#8c3a2e;font-size:14px;' +
         'line-height:1.45">' + esc(error) + '</p>' : '') +
-      '<label style="' + rotulo + '">Nombre y apellido' +
-      '<input id="cot-nombre" type="text" autocomplete="name" style="' + campo + '"></label>' +
-      '<div style="height:14px"></div>' +
       '<label style="' + rotulo + '">Código' +
       /* En mayúsculas y monoespaciada: el código se copia a mano desde
          WhatsApp y así se ve si sobró un espacio. */
@@ -86,9 +83,10 @@
   }
 
   function canjear() {
-    var nombre = dentro.querySelector('#cot-nombre').value.trim();
     var codigo = dentro.querySelector('#cot-codigo').value.trim().toUpperCase();
-    if (!nombre || !codigo) return pintarFormulario('Escribe tu nombre completo y el código.');
+    if (!codigo) return pintarFormulario('Escribe el código que te enviamos.');
+    /* Sin nombre: el codigo basta. Quien lo tiene es porque se lo mandamos. */
+    var nombre = '';
 
     var b = dentro.querySelector('#cot-ver');
     b.disabled = true; b.textContent = 'Buscando...';
@@ -107,22 +105,22 @@
     var extra = c.noche_extra;
     var linea = function (izq, der, fuerte) {
       return '<div style="display:flex;justify-content:space-between;gap:16px;' +
-        'padding:9px 0;border-bottom:1px solid #e6e2d6;font-size:15px' +
+        'padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.14);font-size:15px' +
         (fuerte ? ';font-weight:700;font-size:17px;border-bottom:0' : '') + '">' +
         '<span>' + izq + '</span><span>' + der + '</span></div>';
     };
 
     dentro.innerHTML =
-      '<p style="margin:0 0 4px;font-size:14px;color:#5d6152">Hola ' +
+      '<p style="margin:0 0 4px;font-size:14px;color:rgba(255,255,255,0.65)">Hola ' +
         esc(String(c.nombre).split(/\s+/)[0]) + ',</p>' +
       '<h2 style="font-family:Raleway,system-ui,sans-serif;font-size:24px;' +
       'font-weight:800;margin:0 0 20px">este es el precio que acordamos</h2>' +
 
-      '<div style="background:#fff;border:1px solid #e6e2d6;border-radius:12px;' +
+      '<div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:12px;' +
       'padding:18px 18px 14px">' +
         '<div style="font-family:Raleway,system-ui,sans-serif;font-size:19px;' +
         'font-weight:800;margin-bottom:2px">' + esc(c.cabana) + '</div>' +
-        '<div style="font-size:14px;color:#5d6152;margin-bottom:14px">' +
+        '<div style="font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:14px">' +
           'Del ' + fecha(c.desde) + ' al ' + fecha(c.hasta) +
           ' &middot; ' + c.noches + (c.noches === 1 ? ' noche' : ' noches') +
           ' &middot; ' + c.personas + (c.personas === 1 ? ' persona' : ' personas') +
@@ -132,21 +130,21 @@
           ? '<button type="button" id="cot-ruleta" style="display:flex;gap:11px;' +
             'align-items:center;width:100%;box-sizing:border-box;padding:13px;' +
             'margin-bottom:14px;border:1px solid ' + ORO + ';border-radius:9px;' +
-            'background:#fdf8e4;cursor:pointer;font-family:inherit;text-align:left">' +
+            'background:rgba(240,196,25,0.12);cursor:pointer;font-family:inherit;text-align:left">' +
             '<span style="width:34px;height:34px;flex:none;border-radius:50%;' +
             'background:' + ORO + ';color:#22271f;display:flex;align-items:center;' +
             'justify-content:center;font-family:Raleway,sans-serif;font-weight:800;' +
             'font-size:17px">?</span>' +
             '<span style="font-size:14px;line-height:1.45">' +
               '<b id="cot-ruleta-tit">Participa por una noche extra</b><br>' +
-              '<span id="cot-ruleta-sub" style="color:#5d6152">Toca para descubrir tu beneficio</span>' +
+              '<span id="cot-ruleta-sub" style="color:rgba(255,255,255,0.65)">Toca para descubrir tu beneficio</span>' +
             '</span></button>'
           : '') +
 
         '<div id="cot-cuentas">' +
           linea(c.noches + ' &times; ' + clp(c.precio_noche), clp(c.total)) +
           linea('Abonas ahora', clp(c.anticipo), true) +
-          '<div style="font-size:13px;color:#5d6152;margin-top:2px">' +
+          '<div style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:2px">' +
             'Y ' + clp(c.saldo) + ' al llegar a la cabaña.</div>' +
         '</div>' +
       '</div>' +
@@ -156,7 +154,7 @@
       '<div id="cot-error"></div>' +
       '<button id="cot-pagar" type="button" style="' + boton + '">Pagar el abono</button>' +
       '<button id="cot-otro" type="button" style="' + boton + ';background:transparent;' +
-      'color:#5d6152;font-weight:600;border:1px solid #d5d2c6;margin-top:8px">' +
+      'color:rgba(255,255,255,0.65);font-weight:600;border:1px solid rgba(255,255,255,0.28);margin-top:8px">' +
       'Usar otro código</button>';
 
     /* Las cuentas se repintan al marcar la noche extra, pero con los números
@@ -170,7 +168,7 @@
           linea(c.noches + ' &times; ' + clp(c.precio_noche), clp(c.total)) +
           (on ? linea('Noche extra (' + extra.pct + '%)', clp(extra.precio)) : '') +
           linea('Abonas ahora', clp(anticipo), true) +
-          '<div style="font-size:13px;color:#5d6152;margin-top:2px">Y ' +
+          '<div style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:2px">Y ' +
           clp(total - anticipo) + ' al llegar a la cabaña.</div>';
       };
 
@@ -261,22 +259,42 @@
     return ruleta;
   }
 
-  function montar() {
-    if (location.hash !== '#cotizacion') return;
-    if (document.getElementById('cotizacion')) return;
-    document.body.appendChild(caja);
-    pintarFormulario();
-    caja.scrollIntoView({ block: 'start' });
-    var n = dentro.querySelector('#cot-nombre');
-    if (n) n.focus({ preventScroll: true });
+  /* Va DEBAJO del boton de reservar, al final del cotizador: quien llega ahi
+     ya miro fechas y precio, que es cuando un codigo significa algo. Antes
+     colgaba del final de la pagina y habia que buscarlo.
+
+     El sitio lo pinta React y vuelve a crear los nodos cada dos por tres, asi
+     que no vale con insertarlo una vez: hay que vigilar que siga puesto. Es la
+     misma razon por la que `mejoras.js` trabaja por delegacion. */
+  function anclaReservar() {
+    var bs = document.querySelectorAll('button, a');
+    for (var i = 0; i < bs.length; i++) {
+      var t = (bs[i].textContent || '').trim();
+      if (t.indexOf('Reservar esta caba') === 0) return bs[i];
+    }
+    return null;
   }
 
-  /* Y si pega el enlace estando ya en la página, también. */
-  window.addEventListener('hashchange', montar);
+  function montar() {
+    var ancla = anclaReservar();
+    if (!ancla || !ancla.parentNode) return false;
+    /* Si ya esta puesto en el sitio correcto, no se toca: reinsertarlo en cada
+       repintado haria parpadear el formulario a medio escribir. */
+    if (caja.parentNode === ancla.parentNode && caja.previousElementSibling === ancla) return true;
+    ancla.parentNode.insertBefore(caja, ancla.nextSibling);
+    if (!caja.dataset.pintado) { caja.dataset.pintado = '1'; pintarFormulario(); }
+    return true;
+  }
+
+  function vigilar() {
+    montar();
+    var obs = new MutationObserver(function () { montar(); });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', montar);
+    document.addEventListener('DOMContentLoaded', vigilar);
   } else {
-    montar();
+    vigilar();
   }
 })();

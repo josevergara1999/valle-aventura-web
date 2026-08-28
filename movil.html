@@ -127,8 +127,6 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
       <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ searchError }}</div></sc-if>
       <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
       
-          </sc-if>
-        </div>
       <div style="font-size:13px;font-weight:800">Elige tu cabaña</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
         <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};color:#ffffff;font-family:'Manrope',sans-serif">
@@ -186,7 +184,8 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
                 <button onClick="{{ cotToggle }}" style="border:none;background:transparent;color:rgba(255,255,255,0.55);font-family:'Manrope',sans-serif;font-size:11px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:2px 0">Cerrar</button>
               </div>
               <div style="font-size:10.5px;color:rgba(255,255,255,0.65);margin-top:4px;line-height:1.6">Escribe el código que te enviamos por WhatsApp y rellenamos las fechas y la cabaña por ti.</div>
-              <div style="margin-top:12px">
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+                
                 <input placeholder="VA-0000" value="{{ cotCodigo }}" onChange="{{ setCotCodigo }}" autocapitalize="characters" autocorrect="off" spellcheck="false" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:13.5px;letter-spacing:1.5px;text-transform:uppercase;outline:none;width:100%;box-sizing:border-box">
               </div>
               <sc-if value="{{ cotHayError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:10px;font-size:12px;color:#ffb0a6;line-height:1.5">{{ cotError }}</div></sc-if>
@@ -197,6 +196,8 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
                 <button style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:15px 10px;cursor:default;width:100%;margin-top:14px;opacity:0.55">Buscando…</button>
               </sc-if>
             </div>
+          </sc-if>
+        </div>
       <div style="font-size:9.5px;color:rgba(255,255,255,0.7);line-height:1.7;margin-top:10px">Estadía mínima: {{ minNoches }} noches · Puedes llegar el mismo día que sale otro huésped · {{ guestMax }}</div>
       <button onClick="{{ openBooking }}" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:14px 10px;cursor:{{ resCur }};opacity:{{ resOp }};width:100%;margin-top:10px" disabled="{{ resDis }}">Reservar esta cabaña →</button>
     </div>
@@ -1023,8 +1024,6 @@ class Component extends DCLogic {
           this.setState({ cotError: 'Escribe el código que te enviamos.' });
           return;
         }
-        /* El nombre ya no se pide: el codigo basta. Se manda vacio y la base
-           lo da por bueno; quien tiene el codigo es porque se lo mandamos. */
         const nombre = '';
         if (!window.VA_DATOS || !window.VA_DATOS.cotizacion) {
           this.setState({ cotError: 'No pudimos conectar. Revísalo en un momento.' });

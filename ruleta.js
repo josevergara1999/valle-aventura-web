@@ -215,29 +215,40 @@
     _marcarGanadora(idx) {
       const el = this._tjs[idx];
       if (this._winEl === el) return;
-      el.classList.add('win');
+      this._winEl = el;
       el.style.zIndex = 200;
-      /* crece con suavidad */
-      el.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1)';
-      requestAnimationFrame(() => { el.style.transform = 'translate(-50%,-50%) scale(1.14)'; });
-      /* parallax: la tarjeta se inclina siguiendo el puntero */
+      const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (rm) { el.classList.add('win'); el.style.transform = 'translate(-50%,-50%) scale(1.06)'; return; }
+      /* crece con suavidad; el halo dorado entra en la misma transición
+         (antes la clase .win encendía el box-shadow de golpe) */
+      el.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s ease';
+      requestAnimationFrame(() => {
+        el.classList.add('win');
+        el.style.transform = 'translate(-50%,-50%) scale(1.06)';
+      });
+      /* parallax: se inclina siguiendo el puntero. Misma escala 1.06 (antes
+         saltaba a 1.08 al primer movimiento) y se engancha cuando el
+         crecimiento ya terminó, para no cortar esa transición a mitad. */
       this._winMove = e => {
         const r = el.getBoundingClientRect();
         const x = Math.max(-0.5, Math.min(0.5, (e.clientX - r.left) / r.width - 0.5));
         const y = Math.max(-0.5, Math.min(0.5, (e.clientY - r.top) / r.height - 0.5));
         el.style.transition = 'transform 0.09s ease-out';
-        el.style.transform = 'translate(-50%,-50%) scale(1.17) rotateX(' + (-y * 11).toFixed(1) + 'deg) rotateY(' + (x * 13).toFixed(1) + 'deg)';
+        el.style.transform = 'translate(-50%,-50%) scale(1.06) rotateX(' + (-y * 8).toFixed(1) + 'deg) rotateY(' + (x * 10).toFixed(1) + 'deg)';
       };
       this._winLeave = () => {
         el.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1)';
-        el.style.transform = 'translate(-50%,-50%) scale(1.14)';
+        el.style.transform = 'translate(-50%,-50%) scale(1.06)';
       };
-      el.addEventListener('pointermove', this._winMove);
-      el.addEventListener('pointerleave', this._winLeave);
-      this._winEl = el;
+      clearTimeout(this._winTo);
+      this._winTo = setTimeout(() => {
+        el.addEventListener('pointermove', this._winMove);
+        el.addEventListener('pointerleave', this._winLeave);
+      }, 520);
     }
     _quitarGanadora() {
       const el = this._winEl; if (!el) return;
+      clearTimeout(this._winTo);
       el.removeEventListener('pointermove', this._winMove);
       el.removeEventListener('pointerleave', this._winLeave);
       el.style.transition = ''; el.style.zIndex = '';
@@ -259,7 +270,7 @@
         const n = (this._datos.nombre || '').trim();
         this._$('.sub').textContent = (n ? n + ', desliza' : 'Desliza') + ' para ver los premios de tu noche extra y presiona Girar: 25%, 45%, 50%, 75%… o gratis.';
         this._$('.tit').hidden = false; this._$('.sub').hidden = false;
-        this._$('.hint').hidden = false;
+        this._$('.hint').hidden = false; this._$('.hint').style.opacity = '';
         this._$('.acciones').hidden = false; this._$('.res').hidden = true;
         this._$('.girar').disabled = false; this._$('.girar').textContent = 'Girar';
         this._$('.girar').focus();
@@ -278,7 +289,9 @@
       this._girando = true;
       const btn = this._$('.girar');
       btn.disabled = true; btn.textContent = 'Girando…';
-      this._$('.hint').hidden = true;
+      /* el hint se desvanece sin soltar su hueco: quitarlo con hidden
+         encogía la tarjeta justo al pulsar Girar */
+      this._$('.hint').style.opacity = '0';
       /* Lo único aleatorio es lo decorativo: cuántas vueltas da el carrusel. */
       const vueltas = 3 + Math.floor(Math.random() * 2);
       const delta = ((idx - this._pos) % N + N) % N;
@@ -286,31 +299,86 @@
       this._animarA(target, 3300, k => 1 - Math.pow(1 - k, 4), () => {
         this._girando = false;
         this._marcarGanadora(idx);
-        setTimeout(() => this._mostrarResultado(), 350);
+        /* un solo movimiento a la vez: la ganadora termina de crecer (0.5s)
+           y recién entonces empieza el relevo de textos */
+        clearTimeout(this._transTo);
+        this._transTo = setTimeout(() => this._transicionResultado(), 600);
       });
     }
-    _mostrarResultado() {
+    _transicionResultado() {
+      /* primer tiempo del relevo: título, texto y botón de girar se
+         desvanecen (solo opacity, sin tocar layout) antes del intercambio */
+      const outs = ['.tit', '.sub', '.acciones'].map(s => this._$(s)).filter(e => !e.hidden);
+      outs.forEach(e => { e.style.transition = 'opacity 0.18s ease'; e.style.opacity = '0'; });
+      clearTimeout(this._swapTo);
+      this._swapTo = setTimeout(() => {
+        outs.forEach(e => { e.style.transition = ''; e.style.opacity = ''; });
+        this._mostrarResultado(true);
+      }, 190);
+    }
+    _mostrarResultado(animado) {
+      /* El pop-up cambia de alto al pasar de la rueda al resultado —se van el
+         título, el texto y el botón de girar— y sin amortiguar da un golpe
+         seco justo en el momento bonito. Se mide el alto antes y después del
+         intercambio y se anima entre los dos (la ÚNICA propiedad de layout
+         animada en el componente: una tarjeta, una vez, 0.38s); el resultado
+         entra a la vez con fade + subida (opacity/transform). Con animado
+         falsy —reduced motion o reapertura del pop-up— todo es instantáneo. */
+      const card = this._$('.card');
+      const res = this._$('.res');
+      const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const suave = !!animado && !rm && !this._$('.ov').hidden;
+      const antes = suave ? card.getBoundingClientRect().height : 0;
       const p = this._resultado, d = this._datos;
       const tit = p === 100 ? 'Noche extra gratis' : 'Noche extra al ' + p + '%';
       const sub = (d.texto || 'Suma una noche a tu estadía') + (p === 100 ? ', sin costo.' : ' por ' + (d.precio || '') + '.');
       this._$('.tit').hidden = true; this._$('.sub').hidden = true; this._$('.acciones').hidden = true;
-      this._$('.res').hidden = false;
+      this._$('.hint').hidden = true;
+      res.hidden = false;
       this._$('.res-tit').textContent = tit;
       this._$('.res-sub').textContent = sub;
       const yaAcepto = this._decidido === 'si';
       this._$('.res-btns').hidden = yaAcepto;
       this._$('.res-ok').hidden = !yaAcepto;
       this._$('.live').textContent = 'Resultado: ' + tit + '. ' + sub;
+
+      if (!suave) return;
+      const despues = card.getBoundingClientRect().height;
+      const cambia = Math.abs(despues - antes) >= 2;
+      res.style.opacity = '0';
+      res.style.transform = 'translateY(8px)';
+      if (cambia) card.style.height = antes + 'px'; /* .card ya recorta con overflow:hidden */
+      requestAnimationFrame(() => {
+        if (cambia) {
+          card.style.transition = 'height 0.38s cubic-bezier(0.22,1,0.36,1)';
+          card.style.height = despues + 'px';
+        }
+        res.style.transition = 'opacity 0.32s ease, transform 0.38s cubic-bezier(0.22,1,0.36,1)';
+        res.style.opacity = '1';
+        res.style.transform = 'none';
+      });
+      clearTimeout(this._altoTo);
+      this._altoTo = setTimeout(() => {
+        card.style.transition = ''; card.style.height = '';
+        res.style.transition = ''; res.style.opacity = ''; res.style.transform = '';
+      }, 430);
     }
     reiniciar() {
       this._resultado = null; this._decidido = null; this._datos = {};
       this._girando = false;
       window.__vaRuletaEstado = null;
       cancelAnimationFrame(this._anim); clearTimeout(this._animTo);
+      clearTimeout(this._transTo); clearTimeout(this._swapTo); clearTimeout(this._altoTo);
       this._quitarGanadora();
       this._tjs.forEach(t => t.classList.remove('win'));
+      /* borrar cualquier estilo que la secuencia del resultado dejara a medias */
+      ['.tit', '.sub', '.acciones', '.res'].forEach(s => {
+        const e = this._$(s); e.style.transition = ''; e.style.opacity = ''; e.style.transform = '';
+      });
+      const card = this._$('.card');
+      card.style.transition = ''; card.style.height = '';
       this._setPos(0);
-      this._$('.hint').hidden = false;
+      this._$('.hint').hidden = false; this._$('.hint').style.opacity = '';
       this.cerrar();
     }
   }

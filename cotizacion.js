@@ -101,6 +101,9 @@
   }
 
   function pintarCotizacion(c, nombre) {
+    /* En un objeto y no en una variable suelta: el manejador de pagar se
+       crea antes de que la ruleta se acepte, y una copia leeria false. */
+    var aceptadoRef = { v: false };
     var extra = c.noche_extra;
     var linea = function (izq, der, fuerte) {
       return '<div style="display:flex;justify-content:space-between;gap:16px;' +
@@ -126,19 +129,18 @@
         '</div>' +
 
         (extra
-          ? '<label id="cot-extra-caja" style="display:flex;gap:11px;align-items:flex-start;' +
-            'padding:13px;margin-bottom:14px;border:1px solid ' + ORO + ';' +
-            'border-radius:9px;background:#fdf8e4;cursor:pointer">' +
-            '<input type="checkbox" id="cot-extra" style="width:19px;height:19px;' +
-            'margin:1px 0 0;flex:none;accent-color:' + VERDE + '">' +
+          ? '<button type="button" id="cot-ruleta" style="display:flex;gap:11px;' +
+            'align-items:center;width:100%;box-sizing:border-box;padding:13px;' +
+            'margin-bottom:14px;border:1px solid ' + ORO + ';border-radius:9px;' +
+            'background:#fdf8e4;cursor:pointer;font-family:inherit;text-align:left">' +
+            '<span style="width:34px;height:34px;flex:none;border-radius:50%;' +
+            'background:' + ORO + ';color:#22271f;display:flex;align-items:center;' +
+            'justify-content:center;font-family:Raleway,sans-serif;font-weight:800;' +
+            'font-size:17px">?</span>' +
             '<span style="font-size:14px;line-height:1.45">' +
-              '<b>' + (extra.tipo === 'despues'
-                        ? 'Quédate una noche más'
-                        : 'Llega un día antes') + '</b>, con ' + extra.pct +
-              '% de descuento<br>' +
-              '<span style="color:#5d6152">La noche del ' + fecha(extra.noche) +
-              ' por ' + clp(extra.precio) + '</span>' +
-            '</span></label>'
+              '<b id="cot-ruleta-tit">Participa por una noche extra</b><br>' +
+              '<span id="cot-ruleta-sub" style="color:#5d6152">Toca para descubrir tu beneficio</span>' +
+            '</span></button>'
           : '') +
 
         '<div id="cot-cuentas">' +
@@ -161,8 +163,7 @@
        que YA vino diciendo la base — no se multiplica nada aquí. Y al pagar se
        vuelve a validar todo en Postgres: esto es solo lo que se ve. */
     if (extra) {
-      dentro.querySelector('#cot-extra').addEventListener('change', function (e) {
-        var on = e.target.checked;
+      var pintarCuentas = function (on) {
         var total = on ? extra.total_con_extra : c.total;
         var anticipo = Math.round(total * (c.anticipo / c.total));
         dentro.querySelector('#cot-cuentas').innerHTML =
@@ -171,7 +172,30 @@
           linea('Abonas ahora', clp(anticipo), true) +
           '<div style="font-size:13px;color:#5d6152;margin-top:2px">Y ' +
           clp(total - anticipo) + ' al llegar a la cabaña.</div>';
+      };
+
+      var el = laRuleta();
+      /* El premio SIEMPRE viene de la cotizacion: la ruleta lo revela, no lo
+         sortea. Si esta pantalla eligiera el gajo, el descuento lo decidiria
+         el navegador del cliente. */
+      dentro.querySelector('#cot-ruleta').addEventListener('click', function () {
+        el.abrir({
+          nombre: String(c.nombre || '').split(/\s+/)[0],
+          premio: Number(extra.pct),
+          precio: clp(extra.precio),
+          texto: extra.tipo === 'antes'
+            ? 'Llega el ' + fecha(extra.desde)
+            : 'Quédate hasta el ' + fecha(extra.hasta)
+        });
       });
+      el.addEventListener('aceptar', function () {
+        aceptadoRef.v = true;
+        pintarCuentas(true);
+        dentro.querySelector('#cot-ruleta-tit').textContent =
+          extra.pct === 100 ? 'Noche extra gratis' : 'Noche extra al ' + extra.pct + '%';
+        dentro.querySelector('#cot-ruleta-sub').textContent = 'Ya está sumada a tu reserva';
+      });
+      el.addEventListener('rechazar', function () { aceptadoRef.v = false; pintarCuentas(false); });
     }
 
     dentro.querySelector('#cot-otro').addEventListener('click', function () { pintarFormulario(); });
@@ -200,7 +224,7 @@
         codigo: c.codigo,
         nombre: nombre,
         email: email,
-        noche_extra: !!(extra && dentro.querySelector('#cot-extra').checked)
+        noche_extra: !!(extra && aceptadoRef.v)
       }).catch(function (e) {
         b.disabled = false; b.textContent = 'Pagar el abono';
         /* Si el fallo es de la cotizacion, el texto sale de la misma tabla
@@ -226,6 +250,17 @@
 
      Cuando llegue el pop-up, esto pasa a abrirse desde un enlace junto al botón
      de reservar y se quita esta condición. */
+  /* La ruleta vive fuera de la tarjeta: es un pop-up a pantalla completa y
+     tiene que poder taparlo todo. */
+  var ruleta = null;
+  function laRuleta() {
+    if (!ruleta) {
+      ruleta = document.createElement('va-ruleta');
+      document.body.appendChild(ruleta);
+    }
+    return ruleta;
+  }
+
   function montar() {
     if (location.hash !== '#cotizacion') return;
     if (document.getElementById('cotizacion')) return;

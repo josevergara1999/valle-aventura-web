@@ -254,6 +254,12 @@
           codigo: c.codigo,
           nombre: String(c.nombre || '').split(/\s+/)[0],
           premio: Number(extra.pct),
+          /* Los dos numeros del contador: de cuanto baja y hasta donde. El
+             "antes" es el precio pactado de una noche; el "despues", lo que
+             ya calculo Postgres con el descuento. Aqui no se multiplica
+             nada. */
+          precioAntes: Number(c.precio_noche),
+          precioDespues: Number(extra.precio),
           precio: clp(extra.precio),
           texto: extra.tipo === 'antes'
             ? 'Llega el ' + fecha(extra.desde)

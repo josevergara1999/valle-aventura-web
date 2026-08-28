@@ -1,8 +1,11 @@
 /* Ruleta Valle Aventura — carrusel de tarjetas 3D (vanilla, sin librerías).
    Dinámica tipo "elige tu tarjeta": desliza para explorar los premios;
    el botón Girar rota el carrusel hasta la tarjeta ganadora (decidida por código).
-   API: el.abrir({nombre, premio, precio, texto}) · el.girar({premio}) · el.cerrar() · el.reiniciar()
-   Eventos: 'aceptar' (detail:{premio}) y 'rechazar'. El premio SIEMPRE llega desde fuera. */
+   API: el.abrir({codigo, nombre, premio, precioAntes, precioDespues, precio, texto})
+        · el.girar({premio}) · el.cerrar() · el.reiniciar()
+   Eventos: 'aceptar' (detail:{premio}) y 'rechazar'. El premio SIEMPRE llega desde fuera.
+   Con precioAntes/precioDespues numéricos, el desenlace cuenta el precio hacia abajo
+   estilo odómetro; sin ellos (o con reduced-motion) muestra el resultado directo. */
 (function () {
   if (customElements.get('va-ruleta')) return;
   /* Las láminas venían en PNG de 2 MB cada una: 11,4 MB entre las cinco, y se
@@ -33,16 +36,25 @@
     estrella: '<path d="M0,-11 L2.7,-2.7 L11,0 L2.7,2.7 L0,11 L-2.7,2.7 L-11,0 L-2.7,-2.7 Z"/>'
   };
   const S = 132, D = 112; // separación X y profundidad Z entre tarjetas
+  /* transform de la tarjeta ganadora: crece Y sube un poco (el dueño pidió
+     que "la tarjeta subiera"); todo lo que la toque parte de esta base */
+  const TWIN = 'translate(-50%,-50%) translateY(-10px) scale(1.06)';
   const CSS = `
 :host{all:initial}
 *{box-sizing:border-box;margin:0}
 .ov{position:fixed;inset:0;z-index:400;background:rgba(7,15,27,0.78);display:flex;align-items:center;justify-content:center;padding:16px}
-.card{position:relative;width:100%;max-width:500px;background:#12243d;color:#f2f7fa;border-radius:22px;padding:30px 22px 26px;font-family:'Manrope',sans-serif;text-align:center;box-shadow:0 40px 90px rgba(0,0,0,0.55);border:1px solid rgba(63,200,218,0.25);overflow:hidden}
+/* El pop-up es de alto FIJO (pedido del dueño): las zonas .zt y .zb reservan
+   por CSS el sitio del estado más alto de la secuencia y todo se mueve dentro.
+   En pantallas muy bajas manda max-height y el contenido hace scroll. */
+.card{position:relative;width:100%;max-width:500px;max-height:88vh;background:#12243d;color:#f2f7fa;border-radius:22px;padding:30px 22px 26px;font-family:'Manrope',sans-serif;text-align:center;box-shadow:0 40px 90px rgba(0,0,0,0.55);border:1px solid rgba(63,200,218,0.25);overflow-y:auto;overflow-x:hidden}
 .x{position:absolute;top:12px;right:12px;width:32px;height:32px;border:none;border-radius:10px;background:rgba(255,255,255,0.1);color:#f2f7fa;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;z-index:5}
 .x:hover{background:rgba(255,255,255,0.2)}
 .kick{font-size:10px;letter-spacing:3px;font-weight:800;text-transform:uppercase;color:#3fc8da}
 .tit{font-family:'Raleway',sans-serif;font-weight:800;font-size:24px;line-height:1.2;margin-top:8px;color:#f2f7fa}
 .sub{font-size:13.5px;line-height:1.55;color:rgba(242,247,250,0.72);margin:6px auto 0;max-width:340px}
+.zt{position:relative;min-height:106px}
+.zb{position:relative;min-height:106px;margin-top:8px}
+.cap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .stage{position:relative;height:290px;margin-top:12px;perspective:1200px;touch-action:none;cursor:grab}
 .stage.drag{cursor:grabbing}
 .suelo{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:210px;height:22px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,0.4),rgba(0,0,0,0))}
@@ -71,8 +83,14 @@
 .btn:hover{background:#3fc8da}
 .btn:disabled{opacity:0.55;cursor:default}
 .acciones{margin-top:14px}
-.res{margin-top:10px}
 .res-tit{font-family:'Raleway',sans-serif;font-weight:800;font-size:24px;color:#f0c419}
+.res-precio{margin-top:8px;min-height:1.15em;font-family:'Raleway',sans-serif;font-weight:800;font-size:34px;line-height:1;color:#f0c419;font-variant-numeric:tabular-nums}
+.res-precio .odo{display:inline-flex;vertical-align:top}
+.res-precio .f{display:block;height:1.1em;line-height:1.1em}
+.res-precio .c{display:block;height:1.1em;overflow:hidden}
+.res-precio .st{display:block;will-change:transform}
+.res-precio .st span{display:block;height:1.1em;line-height:1.1em}
+.res-precio .grx{display:inline-block;letter-spacing:3px}
 .res-sub{font-size:13px;line-height:1.55;color:rgba(242,247,250,0.78);margin-top:4px}
 .res-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;padding-bottom:2px}
 .no{border:1.5px solid rgba(242,247,250,0.35);border-radius:999px;background:transparent;color:#f2f7fa;font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:14px 18px;cursor:pointer;white-space:nowrap}
@@ -96,6 +114,7 @@
       super();
       this._datos = {};
       this._pos = 0; this._anim = null; this._girando = false;
+      this._seqTos = []; this._seqAnim = null; this._odoCols = null; this._odoSeps = [];
       const est = window.__vaRuletaEstado || {};
       this._codigo = est.codigo || null;
       this._resultado = est.premio != null ? est.premio : null;
@@ -105,14 +124,20 @@
         '<div class="ov" hidden><div class="card" role="dialog" aria-modal="true" aria-label="Sorteo de la noche extra">' +
         '<button class="x" aria-label="Cerrar">✕</button>' +
         '<div class="kick">Valle Aventura</div>' +
-        '<h2 class="tit">Gira por tu noche extra</h2>' +
-        '<p class="sub"></p>' +
+        /* zona alta: capas superpuestas título/subtítulo ⇆ título del premio + precio */
+        '<div class="zt">' +
+        '<div class="cap rueda"><h2 class="tit">Gira por tu noche extra</h2><p class="sub"></p></div>' +
+        '<div class="cap res-cab" hidden><div class="res-tit"></div><div class="res-precio" hidden></div></div>' +
+        '</div>' +
         '<div class="stage"><div class="suelo"></div>' + CARDS.map(cardHTML).join('') + '</div>' +
-        '<div class="hint">Desliza para ver los premios</div>' +
-        '<div class="acciones"><button class="btn girar">Girar</button></div>' +
-        '<div class="res" hidden><div class="res-tit"></div><div class="res-sub"></div>' +
+        /* zona baja: capas superpuestas hint/Girar ⇆ texto + botones del resultado */
+        '<div class="zb">' +
+        '<div class="cap pie-rueda"><div class="hint">Desliza para ver los premios</div>' +
+        '<div class="acciones"><button class="btn girar">Girar</button></div></div>' +
+        '<div class="cap res" hidden><div class="res-sub"></div>' +
         '<div class="res-btns"><button class="btn si">La quiero</button><button class="no">No, gracias</button></div>' +
         '<div class="res-ok" hidden>Esta noche ya está sumada a tu reserva.</div></div>' +
+        '</div>' +
         '<div class="live" role="status" aria-live="polite"></div>' +
         '</div></div>';
       this._$ = q => sh.querySelector(q);
@@ -222,13 +247,13 @@
       this._winEl = el;
       el.style.zIndex = 200;
       const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (rm) { el.classList.add('win'); el.style.transform = 'translate(-50%,-50%) scale(1.06)'; return; }
-      /* crece con suavidad; el halo dorado entra en la misma transición
-         (antes la clase .win encendía el box-shadow de golpe) */
+      if (rm) { el.classList.add('win'); el.style.transform = TWIN; return; }
+      /* crece y SUBE un poco con suavidad (acto 1 del desenlace); el halo
+         dorado entra en la misma transición */
       el.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s ease';
       requestAnimationFrame(() => {
         el.classList.add('win');
-        el.style.transform = 'translate(-50%,-50%) scale(1.06)';
+        el.style.transform = TWIN;
       });
       /* parallax: se inclina siguiendo el puntero. Misma escala 1.06 (antes
          saltaba a 1.08 al primer movimiento) y se engancha cuando el
@@ -238,11 +263,11 @@
         const x = Math.max(-0.5, Math.min(0.5, (e.clientX - r.left) / r.width - 0.5));
         const y = Math.max(-0.5, Math.min(0.5, (e.clientY - r.top) / r.height - 0.5));
         el.style.transition = 'transform 0.09s ease-out';
-        el.style.transform = 'translate(-50%,-50%) scale(1.06) rotateX(' + (-y * 8).toFixed(1) + 'deg) rotateY(' + (x * 10).toFixed(1) + 'deg)';
+        el.style.transform = TWIN + ' rotateX(' + (-y * 8).toFixed(1) + 'deg) rotateY(' + (x * 10).toFixed(1) + 'deg)';
       };
       this._winLeave = () => {
         el.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1)';
-        el.style.transform = 'translate(-50%,-50%) scale(1.06)';
+        el.style.transform = TWIN;
       };
       clearTimeout(this._winTo);
       this._winTo = setTimeout(() => {
@@ -280,14 +305,22 @@
       else {
         const n = (this._datos.nombre || '').trim();
         this._$('.sub').textContent = (n ? n + ', desliza' : 'Desliza') + ' para ver los premios de tu noche extra y presiona Girar: 25%, 45%, 50%, 75%… o gratis.';
-        this._$('.tit').hidden = false; this._$('.sub').hidden = false;
+        ['.rueda', '.pie-rueda'].forEach(s => {
+          const e = this._$(s); e.hidden = false; e.style.transition = ''; e.style.opacity = '';
+        });
+        this._$('.res-cab').hidden = true; this._$('.res').hidden = true;
         this._$('.hint').hidden = false; this._$('.hint').style.opacity = '';
-        this._$('.acciones').hidden = false; this._$('.res').hidden = true;
         this._$('.girar').disabled = false; this._$('.girar').textContent = 'Girar';
         this._$('.girar').focus();
       }
     }
-    cerrar() { this._$('.ov').hidden = true; window.removeEventListener('keydown', this._onKey); }
+    cerrar() {
+      /* cerrar a mitad de la secuencia detiene todos sus timers; al reabrir,
+         _mostrarResultado() repinta el estado final limpio */
+      this._limpiarSecuencia();
+      this._$('.ov').hidden = true;
+      window.removeEventListener('keydown', this._onKey);
+    }
     girar(opts) {
       const premio = Number((opts && opts.premio) != null ? opts.premio : this._datos.premio);
       const idx = this._idx(premio);
@@ -317,62 +350,212 @@
       });
     }
     _transicionResultado() {
-      /* primer tiempo del relevo: título, texto y botón de girar se
-         desvanecen (solo opacity, sin tocar layout) antes del intercambio */
-      const outs = ['.tit', '.sub', '.acciones'].map(s => this._$(s)).filter(e => !e.hidden);
+      /* primer tiempo del relevo: las capas de la rueda (título+texto arriba,
+         hint+Girar abajo) se desvanecen; como son capas absolutas dentro de
+         zonas de alto fijo, nada se mueve al retirarlas */
+      const outs = ['.rueda', '.pie-rueda'].map(s => this._$(s)).filter(e => !e.hidden);
       outs.forEach(e => { e.style.transition = 'opacity 0.18s ease'; e.style.opacity = '0'; });
       clearTimeout(this._swapTo);
       this._swapTo = setTimeout(() => {
-        outs.forEach(e => { e.style.transition = ''; e.style.opacity = ''; });
-        this._mostrarResultado(true);
+        outs.forEach(e => { e.style.transition = ''; e.style.opacity = ''; e.hidden = true; });
+        const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!rm && this._datosContador()) this._secuencia();
+        else this._mostrarResultado(true);
       }, 190);
     }
     _mostrarResultado(animado) {
-      /* El pop-up cambia de alto al pasar de la rueda al resultado —se van el
-         título, el texto y el botón de girar— y sin amortiguar da un golpe
-         seco justo en el momento bonito. Se mide el alto antes y después del
-         intercambio y se anima entre los dos (la ÚNICA propiedad de layout
-         animada en el componente: una tarjeta, una vez, 0.38s); el resultado
-         entra a la vez con fade + subida (opacity/transform). Con animado
-         falsy —reduced motion o reapertura del pop-up— todo es instantáneo. */
-      const card = this._$('.card');
-      const res = this._$('.res');
+      /* El alto de .card es FIJO desde que se abre —las zonas .zt/.zb
+         reservan por CSS el estado más alto— así que aquí NO se anima
+         ningún alto: solo se intercambian capas superpuestas con
+         opacity/transform. Con animado falsy —reduced motion o reapertura
+         del pop-up— todo es instantáneo. */
+      this._limpiarSecuencia();
       const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const suave = !!animado && !rm && !this._$('.ov').hidden;
-      const antes = suave ? card.getBoundingClientRect().height : 0;
       const p = this._resultado, d = this._datos;
       const tit = p === 100 ? 'Noche extra gratis' : 'Noche extra al ' + p + '%';
       const sub = (d.texto || 'Suma una noche a tu estadía') + (p === 100 ? ', sin costo.' : ' por ' + (d.precio || '') + '.');
-      this._$('.tit').hidden = true; this._$('.sub').hidden = true; this._$('.acciones').hidden = true;
-      this._$('.hint').hidden = true;
-      res.hidden = false;
+      this._$('.rueda').hidden = true; this._$('.pie-rueda').hidden = true;
+      const cab = this._$('.res-cab'), res = this._$('.res');
+      /* borrar cualquier estilo que la secuencia por actos dejara a medias */
+      [cab, res, this._$('.res-tit'), this._$('.res-precio'), this._$('.res-sub'), this._$('.res-btns')]
+        .forEach(e => { e.style.transition = ''; e.style.opacity = ''; e.style.transform = ''; e.style.visibility = ''; });
+      cab.hidden = false; res.hidden = false;
       this._$('.res-tit').textContent = tit;
       this._$('.res-sub').textContent = sub;
+      /* precio final estático si llegaron los números; sin ellos, sin esa línea */
+      const nums = this._datosContador();
+      const ePre = this._$('.res-precio');
+      if (nums) { this._precioFinal(nums); ePre.hidden = false; }
+      else ePre.hidden = true;
       const yaAcepto = this._decidido === 'si';
       this._$('.res-btns').hidden = yaAcepto;
       this._$('.res-ok').hidden = !yaAcepto;
       this._$('.live').textContent = 'Resultado: ' + tit + '. ' + sub;
 
       if (!suave) return;
-      const despues = card.getBoundingClientRect().height;
-      const cambia = Math.abs(despues - antes) >= 2;
-      res.style.opacity = '0';
-      res.style.transform = 'translateY(8px)';
-      if (cambia) card.style.height = antes + 'px'; /* .card ya recorta con overflow:hidden */
+      [cab, res].forEach(e => { e.style.opacity = '0'; e.style.transform = 'translateY(8px)'; });
       requestAnimationFrame(() => {
-        if (cambia) {
-          card.style.transition = 'height 0.38s cubic-bezier(0.22,1,0.36,1)';
-          card.style.height = despues + 'px';
-        }
-        res.style.transition = 'opacity 0.32s ease, transform 0.38s cubic-bezier(0.22,1,0.36,1)';
-        res.style.opacity = '1';
-        res.style.transform = 'none';
+        [cab, res].forEach(e => {
+          e.style.transition = 'opacity 0.32s ease, transform 0.38s cubic-bezier(0.22,1,0.36,1)';
+          e.style.opacity = '1';
+          e.style.transform = 'none';
+        });
       });
-      clearTimeout(this._altoTo);
-      this._altoTo = setTimeout(() => {
-        card.style.transition = ''; card.style.height = '';
-        res.style.transition = ''; res.style.opacity = ''; res.style.transform = '';
+      clearTimeout(this._finTo);
+      this._finTo = setTimeout(() => {
+        [cab, res].forEach(e => { e.style.transition = ''; e.style.opacity = ''; e.style.transform = ''; });
       }, 430);
+    }
+    /* ---- desenlace por actos (pedido del dueño): la tarjeta sube, entra
+       "Noche extra al 75%", se borra, el precio antiguo baja rodando estilo
+       odómetro hasta el precio con descuento y al final aparecen los botones.
+       Solo corre con precioAntes/precioDespues numéricos y sin
+       prefers-reduced-motion; en cualquier otro caso, _mostrarResultado(). */
+    _datosContador() {
+      const a = Number(this._datos.precioAntes), b = Number(this._datos.precioDespues);
+      if (!isFinite(a) || !isFinite(b) || a <= 0 || b < 0 || b >= a) return null;
+      return { antes: a, despues: b, gratis: this._resultado === 100 || b <= 0 };
+    }
+    _fmt(n) { return n <= 0 ? 'GRATIS' : '$' + n.toLocaleString('es-CL'); }
+    _precioFinal(nums) {
+      const ePre = this._$('.res-precio');
+      if (nums.gratis) ePre.innerHTML = '<span class="grx">GRATIS</span>';
+      else ePre.textContent = this._fmt(nums.despues);
+    }
+    _limpiarSecuencia() {
+      (this._seqTos || []).forEach(clearTimeout);
+      this._seqTos = [];
+      cancelAnimationFrame(this._seqAnim);
+    }
+    _secuencia() {
+      this._limpiarSecuencia();
+      const nums = this._datosContador();
+      if (!nums) { this._mostrarResultado(true); return; }
+      const d = this._datos, p = this._resultado;
+      const tit = p === 100 ? 'Noche extra gratis' : 'Noche extra al ' + p + '%';
+      const cab = this._$('.res-cab'), res = this._$('.res');
+      const eTit = this._$('.res-tit'), ePre = this._$('.res-precio'),
+        eSub = this._$('.res-sub'), eBtns = this._$('.res-btns');
+      eTit.textContent = tit;
+      eSub.textContent = d.texto || 'Suma una noche a tu estadía';
+      this._buildOdo(nums.antes, nums.despues);
+      this._$('.rueda').hidden = true; this._$('.pie-rueda').hidden = true;
+      cab.hidden = false; res.hidden = false; ePre.hidden = false;
+      eBtns.hidden = false; this._$('.res-ok').hidden = true;
+      [cab, res].forEach(e => { e.style.transition = ''; e.style.opacity = ''; e.style.transform = ''; });
+      /* los actores esperan invisibles pero SIN ceder su sitio: son capas
+         dentro de zonas de alto fijo, así que nada se descoloca al entrar */
+      [eTit, ePre, eSub, eBtns].forEach(e => {
+        e.style.transition = ''; e.style.visibility = 'hidden';
+        e.style.opacity = '0'; e.style.transform = 'translateY(8px)';
+      });
+      /* el lector de pantalla recibe el desenlace completo desde ya */
+      this._$('.live').textContent = 'Resultado: ' + tit + '. Antes ' + this._fmt(nums.antes) +
+        ', ahora ' + this._fmt(nums.gratis ? 0 : nums.despues) + '. ' + (d.texto || '');
+      const paso = (ms, fn) => this._seqTos.push(setTimeout(fn, ms));
+      const entra = e => {
+        e.style.visibility = 'visible';
+        e.style.transition = 'opacity 0.32s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1)';
+        e.style.opacity = '1'; e.style.transform = 'none';
+      };
+      /* acto 2 (0.1s): el título del premio entra */
+      paso(100, () => entra(eTit));
+      /* acto 3 (1.25s): el título se borra */
+      paso(1250, () => {
+        eTit.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        eTit.style.opacity = '0'; eTit.style.transform = 'translateY(-6px)';
+      });
+      /* acto 4 (1.55s): aparece el precio antiguo… */
+      paso(1550, () => entra(ePre));
+      /* …y en 2.05s los dígitos ruedan hacia abajo hasta el precio final */
+      paso(2050, () => this._rodar(nums.antes, nums.gratis ? 0 : nums.despues, 1400, () => {
+        const fin = () => {
+          entra(eSub); entra(eBtns);
+          this._$('.si').focus();
+        };
+        if (nums.gratis) {
+          /* acto extra: el contador muere en $0 y GRATIS entra con un pop */
+          paso(150, () => {
+            ePre.innerHTML = '<span class="grx" style="opacity:0;transform:scale(0.7)">GRATIS</span>';
+            const g = ePre.firstChild;
+            requestAnimationFrame(() => {
+              g.style.transition = 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+              g.style.opacity = '1'; g.style.transform = 'scale(1)';
+            });
+            paso(400, fin);
+          });
+        } else paso(280, fin);
+      }));
+    }
+    /* odómetro: una columna por dígito, cada una con la tira 0-9 (y un 0 extra
+       para que el giro 0→9 sea continuo); separadores de miles es-CL */
+    _buildOdo(antes, despues) {
+      const ePre = this._$('.res-precio');
+      ePre.innerHTML = '';
+      const odo = document.createElement('span'); odo.className = 'odo';
+      const mon = document.createElement('span'); mon.className = 'f'; mon.textContent = '$';
+      odo.appendChild(mon);
+      const n = String(Math.floor(Math.max(antes, despues, 1))).length;
+      this._odoCols = []; this._odoSeps = [];
+      for (let i = 0; i < n; i++) {
+        const r = n - 1 - i, P = Math.pow(10, r);
+        if (i > 0 && r % 3 === 2) {
+          const s = document.createElement('span'); s.className = 'f'; s.textContent = '.';
+          odo.appendChild(s);
+          this._odoSeps.push({ el: s, P: P * 10 });
+        }
+        const c = document.createElement('span'); c.className = 'c';
+        const st = document.createElement('span'); st.className = 'st';
+        for (let k = 0; k <= 10; k++) {
+          const dg = document.createElement('span'); dg.textContent = String(k % 10);
+          st.appendChild(dg);
+        }
+        c.appendChild(st); odo.appendChild(c);
+        this._odoCols.push({ el: c, st: st, P: P, pos: Math.floor(antes / P) % 10 });
+      }
+      ePre.appendChild(odo);
+      this._pintarOdo(antes, true);
+    }
+    _pintarOdo(v, exacto) {
+      if (!this._odoCols) return;
+      v = Math.max(0, v);
+      this._odoCols.forEach(c => {
+        const obj = Math.floor(v / c.P) % 10;
+        if (exacto) c.pos = obj;
+        else {
+          /* cada rueda persigue su dígito SOLO hacia abajo, con inercia: las
+             unidades giran borrosas, las decenas de miles caen a saltos, y al
+             agotarse la distancia todas frenan solas (el clac del odómetro) */
+          const dist = ((c.pos - obj) % 10 + 10) % 10;
+          c.pos = dist < 0.02 ? obj : (((c.pos - Math.max(0.02, dist * 0.35)) % 10) + 10) % 10;
+        }
+        c.st.style.transform = 'translateY(' + (-c.pos * 1.1).toFixed(3) + 'em)';
+        c.el.style.display = (c.P === 1 || v >= c.P - 0.5) ? '' : 'none'; /* fuera ceros a la izquierda */
+      });
+      this._odoSeps.forEach(s => { s.el.style.display = v >= s.P - 0.5 ? '' : 'none'; });
+    }
+    _rodar(desde, hasta, dur, cb) {
+      cancelAnimationFrame(this._seqAnim);
+      const t0 = performance.now();
+      let fin = false;
+      const done = () => {
+        if (fin) return; fin = true;
+        cancelAnimationFrame(this._seqAnim);
+        this._pintarOdo(hasta, true);
+        cb();
+      };
+      const tick = t => {
+        if (fin) return;
+        const k = Math.min(1, (t - t0) / dur);
+        this._pintarOdo(desde + (hasta - desde) * (1 - Math.pow(1 - k, 4)));
+        /* tras agotar el tiempo, unas vueltas más hasta que cada rueda asiente */
+        if (k >= 1 && this._odoCols.every(c => c.pos === Math.floor(hasta / c.P) % 10)) done();
+        else this._seqAnim = requestAnimationFrame(tick);
+      };
+      this._seqAnim = requestAnimationFrame(tick);
+      /* red de seguridad: si rAF se estrangula (pestaña oculta, ahorro de energía) */
+      this._seqTos.push(setTimeout(done, dur + 900));
     }
     reiniciar() {
       this._resultado = null; this._decidido = null; this._datos = {};
@@ -380,15 +563,19 @@
       this._girando = false;
       window.__vaRuletaEstado = null;
       cancelAnimationFrame(this._anim); clearTimeout(this._animTo);
-      clearTimeout(this._transTo); clearTimeout(this._swapTo); clearTimeout(this._altoTo);
+      clearTimeout(this._transTo); clearTimeout(this._swapTo); clearTimeout(this._finTo);
+      this._limpiarSecuencia();
       this._quitarGanadora();
       this._tjs.forEach(t => t.classList.remove('win'));
       /* borrar cualquier estilo que la secuencia del resultado dejara a medias */
-      ['.tit', '.sub', '.acciones', '.res'].forEach(s => {
-        const e = this._$(s); e.style.transition = ''; e.style.opacity = ''; e.style.transform = '';
+      ['.rueda', '.pie-rueda', '.res-cab', '.res', '.res-tit', '.res-precio', '.res-sub', '.res-btns'].forEach(s => {
+        const e = this._$(s);
+        e.style.transition = ''; e.style.opacity = ''; e.style.transform = ''; e.style.visibility = '';
       });
-      const card = this._$('.card');
-      card.style.transition = ''; card.style.height = '';
+      this._$('.res-cab').hidden = true; this._$('.res').hidden = true;
+      this._$('.res-precio').hidden = true;
+      this._$('.rueda').hidden = false; this._$('.pie-rueda').hidden = false;
+      this._odoCols = null; this._odoSeps = [];
       this._setPos(0);
       this._$('.hint').hidden = false; this._$('.hint').style.opacity = '';
       this.cerrar();

@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./datos.js?v=3"></script>
+<script src="./pagos.js?v=3"></script>
+<script src="./support.js"></script>
+<script src="./ruleta.js?v=1"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;800&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0d1b2e;}
+  a{color:#f5f1e6;text-decoration:none;}
+  a:hover{color:#f0c419;}
+  @keyframes va-ruleta-blink{0%,100%{box-shadow:0 0 0 0 rgba(240,196,25,0);background:rgba(240,196,25,0.1)}50%{box-shadow:0 0 18px rgba(240,196,25,0.4);background:rgba(240,196,25,0.24)}}
+</style>
+<script>
+/* ================= DATOS DE OCUPACIÓN (EJEMPLO) =================
+   >>> REEMPLAZAR este objeto por la llamada real a la base de datos. <<<
+   Cada reserva es [entrada, salida): el día de salida queda LIBRE
+   (check-out 11:00 / check-in 16:00). */
+window.VA_OCUPACION = window.VA_OCUPACION || {
+  cabanas: [
+    { id: 'shangri-la', nombre: 'Shangri-la', capacidad: 8, reservas: [
+      ['2026-08-20','2026-08-23'], ['2026-09-11','2026-09-13'], ['2026-09-18','2026-09-21'], ['2026-10-09','2026-10-12'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
+    ]},
+    { id: 'el-chueco', nombre: 'El Chueco', capacidad: 9, reservas: [
+      ['2026-08-21','2026-08-24'], ['2026-09-18','2026-09-20'], ['2026-10-09','2026-10-11'], ['2026-10-30','2026-11-01'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
+    ]},
+    { id: 'nevados', nombre: 'Nevados', capacidad: 8, reservas: [
+      ['2026-08-21','2026-08-23'], ['2026-08-28','2026-08-30'], ['2026-09-17','2026-09-22'], ['2026-10-09','2026-10-12'], ['2026-11-13','2026-11-15'], ['2026-12-24','2026-12-27']
+    ]}
+  ]
+};
+</script>
+<script src="./actividades-data.js?v=1"></script>
+<script src="ruleta.js"></script>
+</helmet>
+<div style="font-family:'Manrope',sans-serif;background:#0d1b2e;max-width:430px;margin:0 auto;position:relative;padding:10px 10px 26px">
+
+  <div data-screen-label="Hero móvil" style="position:relative;height:560px;border-radius:20px;overflow:hidden;background:#1a2430;box-shadow:0 20px 50px rgba(0,0,0,0.5);z-index:5">
+    <img src="uploads/ChatGPT Image 21 jul 2026, 11_58_48 p.m..png" alt="Nevados de Chillán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% center">
+    <div style="position:absolute;inset:0;clip-path:polygon(0 0, 58% 0, 42% 100%, 0 100%);pointer-events:none;overflow:hidden">
+      <div style="position:absolute;inset:-40px;background-image:url('uploads/ChatGPT Image 21 jul 2026, 11_58_48 p.m..png');background-size:cover;background-position:60% center;filter:blur(18px) saturate(140%)"></div>
+      <div style="position:absolute;inset:0;background:rgba(255,255,255,0.26)"></div>
+    </div>
+    <div style="position:absolute;inset:0;pointer-events:none;background-image:url('uploads/ChatGPT Image 23 jul 2026, 09_00_44 p.m..png');background-size:220%;background-position:52% 40%;clip-path:polygon(0 0, 58% 0, 42% 100%, 0 100%);filter:grayscale(1) brightness(1.05) contrast(1.5);mix-blend-mode:screen;opacity:0.5"></div>
+    <div data-anim="fade" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 14px;z-index:5">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1c2b1c" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        <span style="font-size:8px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#1c2b1c">Síguenos</span>
+        <a href="#" aria-label="WhatsApp" style="display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1c2b1c" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1.1-4.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9.5c.5 2.5 3 5 5.5 5.5l1-1.5-2-1-1 .5c-.8-.5-1.5-1.2-2-2l.5-1-1-2z"></path></svg></a>
+        <a href="#" aria-label="TikTok" style="display:flex"><svg width="12" height="12" viewBox="0 0 24 24" fill="#1c2b1c"><path d="M16 3c.4 2.1 1.8 3.6 4 3.9v3c-1.6 0-3-.5-4-1.3V15a6 6 0 1 1-6-6c.3 0 .7 0 1 .1v3.1a3 3 0 1 0 2 2.8V3h3z"></path></svg></a>
+        <a href="#" aria-label="Instagram" style="display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1c2b1c" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="#1c2b1c" stroke="none"></circle></svg></a>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;font-size:7.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;white-space:nowrap">
+        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Cabañas</a>
+        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Tour 3D</a>
+        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Reservas</a>
+        <a href="#" style="color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,0.5)">Contacto</a>
+      </div>
+    </div>
+    <div data-anim="left" style="position: absolute; inset: 0; padding: 88px 0 0 22px; box-sizing: border-box; font-family: 'Raleway',sans-serif; font-weight: 800; font-size: 62px; line-height: 0.9; letter-spacing: 1px; pointer-events: none; background-image: url('uploads/ChatGPT Image 21 jul 2026, 11_58_48 p.m..png'); background-size: cover; background-position: 60% center; -webkit-background-clip: text; background-clip: text; color: rgba(0,0,0,0.25)">INVIERNO<div data-anim="right" data-anim-delay="0.15" style="position: absolute; top: 146px; left: 110px; font-family: 'Manrope',sans-serif; font-weight: 800; font-size: {{ yearSize }}px; line-height: 0.9; color: #ffffff; text-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: none">2026</div></div>
+    <div data-anim="up" data-anim-delay="0.25" style="position:absolute;left:22px;bottom:58px;width:60%;color:#ffffff;text-shadow:0 2px 12px rgba(0,0,0,0.35)">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <span style="font-family:'Raleway',sans-serif;font-size:24px;font-weight:300;color:rgba(255,255,255,0.7)">01</span>
+        <span style="font-size:10px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase">Descubre el valle</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:7px;margin-left:2px">
+        <span style="width:18px;height:4px;border-radius:2px;background:#ffffff;display:inline-block"></span>
+        <span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.45);display:inline-block"></span>
+        <span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.45);display:inline-block"></span>
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;margin-top:11px;text-wrap:pretty;color:rgba(255,255,255,0.92)">Cabañas equipadas en el corazón del Valle Las Trancas, a 15 minutos de las Termas de Chillán. Naturaleza, descanso y aventura en equilibrio perfecto.</div>
+      <a href="#" style="display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-size:10px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;color:#ffffff;white-space:nowrap">Ver cabañas <span style="width:38px;height:1px;background:#ffffff;display:inline-block"></span> →</a>
+    </div>
+    <div style="position:absolute;left:16px;right:16px;bottom:-1px;height:34px;background:#0d1b2e;border-radius:14px 14px 0 0"></div>
+    <div data-anim="fade" data-anim-delay="0.45" style="position:absolute;right:12px;top:46%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.75);pointer-events:none;font-weight:600">Nevados de Chillán</div>
+  </div>
+
+  <div data-anim="up" style="position:absolute;left:36px;right:36px;top:546px;z-index:7;background:rgba(150,170,190,0.42);border:1px solid rgba(255,255,255,0.45);border-radius:14px 14px 12px 12px;padding:10px 12px;box-shadow:0 18px 50px rgba(0,0,0,0.3);color:#ffffff">
+    <div style="display:flex;gap:10px">
+      <label style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;cursor:pointer">
+        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Entrada</span>
+        <input type="date" value="{{ searchIn }}" onChange="{{ setSearchIn }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;color-scheme:dark">
+      </label>
+      <span style="width:1px;background:rgba(255,255,255,0.4)"></span>
+      <label style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;cursor:pointer">
+        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Salida</span>
+        <input type="date" value="{{ searchOut }}" onChange="{{ setSearchOut }}" min="{{ todayMin }}" style="border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#ffffff;outline:none;padding:0;width:100%;color-scheme:dark">
+      </label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.35)">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Adultos</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onClick="{{ gMinus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">−</button>
+          <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ guests }}</span>
+          <button onClick="{{ gPlus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">+</button>
+        </div>
+      </div>
+      <span style="width:1px;background:rgba(255,255,255,0.4);margin:2px 0"></span>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Niños −12</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onClick="{{ kMinus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">−</button>
+          <span style="font-size:15px;font-weight:700;min-width:22px;text-align:center;white-space:nowrap">{{ kids }}</span>
+          <button onClick="{{ kPlus }}" style="width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#ffffff;font-size:18px;line-height:1;cursor:pointer;padding:0">+</button>
+        </div>
+      </div>
+    </div>
+    <button onClick="{{ doSearch }}" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;min-height:44px;margin-top:10px;border:none;border-radius:999px;background:rgba(32,148,170,0.92);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:700;padding:12px 15px;cursor:pointer;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path></svg>Buscar disponibilidad</button>
+  </div>
+
+  <div data-screen-label="Reserva móvil" style="position:relative;z-index:6;margin-top:-24px;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5));clip-path:inset(-200px 0 0 0)">
+    <div style="position:absolute;inset:0;background:#0e1c30;border-radius:20px;clip-path:{{ calClipM }}">
+      <div style="position:absolute;inset:0;background:url('uploads/d512f7d7-12fc-4fd4-a8bd-865253e87348.png') center / cover no-repeat"></div>
+      <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
+    </div>
+    <div style="position:relative;padding:204px 16px 22px">
+      <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ searchError }}</div></sc-if>
+      <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
+      <div id="canje" style="margin:0 0 4px">
+          <sc-if value="{{ !cotOpen }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ cotToggle }}" style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin:0 0 14px;background:rgba(240,196,25,0.1);border:1px solid rgba(240,196,25,0.4);border-radius:12px;padding:11px 13px;cursor:pointer;color:#ffffff;font-family:'Manrope',sans-serif;text-align:left">
+              <span style="width:32px;height:32px;flex:none;border-radius:50%;background:#f0c419;color:#22271f;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;font-weight:800;font-size:16px">?</span>
+              <span style="display:flex;flex-direction:column;gap:1px">
+                <b style="font-size:13px">¿Tienes un código?</b>
+                <span style="font-size:10.5px;color:rgba(255,255,255,0.6)">Canjéalo y te aparece tu beneficio</span>
+              </span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ cotOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:14px 16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div style="font-size:9.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Código de cotización</div>
+                <button onClick="{{ cotToggle }}" style="border:none;background:transparent;color:rgba(255,255,255,0.55);font-family:'Manrope',sans-serif;font-size:11px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:2px 0">Cerrar</button>
+              </div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.65);margin-top:4px;line-height:1.6">Pon tu nombre y el código que te enviamos por WhatsApp: rellenamos las fechas y la cabaña por ti.</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+                <input placeholder="Nombre y apellido" value="{{ cotNombre }}" onChange="{{ setCotNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:13.5px;outline:none;width:100%;box-sizing:border-box">
+                <input placeholder="VA-0000" value="{{ cotCodigo }}" onChange="{{ setCotCodigo }}" autocapitalize="characters" autocorrect="off" spellcheck="false" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:12px 14px;color:#ffffff;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:13.5px;letter-spacing:1.5px;text-transform:uppercase;outline:none;width:100%;box-sizing:border-box">
+              </div>
+              <sc-if value="{{ cotHayError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:10px;font-size:12px;color:#ffb0a6;line-height:1.5">{{ cotError }}</div></sc-if>
+              <sc-if value="{{ !cotCargando }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ cotVer }}" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:15px 10px;cursor:pointer;width:100%;margin-top:14px">Ver mi precio</button>
+              </sc-if>
+              <sc-if value="{{ cotCargando }}" hint-placeholder-val="{{ false }}">
+                <button style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:15px 10px;cursor:default;width:100%;margin-top:14px;opacity:0.55">Buscando…</button>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      <div style="font-size:13px;font-weight:800">Elige tu cabaña</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+        <button onClick="{{ pick8 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab8Bg }};border:{{ cab8Border }};color:#ffffff;font-family:'Manrope',sans-serif">
+          <span style="font-size:12.5px;font-weight:800">Para 8 personas</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.75)">{{ cab8Sub }}</span>
+        </button>
+        <button onClick="{{ pick9 }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:10px 8px;cursor:pointer;background:{{ cab9Bg }};border:{{ cab9Border }};color:#ffffff;font-family:'Manrope',sans-serif">
+          <span style="font-size:12.5px;font-weight:800">Para 9 personas</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.75)">{{ cab9Sub }}</span>
+        </button>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:8px">Las 3 cabañas son idénticas — te asignamos la tuya según el tamaño del grupo.</div>
+      <div style="margin-top:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;box-shadow:0 16px 40px rgba(0,0,0,0.3)">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <button onClick="{{ calPrev }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);color:#ffffff;font-size:14px;cursor:pointer">‹</button>
+          <span style="font-family:'Raleway',sans-serif;font-size:17px;font-weight:800;letter-spacing:1px;white-space:nowrap">{{ calTitle }}</span>
+          <button onClick="{{ calNext }}" style="width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.26);color:#ffffff;font-size:14px;cursor:pointer">›</button>
+        </div>
+        <div style="overflow:hidden;margin-top:12px">
+          <div style="display:flex;gap:20px;transform:{{ calShiftX }};transition:transform 0.55s cubic-bezier(0.25,0.8,0.3,1)">
+            <sc-for list="{{ calSlides }}" as="mo" hint-placeholder-count="2">
+              <div style="flex:0 0 100%;min-width:0;opacity:{{ mo.op }};transition:opacity 0.5s ease;pointer-events:{{ mo.pe }}">
+                <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;font-size:10px;font-weight:800;letter-spacing:1px;color:#7fd6e2;text-align:center">
+                  <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:4px;margin-top:6px;min-height:222px;align-content:start">
+                  <sc-for list="{{ mo.days }}" as="d" hint-placeholder-count="35">
+                    <button onClick="{{ d.pick }}" style="border:none;padding:8px 0;text-align:center;font-family:'Manrope',sans-serif;font-size:11.5px;border-radius:8px;cursor:pointer;background:{{ d.bg }};color:{{ d.color }};font-weight:{{ d.fw }};text-decoration:{{ d.deco }};box-shadow:{{ d.ring }}">{{ d.n }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:9.5px;color:rgba(255,255,255,0.75);flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:10px"><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,0.12);display:inline-block"></span>Ocupado</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.38) 50%);display:inline-block"></span>Llegada o salida el mismo día</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#35b7c9;display:inline-block"></span>Tu selección</span></span>
+          <span style="white-space:nowrap">Entrada: <b>{{ calStartTxt }}</b> · Salida: <b>{{ calEndTxt }}</b></span>
+        </div>
+      </div>
+      <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ calError }}</div></sc-if>
+      <div style="font-size:9.5px;color:rgba(255,255,255,0.7);line-height:1.7;margin-top:10px">Estadía mínima: {{ minNoches }} noches · Puedes llegar el mismo día que sale otro huésped · {{ guestMax }}</div>
+      <button onClick="{{ openBooking }}" style="display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:14px 10px;cursor:{{ resCur }};opacity:{{ resOp }};width:100%;margin-top:10px" disabled="{{ resDis }}">Reservar esta cabaña →</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ bkOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeBk }}" style="position:fixed;inset:0;z-index:90;background:rgba(6,14,24,0.74);display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box">
+      <div onClick="{{ stopProp }}" style="width:100%;max-width:400px;background:#0e1c30;border:1px solid rgba(255,255,255,0.25);border-radius:16px;padding:20px 18px;box-sizing:border-box;box-shadow:0 40px 90px rgba(0,0,0,0.6);color:#ffffff;font-family:'Manrope',sans-serif;max-height:88vh;overflow:auto">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#7fd6e2">{{ bkStepTxt }}</span>
+            <div style="font-family:'Raleway',sans-serif;font-size:17px;font-weight:800">{{ bkTitle }}</div>
+          </div>
+          <button onClick="{{ closeBk }}" style="border:none;background:rgba(255,255,255,0.12);color:#ffffff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:12px;flex-shrink:0">✕</button>
+        </div>
+        <sc-if value="{{ bkS1 }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:11.5px">
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Entrada</span><b>{{ bkInTxt }} · 16:00</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Salida</span><b>{{ bkOutTxt }} · 11:00</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Noches</span><b>{{ bkNights }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Cabaña</span><b>{{ bkCabTxt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Huéspedes</span><b>{{ bkGuestsTxt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,0.18);padding-top:7px;margin-top:2px"><span style="color:rgba(255,255,255,0.65)">Noches × tarifa</span><b>{{ bkBreakdown }}</b></div>
+            <sc-if value="{{ bkExtraNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;color:#7fd6e2">{{ bkExtraNote }}</div></sc-if>
+            <sc-if value="{{ ruletaOk }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;gap:10px"><span style="color:#f0c419">{{ ruletaRowTxt }}</span><b style="color:#f0c419">{{ ruletaRowFmt }}</b></div></sc-if>
+            <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px"><span style="color:rgba(255,255,255,0.65)">Total</span><b>{{ bkTotalFmt }}</b></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+            <div style="background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:10px 12px">
+              <div style="font-size:8.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;color:#7fd6e2">Pagas ahora · online</div>
+              <div style="font-size:16px;font-weight:800;margin-top:3px;color:#7fd6e2">{{ bkHalfFmt }}</div>
+              <div style="font-size:9.5px;color:rgba(255,255,255,0.65);margin-top:2px">50% del total</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:10px 12px">
+              <div style="font-size:8.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.7)">Al llegar · en la cabaña</div>
+              <div style="font-size:16px;font-weight:800;margin-top:3px">{{ bkBalFmt }}</div>
+              <div style="font-size:9.5px;color:rgba(255,255,255,0.65);margin-top:2px">50% restante</div>
+            </div>
+          </div>
+          <button onClick="{{ bkNext }}" style="display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:13px 8px;cursor:pointer;width:100%;margin-top:12px">Quiero reservar →</button>
+          <div style="font-size:9.5px;color:rgba(255,255,255,0.55);margin-top:8px;text-align:center;line-height:1.6">Check-in 16:00 · Check-out 11:00 · Cancelación gratuita hasta 7 días antes</div>
+        
+
+        </sc-if>
+        <sc-if value="{{ bkS2 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:10px 12px;font-size:11px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">Pagas ahora (50%) {{ bkHalfFmt }}</b></div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <input placeholder="Nombre y apellido" value="{{ nombre }}" onChange="{{ setNombre }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
+            <input placeholder="Teléfono (+56 9…)" value="{{ fono }}" onChange="{{ setFono }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
+            <input placeholder="Email" type="email" value="{{ email }}" onChange="{{ setEmail }}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:11px 12px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:12.5px;outline:none;width:100%;box-sizing:border-box">
+          </div>
+          <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:8px;font-size:11px;color:#ffb0a6">{{ formError }}</div></sc-if>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button onClick="{{ bkBack }}" style="display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.35);border-radius:999px;background:rgba(255,255,255,0.1);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:12px 14px;cursor:pointer;flex-shrink:0">← Volver</button>
+            <button onClick="{{ bkNext }}" style="display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;background:linear-gradient(135deg, #35b7c9 0%, #2494ac 100%);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:13px 8px;cursor:pointer;flex:1">Continuar →</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ bkS3 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:12px;padding:10px 12px;font-size:11px"><span style="color:rgba(255,255,255,0.75)">Total <b style="color:#ffffff">{{ bkTotalFmt }}</b></span><b style="color:#7fd6e2;white-space:nowrap">Pagas ahora (50%) {{ bkHalfFmt }}</b></div>
+          <sc-if value="{{ ruletaHay }}" hint-placeholder-val="{{ true }}"><button onClick="{{ openRuleta }}" style="display:flex;align-items:center;gap:10px;margin-top:10px;width:100%;box-sizing:border-box;background:rgba(240,196,25,0.1);border:1px solid rgba(240,196,25,0.45);border-radius:12px;padding:10px 12px;cursor:pointer;color:#ffffff;font-family:'Manrope',sans-serif;text-align:left;animation:{{ ruletaBtnAnim }}">
+            <span style="width:34px;height:34px;border-radius:50%;background:#f0c419;color:#22271f;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;font-weight:800;font-size:17px;flex-shrink:0">{{ ruletaQ }}</span>
+            <span style="display:flex;flex-direction:column;gap:1px"><b style="font-size:12px">{{ ruletaBtnTitle }}</b><span style="font-size:10px;color:rgba(255,255,255,0.6)">{{ ruletaBtnSub }}</span></span>
+          </button></sc-if>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <button onClick="{{ mpPay }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(53,183,201,0.18);border:1.5px solid #3fc8da;border-radius:12px;padding:12px 14px;color:#ffffff;font-family:'Manrope',sans-serif;cursor:pointer;text-align:left;width:100%;box-sizing:border-box">
+              <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:12.5px">Mercado Pago</b><span style="font-size:10px;color:rgba(255,255,255,0.65)">Crédito, débito y saldo en cuenta</span></span>
+              <span style="font-size:10.5px;font-weight:800;color:#7fd6e2;white-space:nowrap">{{ mpLabel }} →</span>
+            </button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:12px 14px;opacity:0.55">
+              <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:12.5px">Webpay</b><span style="font-size:10px;color:rgba(255,255,255,0.65)">Tarjetas chilenas</span></span>
+              <span style="font-size:8.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:4px 9px;white-space:nowrap">Próximamente</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:12px 14px;opacity:0.55">
+              <span style="display:flex;flex-direction:column;gap:2px"><b style="font-size:12.5px">Otros medios</b><span style="font-size:10px;color:rgba(255,255,255,0.65)">Transferencia y más</span></span>
+              <span style="font-size:8.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:4px 9px;white-space:nowrap">Próximamente</span>
+            </div>
+          </div>
+          <button onClick="{{ bkBack }}" style="display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.35);border-radius:999px;background:rgba(255,255,255,0.1);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:12px 14px;cursor:pointer;width:100%;margin-top:12px">← Volver</button>
+        </sc-if>
+        <sc-if value="{{ bkS4 }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:6px 0 2px">
+            <div style="width:54px;height:54px;border-radius:50%;background:rgba(53,183,201,0.18);border:1.5px solid #35b7c9;display:flex;align-items:center;justify-content:center;margin:0 auto"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3fc8da" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 L9.5 18 L20 6.5"></path></svg></div>
+            <div style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;margin-top:12px">¡Reserva confirmada!</div>
+            <div style="font-size:11.5px;color:rgba(255,255,255,0.75);margin-top:5px;line-height:1.6">Pago simulado: aquí se abrirá la pasarela de <b style="color:#ffffff">Mercado Pago</b> para cobrar el 50% ({{ bkHalfFmt }}). No se realizó ningún cobro.</div>
+          </div>
+          <div style="margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:11.5px">
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Fechas</span><b>{{ bkRange }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Cabaña</span><b>{{ bkCabTxt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Huéspedes</span><b>{{ bkGuestsTxt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Pagado ahora (50%)</span><b style="color:#7fd6e2">{{ bkHalfFmt }}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px"><span style="color:rgba(255,255,255,0.65)">Saldo en la cabaña</span><b>{{ bkBalFmt }}</b></div>
+          </div>
+          <button onClick="{{ finishBk }}" style="display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.35);border-radius:999px;background:rgba(255,255,255,0.1);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:12px 14px;cursor:pointer;width:100%;margin-top:12px">Listo</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <div data-screen-label="Destino todo el año móvil" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#0e1c30;color:#ffffff;box-shadow:0 24px 50px rgba(0,0,0,0.45);min-height:190px;display:flex;flex-direction:column;justify-content:center">
+    <div style="position:absolute;inset:0;background:url('uploads/ChatGPT Image 22 jul 2026, 09_51_05 p.m..png') center 65% / cover no-repeat"></div>
+    <div style="position:absolute;inset:0;background:rgba(11,20,36,0.72);pointer-events:none"></div>
+    <div data-anim="up" style="position:relative;padding:22px 16px">
+      <div style="font-size:9px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.75)">En el corazón de la montaña</div>
+      <div style="font-family:'Raleway',sans-serif;font-size:21px;font-weight:800;line-height:1.2;margin-top:6px;text-wrap:balance">Un destino para<br>vivirlo todo el año</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:16px">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:0 6px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6"><path d="M12 21c-4-4.5-6-7.8-6-10.5a6 6 0 1 1 12 0C18 13.2 16 16.5 12 21z"></path><circle cx="12" cy="10.5" r="2.2"></circle></svg>
+          <div><div style="font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">15 minutos</div><div style="font-size:8.5px;color:rgba(255,255,255,0.75);margin-top:2px;line-height:1.4">de las Termas de Chillán</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:0 6px;border-left:1px solid rgba(255,255,255,0.25)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6"><path d="M3 19 L9 8 L13 14 L16 10 L21 19 Z"></path><path d="M9 8 L10.5 5.5 L12 8"></path></svg>
+          <div><div style="font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Naturaleza</div><div style="font-size:8.5px;color:rgba(255,255,255,0.75);margin-top:2px;line-height:1.4">Montañas, bosques y aire puro</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:0 6px;border-left:1px solid rgba(255,255,255,0.25)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6"><path d="M5 14c0 3 3 5 7 5s7-2 7-5-3-5-7-5"></path><path d="M8 4c-1 1.2-1 2.4 0 3.6M12 3c-1 1.2-1 2.4 0 3.6M16 4c-1 1.2-1 2.4 0 3.6"></path></svg>
+          <div><div style="font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Descanso</div><div style="font-size:8.5px;color:rgba(255,255,255,0.75);margin-top:2px;line-height:1.4">Cabañas en Las Trancas</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Dormir bien móvil" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#141c26;box-shadow:0 24px 50px rgba(0,0,0,0.45)">
+    <div style="position:relative;background:#0e1c30">
+      <div style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+        <sc-for list="{{ cabFotos }}" as="p" hint-placeholder-count="0">
+          <div role="img" aria-label="Cabañas Valle Aventura" style="{{ p.bgStyle }}"></div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,0.55);color:#ffffff;border-radius:999px;padding:5px 11px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;pointer-events:none">Nuestras cabañas · desliza →</div>
+    </div>
+    <div style="position:relative">
+    <img src="uploads/IMG_5798.jpg" alt="Cabañas nevadas entre árboles" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,16,22,0.66) 0%, rgba(10,16,22,0.42) 55%, rgba(10,16,22,0.75) 100%);pointer-events:none"></div>
+    <div style="position:relative;padding:22px 16px;color:#ffffff">
+      <h2 data-anim="left" style="font-family:'Raleway',sans-serif;font-size:26px;font-weight:800;line-height:1.15;margin:0;text-shadow:0 6px 24px rgba(0,0,0,0.45);text-wrap:balance">Dormir bien también es parte del viaje</h2>
+      <div data-anim="up" data-anim-delay="0.1" style="font-size:11.5px;line-height:1.7;color:rgba(255,255,255,0.88);margin-top:10px;text-wrap:pretty">Cabañas equipadas en medio del bosque nativo, a 15 minutos de las Termas de Chillán. Un lugar para bajar el ritmo y recargarte.</div>
+      <div data-anim="up" data-anim-delay="0.15" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+        <span style="display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)"><svg width="10" height="10" viewBox="0 0 24 24" fill="#7ec97e"><path d="M12 2 L19 14 H14 V22 H10 V14 H5 Z"></path></svg>Bosque nativo</span>
+        <span style="display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)">Piscina</span>
+        <span style="display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)">Hot tub</span>
+        <span style="display:inline-flex;align-items:center;border:1px solid #f0c419;border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#f0c419;background:rgba(0,0,0,0.25)">Pet friendly</span>
+      </div>
+      <div data-anim="up" data-anim-delay="0.2" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.25);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px)">
+        <div>
+          <div style="font-size:9.5px;color:rgba(255,255,255,0.75)">desde</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#f0c419;white-space:nowrap">$180.000 <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85)">/ noche</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+          <div style="font-size:14px;font-weight:800;white-space:nowrap">8–9 <span style="font-size:9.5px;font-weight:600;color:rgba(255,255,255,0.75)">huéspedes</span></div>
+          <div style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800"><span style="color:#f0c419;font-size:11px">★</span>4.9</div>
+        </div>
+      </div>
+      <a data-anim="up" data-anim-delay="0.25" href="#" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#f0c419;color:#1c2b1c;border-radius:999px;padding:13px 10px;font-size:13px;font-weight:800;box-shadow:0 12px 30px rgba(240,196,25,0.3);margin-top:12px">Elige tu cabaña <span style="font-size:15px">→</span></a>
+      <div data-anim="up" data-anim-delay="0.3" style="margin-top:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:9px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.85);white-space:nowrap">Interior · {{ galCount }}</span>
+          <div style="display:flex;gap:7px">
+            <button onClick="{{ galPrev }}" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#ffffff;font-size:13px;cursor:pointer;line-height:1">‹</button>
+            <button onClick="{{ galNext }}" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.85);border:none;color:#1c2b1c;font-size:13px;cursor:pointer;line-height:1">›</button>
+          </div>
+        </div>
+        <div style="overflow:hidden;border-radius:6px;height:140px;display:flex;align-items:flex-end">
+          <div style="display:flex;gap:9px;align-items:flex-end;width:100%;transform:{{ galShift }};transition:transform 0.5s cubic-bezier(0.25,0.8,0.3,1)">
+            <sc-for list="{{ galFotos }}" as="f" hint-placeholder-count="3">
+              <div style="position:relative;flex:0 0 auto;width:{{ f.w }}px;height:{{ f.h }}px;opacity:{{ f.o }};border-radius:6px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,0.4);transition:width 0.5s cubic-bezier(0.25,0.8,0.3,1), height 0.5s cubic-bezier(0.25,0.8,0.3,1), opacity 0.5s ease">
+                <div role="img" aria-label="{{ f.label }}" style="width:100%;height:100%;background-image:url('{{ f.src }}');background-size:cover;background-position:center"></div>
+                <div style="position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,0.55);color:#ffffff;border-radius:999px;padding:3px 8px;font-size:8.5px;font-weight:700;letter-spacing:0.5px;white-space:nowrap">{{ f.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Tu camino móvil" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#0e1c30;box-shadow:0 24px 50px rgba(0,0,0,0.45);min-height:190px;display:flex;flex-direction:column;justify-content:center">
+    <div style="position:absolute;inset:0;background:url('uploads/ChatGPT Image 22 jul 2026, 09_51_05 p.m..png') center 65% / cover no-repeat;pointer-events:none"></div>
+    <div style="position:absolute;inset:0;background:rgba(13,27,46,0.5);pointer-events:none"></div>
+    <div data-anim="up" style="position:relative;padding:18px 14px;display:flex;align-items:center;gap:8px;color:#ffffff">
+      <div style="flex-shrink:0;font-size:7.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;color:rgba(205,224,246,0.85);line-height:1.6">Tu camino<br>comienza aquí</div>
+      <span style="width:6px;height:6px;border-radius:50%;background:#f0c419;box-shadow:0 0 8px rgba(240,196,25,0.8);flex-shrink:0"></span>
+      <svg viewBox="0 0 60 24" preserveAspectRatio="none" style="flex:1 1 10px;height:24px;min-width:8px"><path d="M 0 18 C 20 18, 30 5, 60 7" stroke="#cde0f6" stroke-opacity="0.75" stroke-width="1.3" stroke-dasharray="4 6" fill="none"></path></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+        <svg width="24" height="18" viewBox="0 0 34 26" fill="none" stroke="#cde0f6" stroke-width="1.7" stroke-linejoin="round"><path d="M2 24 L11 8 L17 17 L21 11 L32 24 Z"></path><path d="M9 11.5 L11 8 L13 11.5"></path></svg>
+        <div style="font-size:7.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Montañas</div>
+      </div>
+      <svg viewBox="0 0 60 24" preserveAspectRatio="none" style="flex:1 1 10px;height:24px;min-width:8px"><path d="M 0 7 C 22 9, 35 19, 60 16" stroke="#cde0f6" stroke-opacity="0.75" stroke-width="1.3" stroke-dasharray="4 6" fill="none"></path></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+        <svg width="20" height="19" viewBox="0 0 24 24" fill="none" stroke="#cde0f6" stroke-width="1.6" stroke-linecap="round"><path d="M5 15c0 3 3 5 7 5s7-2 7-5-3-5-7-5"></path><path d="M8 4c-1 1.3-1 2.6 0 3.9M12 3c-1 1.3-1 2.6 0 3.9M16 4c-1 1.3-1 2.6 0 3.9"></path></svg>
+        <div style="font-size:7.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Termas</div>
+      </div>
+      <svg viewBox="0 0 60 24" preserveAspectRatio="none" style="flex:1 1 10px;height:24px;min-width:8px"><path d="M 0 16 C 22 14, 35 4, 60 6" stroke="#cde0f6" stroke-opacity="0.75" stroke-width="1.3" stroke-dasharray="4 6" fill="none"></path></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#cde0f6" stroke-width="1.6" stroke-linecap="round"><path d="M20 4C10 5 5 10 5 17c0 1.5.3 2.5.3 2.5S7 20 9 20c7 0 11-6 11-16z"></path><path d="M5.5 19C9 14 13 10 18 6.5"></path></svg>
+        <div style="font-size:7.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Descanso</div>
+      </div>
+      <svg width="16" height="22" viewBox="0 0 22 30" style="flex-shrink:0"><path d="M 11 29 C 6 21 1 15.5 1 10.5 A 10 10 0 0 1 21 10.5 C 21 15.5 16 21 11 29 Z" fill="rgba(240,196,25,0.15)" stroke="#f0c419" stroke-width="1.6"></path><circle cx="11" cy="10.5" r="3.6" fill="none" stroke="#f0c419" stroke-width="1.5"></circle></svg>
+    </div>
+  </div>
+
+  <div data-screen-label="Tour digital 3D móvil" id="tour3d" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#0b1420;box-shadow:0 24px 50px rgba(0,0,0,0.45);height:700px">
+    <sc-if value="{{ tourOff }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0">
+        <img src="uploads/IMG_2558-2.jpg" alt="Interior de la cabaña" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(9,16,26,0.82) 0%, rgba(9,16,26,0.35) 48%, rgba(9,16,26,0.85) 100%);pointer-events:none"></div>
+        <div style="position:relative;padding:22px 16px;color:#ffffff;display:flex;flex-direction:column;height:100%;box-sizing:border-box">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <span style="font-family:'Raleway',sans-serif;font-size:22px;font-weight:300;color:rgba(255,255,255,0.6)">02</span>
+            <span style="font-size:10px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase">Tour digital 3D</span>
+          </div>
+          <h2 style="font-family:'Raleway',sans-serif;font-size:26px;font-weight:800;line-height:1.15;margin:12px 0 0;text-shadow:0 6px 24px rgba(0,0,0,0.45);text-wrap:balance">Recorre la cabaña antes de llegar</h2>
+          <div style="font-size:11.5px;line-height:1.7;color:rgba(255,255,255,0.88);margin-top:10px;text-wrap:pretty">Camina por el living, la cocina y los dormitorios en un recorrido interactivo de 360°. Sin sorpresas: lo que ves es exactamente lo que te espera en el valle.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+            <span style="display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)">Recorrido 360°</span>
+            <span style="display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)">Plano de la cabaña</span>
+            <span style="display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.45);border-radius:999px;padding:6px 11px;font-size:10px;white-space:nowrap;font-weight:600;color:#ffffff;background:rgba(0,0,0,0.25)">Compatible con VR</span>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center">
+            <button onClick="{{ tourStart }}" aria-label="Iniciar recorrido" style="width:96px;height:96px;border-radius:50%;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.18);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);color:#ffffff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:0 20px 50px rgba(0,0,0,0.4)">
+              <span style="font-size:19px;line-height:1">▶</span>
+              <span style="font-size:8px;letter-spacing:2px;font-weight:800;text-transform:uppercase">Play 3D</span>
+            </button>
+          </div>
+          <button onClick="{{ tourStart }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#f0c419;color:#1c2b1c;border:none;border-radius:999px;padding:13px 10px;width:100%;font-family:'Manrope',sans-serif;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 12px 30px rgba(240,196,25,0.3)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1c2b1c" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><ellipse cx="12" cy="12" rx="9" ry="4"></ellipse></svg>
+            Iniciar recorrido
+          </button>
+          <div style="text-align:center;font-size:9px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-top:12px">Cabaña Nevados · 8 huéspedes</div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:#0b1420">
+        <iframe src="{{ tourUrl }}" title="Tour digital 3D Cabañas Valle Aventura" style="position:absolute;inset:0;width:100%;height:100%;border:none;display:block" allowfullscreen="true" allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"></iframe>
+        <div style="position:absolute;left:12px;top:12px;background:rgba(11,20,32,0.6);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,0.28);border-radius:999px;padding:8px 13px;color:#ffffff;font-size:9px;letter-spacing:2px;font-weight:800;text-transform:uppercase;pointer-events:none">Tour 3D · Cabaña Nevados</div>
+        <button onClick="{{ tourStop }}" style="position:absolute;right:12px;top:12px;background:rgba(11,20,32,0.6);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,0.28);border-radius:999px;padding:8px 14px;color:#ffffff;font-family:'Manrope',sans-serif;font-size:9px;letter-spacing:2px;font-weight:800;text-transform:uppercase;cursor:pointer;min-height:44px">Cerrar ✕</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <div data-screen-label="Entre volcanes móvil" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#16202b;box-shadow:0 24px 50px rgba(0,0,0,0.45)">
+    <img src="uploads/6290fe71-6ea3-4aad-b215-f3884c58d32c.png" alt="Valle nevado de Las Trancas" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    <div style="position:relative;padding:18px 12px 20px">
+      <div data-anim="up" style="color:#ffffff;text-shadow:0 2px 12px rgba(0,0,0,0.35);padding-left:6px">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-family:'Raleway',sans-serif;font-size:22px;font-weight:300;color:rgba(255,255,255,0.7)">03</span>
+          <span style="font-size:10px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase">Vive la montaña</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;margin-left:2px">
+          <span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.45);display:inline-block"></span>
+          <span style="width:18px;height:4px;border-radius:2px;background:#ffffff;display:inline-block"></span>
+          <span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.45);display:inline-block"></span>
+        </div>
+      </div>
+      <div style="margin-top:14px;max-width:330px;margin-left:auto;margin-right:auto">
+        <div data-anim="up" data-anim-delay="0.1" style="background:rgba(30,42,54,0.32);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,0.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,0.35);padding:14px 12px;display:flex;gap:12px;align-items:flex-start;color:#ffffff">
+          <div style="flex:0 0 64px;height:170px;border-radius:32px;overflow:hidden;border:1px solid rgba(255,255,255,0.4);box-shadow:0 12px 30px rgba(0,0,0,0.35);position:relative">
+            <img src="uploads/asio tieen.png" alt="Volcán Nevados de Chillán" style="position:absolute;left:0;bottom:-60px;width:100%;height:320px;object-fit:cover;object-position:33% bottom">
+          </div>
+          <div style="min-width:0">
+            <div style="font-size:8.5px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,0.85)">Nevados de Chillán</div>
+            <h2 style="font-family:'Raleway',sans-serif;font-size:18px;font-weight:800;line-height:1.15;margin:6px 0 0;text-shadow:0 4px 16px rgba(0,0,0,0.4);text-wrap:balance">Entre volcanes y nieve</h2>
+            <div style="width:36px;height:1px;background:rgba(255,255,255,0.6);margin-top:8px"></div>
+            <div style="font-size:10.5px;line-height:1.65;color:rgba(255,255,255,0.92);margin-top:8px;text-wrap:pretty">Ubicados en el corazón de Las Trancas, a solo 15 minutos de Nevados de Chillán, elegido Mejor Centro de Ski de Chile 2025 y nominado a Mejor Centro de Ski del Mundo 2025. Naturaleza, aventura y descanso en un solo lugar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Actividades móvil" style="position:relative;margin-top:10px;border-radius:20px;overflow:hidden;background:#0e1c30;box-shadow:0 24px 50px rgba(0,0,0,0.45);color:#ffffff;padding:20px 16px 22px">
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <span style="font-family:'Raleway',sans-serif;font-size:22px;font-weight:300;color:rgba(255,255,255,0.6)">04</span>
+      <span style="font-size:10px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase">Actividades</span>
+    </div>
+    <div style="font-family:'Raleway',sans-serif;font-size:24px;font-weight:800;margin-top:8px;text-wrap:balance">Dentro y fuera del recinto</div>
+    <div style="font-size:11px;line-height:1.65;color:rgba(255,255,255,0.75);margin-top:6px;text-wrap:pretty">Panoramas incluidos en tu estadía y las mejores aventuras del valle. Toca una carpeta para abrirla.</div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:20px">
+      <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7fd6e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 3 L21 11"></path><path d="M5 9.5 V21 H19 V9.5"></path></svg>Dentro del recinto</div>
+      <div style="font-size:9px;font-weight:800;color:#7fd6e2;letter-spacing:1px;text-transform:uppercase">Incluidas</div>
+    </div>
+    <div style="border-radius:0 0 14px 14px;overflow:hidden;margin-top:14px">
+      <sc-for list="{{ actsRec }}" as="a" hint-placeholder-count="5">
+        <div style="position:relative;z-index:{{ a.z }};margin-top:{{ a.mt }}">
+          <div onClick="{{ a.toggle }}" style="cursor:pointer">
+            <div style="display:inline-block;margin-left:{{ a.tabLeft }};max-width:{{ a.tabMax }};overflow:hidden;text-overflow:ellipsis;background:{{ a.color }};border-radius:9px 9px 0 0;padding:6px 14px 4px;font-size:9px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:{{ a.txt }};white-space:nowrap;vertical-align:bottom">{{ a.tab }}</div>
+            <div style="background:{{ a.color }};border-radius:12px 12px 0 0;box-shadow:0 -10px 24px rgba(0,0,0,0.3);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:{{ a.sub }}">{{ a.meta }}</div>
+              <div style="font-size:11px;line-height:1;color:{{ a.sub }};transform:{{ a.rot }};transition:transform 0.35s ease">▾</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:{{ a.rows }};transition:grid-template-rows 0.45s cubic-bezier(0.3,0.9,0.3,1);background:{{ a.color }};border-radius:{{ a.radB }}">
+            <div style="min-height:0;overflow:hidden;opacity:{{ a.bodyOp }};transition:opacity 0.3s ease 0.08s">
+            <div style="padding:2px 14px 16px">
+              <div style="height:200px;border-radius:10px;background:{{ a.bg }};box-shadow:0 10px 24px rgba(0,0,0,0.25)"></div>
+              <div style="font-size:10.5px;line-height:1.65;color:{{ a.txt }};margin-top:10px;text-wrap:pretty">{{ a.long }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+                <sc-for list="{{ a.stats }}" as="st" hint-placeholder-count="2">
+                  <div style="border:1px solid {{ a.line }};border-radius:8px;padding:5px 9px">
+                    <div style="font-size:7px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:{{ a.sub }}">{{ st.label }}</div>
+                    <div style="font-size:10.5px;font-weight:800;margin-top:2px;color:{{ a.txt }}">{{ st.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:9px;font-size:9px;font-weight:700;color:{{ a.sub }}">{{ a.cta }}</div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:18px">
+      <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8fd6a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.5 L9.5 7.5 L13.5 14 L16 10.5 L21 18.5 Z"></path></svg>Fuera del recinto</div>
+      <div style="font-size:9px;font-weight:800;color:#8fd6a8;letter-spacing:1px;text-transform:uppercase">Operadores locales</div>
+    </div>
+    <div style="border-radius:0 0 14px 14px;overflow:hidden;margin-top:14px">
+      <sc-for list="{{ actsExt }}" as="a" hint-placeholder-count="6">
+        <div style="position:relative;z-index:{{ a.z }};margin-top:{{ a.mt }}">
+          <div onClick="{{ a.toggle }}" style="cursor:pointer">
+            <div style="display:inline-block;margin-left:{{ a.tabLeft }};max-width:{{ a.tabMax }};overflow:hidden;text-overflow:ellipsis;background:{{ a.color }};border-radius:9px 9px 0 0;padding:6px 14px 4px;font-size:9px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:{{ a.txt }};white-space:nowrap;vertical-align:bottom">{{ a.tab }}</div>
+            <div style="background:{{ a.color }};border-radius:12px 12px 0 0;box-shadow:0 -10px 24px rgba(0,0,0,0.3);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:{{ a.sub }}">{{ a.meta }}</div>
+              <div style="font-size:11px;line-height:1;color:{{ a.sub }};transform:{{ a.rot }};transition:transform 0.35s ease">▾</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:{{ a.rows }};transition:grid-template-rows 0.45s cubic-bezier(0.3,0.9,0.3,1);background:{{ a.color }};border-radius:{{ a.radB }}">
+            <div style="min-height:0;overflow:hidden;opacity:{{ a.bodyOp }};transition:opacity 0.3s ease 0.08s">
+            <div style="padding:2px 14px 16px">
+              <div style="height:200px;border-radius:10px;background:{{ a.bg }};box-shadow:0 10px 24px rgba(0,0,0,0.25)"></div>
+              <div style="font-size:10.5px;line-height:1.65;color:{{ a.txt }};margin-top:10px;text-wrap:pretty">{{ a.long }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+                <sc-for list="{{ a.stats }}" as="st" hint-placeholder-count="2">
+                  <div style="border:1px solid {{ a.line }};border-radius:8px;padding:5px 9px">
+                    <div style="font-size:7px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:{{ a.sub }}">{{ st.label }}</div>
+                    <div style="font-size:10.5px;font-weight:800;margin-top:2px;color:{{ a.txt }}">{{ st.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:9px;font-size:9px;font-weight:700;color:{{ a.sub }}">{{ a.cta }}</div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div data-anim="up" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,0.14);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);border:1px solid rgba(255,255,255,0.28);border-radius:16px;padding:14px 16px;color:#ffffff">
+    <div>
+      <div style="font-size:12px;font-weight:800">Tu destino te espera</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px">desconecta y recarga energías</div>
+    </div>
+    <button style="display:flex;align-items:center;gap:7px;border:none;border-radius:999px;background:rgba(32,148,170,0.92);color:#ffffff;font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;padding:10px 14px;cursor:pointer;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.5-4.5"></path></svg>Buscar disponibilidad</button>
+  </div>
+
+  <a href="#" aria-label="WhatsApp" style="position:fixed;right:16px;bottom:18px;z-index:60;width:48px;height:48px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,0.4)"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1.1-4.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9.5c.5 2.5 3 5 5.5 5.5l1-1.5-2-1-1 .5c-.8-.5-1.5-1.2-2-2l.5-1-1-2z"></path></svg></a>
+</div>
+<va-ruleta ref="{{ ruletaRef }}"></va-ruleta>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;yearSize&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:24,&quot;max&quot;:90,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;precioBase&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180000,&quot;min&quot;:50000,&quot;max&quot;:500000,&quot;step&quot;:5000,&quot;unit&quot;:&quot;CLP&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;extraPersona&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5000,&quot;min&quot;:0,&quot;max&quot;:50000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;CLP/noche&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;minNoches&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:1,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Tarifas&quot;},&quot;premioRuleta&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:50,&quot;options&quot;:[25,50,75,100],&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ruleta&quot;,&quot;unit&quot;:&quot;% dscto. noche extra&quot;}}">
+class Component extends DCLogic {
+  state = { ruletaPct: null, cot: null, cotOpen: false, cotError: '', cotNombre: '', cotCodigo: '', recarga: 0, gal: 0, calM: 0, calStart: null, calEnd: null, guests: 2, kids: 0, cabin: 8, searchIn: '', searchOut: '', searchError: '', searchMsg: '', calError: '', bkOpen: false, bkStep: 1, nombre: '', email: '', fono: '', paying: false, formError: '', folderRec: 0, folderExt: 0 };
+  CAL_MONTHS = [[2026,6],[2026,7],[2026,8],[2026,9],[2026,10],[2026,11]];
+  shiftDay(di, n) { const d = new Date(di + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+  ruletaRef = el => { this._ruleta = el; if (el && !el._vaWired) { el._vaWired = true; el.addEventListener('aceptar', e => this.setState({ ruletaPct: e.detail.premio })); } };
+  /* Las cabañas y su ocupacion salen de Supabase. La lista escrita arriba en
+     el archivo es la de ejemplo del diseño y solo se usa si la base no
+     responde: asi la pagina abre aunque no haya señal, pero nunca inventa
+     disponibilidad si hay conexion. */
+  OCC() {
+    if (window.VA_DATOS) return window.VA_DATOS.cabanas();
+    return (window.VA_OCUPACION && window.VA_OCUPACION.cabanas) || [];
+  }
+  REGLAS() {
+    return (window.VA_DATOS && window.VA_DATOS.reglas)
+      ? window.VA_DATOS.reglas()
+      : { personas_incluidas: 5, precio_persona_extra: 5000, minimo_noches: 2, porcentaje_anticipo: 50 };
+  }
+  minNoches() { return this.REGLAS().minimo_noches; }
+
+  /* Todo el dinero de la pantalla sale de aquí: el total, el abono y el saldo.
+     Un solo sitio, para que no puedan discrepar entre secciones. El desglose
+     por noche lo hace datos.js, que replica la regla de `cotizar()` —incluido
+     que una estadía puede cruzar de temporada y no todas las noches valen lo
+     mismo—. */
+  cotiza() {
+    const s = this.state, D = window.VA_DATOS, r = this.REGLAS();
+    const noches = (s.calStart && s.calEnd)
+      ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
+
+    const base = (D && s.calStart && D.precioNoche(s.calStart) != null)
+      ? D.precioNoche(s.calStart)
+      : (D ? D.precioBase() : 180000);
+    const extra = Math.max(0, s.guests - r.personas_incluidas) * r.precio_persona_extra;
+    const nightly = base + extra;
+
+    let total = noches * nightly;
+    if (noches > 0 && D && D.cotizarLocal) {
+      const c = D.cotizarLocal(s.calStart, s.calEnd, s.guests, s.kids);
+      if (c) total = c.total;
+    }
+    const half = Math.round(total * (r.porcentaje_anticipo / 100));
+    /* Lo que se cobra online lleva el recargo de la pasarela; el saldo de la
+       cabaña no, porque ese no pasa por Mercado Pago. */
+    const recargo = (D && D.recargoPasarela) ? D.recargoPasarela(half) : 0;
+    return {
+      nightly, noches, total, half, bal: total - half,
+      recargo, aPagar: half + recargo,
+      /* Para la nota del desglose: también salen de la base, porque "sobre el
+         5º" y "menores de 12" son política de negocio, no constantes. */
+      incluidas: r.personas_incluidas,
+      extraAdultos: Math.max(0, s.guests - r.personas_incluidas),
+      extraPorNoche: r.precio_persona_extra,
+      edadNino: (r.edad_nino_max != null ? r.edad_nino_max : 11) + 1
+    };
+  }
+
+  cabFreeNight(c, di) { return !c.reservas.some(r => di >= r[0] && di < r[1]); }
+  groupSize() { return this.state.guests + this.state.kids; }
+  fitCabs() { const g = this.groupSize(); return this.OCC().filter(c => c.capacidad >= g); }
+  dayOcc(di) { const f = this.fitCabs(); return !f.length || f.every(c => !this.cabFreeNight(c, di)); }
+  freeCabsRange(a, b, cabs) { return cabs.filter(c => { for (let d = a; d < b; d = this.shiftDate(d, 1)) { if (!this.cabFreeNight(c, d)) return false; } return true; }); }
+  WA_NUM = '56982398527';
+
+  /* El mensaje de WhatsApp con la reserva ya escrita. El total y el abono
+     llegan calculados desde el render, con la misma tarifa que ve el cliente
+     en pantalla: recalcularlos aquí sería arriesgarse a que el mensaje diga un
+     precio y la página otro, y a discutirlo después por chat. */
+  waReserva(total, abono) {
+    const s = this.state;
+    const n = (s.calStart && s.calEnd)
+      ? Math.round((new Date(s.calEnd) - new Date(s.calStart)) / 86400000) : 0;
+    const l = ['Hola, quiero reservar en Valle Aventura.', ''];
+    if (s.calStart && s.calEnd) {
+      l.push('Fechas: ' + this.fmtDate(s.calStart) + ' a ' + this.fmtDate(s.calEnd)
+             + ' (' + n + (n === 1 ? ' noche)' : ' noches)'));
+    }
+    if (s.guests || s.kids) {
+      l.push('Personas: ' + s.guests + (s.guests === 1 ? ' adulto' : ' adultos')
+             + (s.kids ? ' y ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''));
+    }
+    if (n > 0 && total) {
+      l.push('Total: ' + this.fmt(total));
+      if (abono) {
+        l.push('Abono para reservar (50%): ' + this.fmt(abono));
+        l.push('Saldo al llegar: ' + this.fmt(total - abono));
+      }
+    }
+    if (s.nombre) l.push('Mi nombre: ' + s.nombre);
+    l.push('', '¿Me confirman disponibilidad y los datos para transferir?');
+    return 'https://wa.me/' + this.WA_NUM + '?text=' + encodeURIComponent(l.join('\n'));
+  }
+
+  fmtDate(di) { const p = di.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  fmt(n) { return '$' + n.toLocaleString('es-CL'); }
+  todayStr() { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
+  shiftDate(str, days) { const d = new Date(str + 'T00:00:00'); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  rangeFree(inStr, nights) { return this.freeCabsRange(inStr, this.shiftDate(inStr, nights), this.fitCabs()).length > 0; }
+  monthIdx(di) { const p = di.split('-').map(Number); return this.CAL_MONTHS.findIndex(a => a[0] === p[0] && a[1] === p[1] - 1); }
+  actVals() {
+    const A = window.VA_ACTS || { recinto: [], exterior: [] };
+    const PAL = {
+      folderRec: ['#123d52', '#17606e', '#1f8296', '#3fa9bd', '#7fd6e2'],
+      folderExt: ['#1c2a44', '#2a3d5f', '#3d5680', '#6b83a8', '#a8bdd6']
+    };
+    const tabs = ['3%', '15%', '27%', '38%', '48%'];
+    const shortNames = { ski: 'Centro de Ski' };
+    const mk = (list, key) => list.map((a, i) => {
+      const open = this.state[key] === i;
+      const cs = PAL[key];
+      const ci = i % cs.length, light = ci >= 3;
+      return Object.assign({}, a, {
+        tab: shortNames[a.id] || a.nombre,
+        color: cs[ci],
+        txt: light ? '#0d1b2e' : '#ffffff',
+        sub: light ? 'rgba(13,27,46,0.72)' : 'rgba(255,255,255,0.78)',
+        line: light ? 'rgba(13,27,46,0.3)' : 'rgba(255,255,255,0.3)',
+        tabLeft: tabs[i % tabs.length],
+        tabMax: 'calc(94% - ' + tabs[i % tabs.length] + ')',
+        z: i + 1, mt: i === 0 ? '0px' : '-8px',
+        radB: i === list.length - 1 ? '0 0 14px 14px' : '0',
+        rot: open ? 'rotate(180deg)' : 'rotate(0deg)',
+        rows: open ? '1fr' : '0fr', bodyOp: open ? 1 : 0,
+        toggle: () => this.setState({ [key]: open ? -1 : i })
+      });
+    });
+    return { actsRec: mk(A.recinto, 'folderRec'), actsExt: mk(A.exterior, 'folderExt') };
+  }
+  doSearch() {
+    const s = this.state, minN = this.props.minNoches ?? 2, today = this.todayStr();
+    if (!s.searchIn || !s.searchOut) { this.setState({ searchError: 'Elige fecha de entrada y de salida.', searchMsg: '' }); return; }
+    if (s.searchIn < today) { this.setState({ searchError: 'La fecha de entrada no puede ser en el pasado.', searchMsg: '' }); return; }
+    if (s.searchOut <= s.searchIn) { this.setState({ searchError: 'La salida debe ser después de la entrada.', searchMsg: '' }); return; }
+    const nights = Math.round((new Date(s.searchOut) - new Date(s.searchIn)) / 86400000);
+    if (nights < minN) { this.setState({ searchError: 'La estadía mínima es de ' + minN + ' noches.', searchMsg: '' }); return; }
+    if (this.monthIdx(s.searchIn) < 0) { this.setState({ searchError: 'Por ahora recibimos reservas entre julio y diciembre 2026.', searchMsg: '' }); return; }
+    const upd = { searchError: '', calError: '' };
+    if (this.rangeFree(s.searchIn, nights)) {
+      upd.calM = this.monthIdx(s.searchIn); upd.calStart = s.searchIn; upd.calEnd = s.searchOut;
+      upd.searchMsg = '¡Tenemos disponibilidad del ' + this.fmtDate(s.searchIn) + ' al ' + this.fmtDate(s.searchOut) + ' (' + nights + ' noches)! Tus fechas ya quedaron marcadas en el calendario — confirma tu reserva abajo.';
+    } else {
+      let alt = null;
+      for (let k = 1; k <= 60 && !alt; k++) {
+        const minus = this.shiftDate(s.searchIn, -k), plus = this.shiftDate(s.searchIn, k);
+        if (minus >= today && this.monthIdx(minus) >= 0 && this.rangeFree(minus, nights)) alt = minus;
+        else if (this.monthIdx(plus) >= 0 && this.rangeFree(plus, nights)) alt = plus;
+      }
+      if (alt) {
+        const altOut = this.shiftDate(alt, nights);
+        upd.calM = this.monthIdx(alt); upd.calStart = alt; upd.calEnd = altOut;
+        upd.searchMsg = 'Esas fechas ya están ocupadas. Te recomendamos del ' + this.fmtDate(alt) + ' al ' + this.fmtDate(altOut) + ' (' + nights + ' noches), las más cercanas disponibles — ya quedaron marcadas en el calendario.';
+      } else {
+        upd.searchMsg = 'No encontramos disponibilidad cercana a esas fechas. Revisa el calendario para ver los días libres.';
+      }
+    }
+    this.setState(upd);
+  }
+  buildDays(mi) {
+    const s = this.state;
+    const y = this.CAL_MONTHS[mi][0], m = this.CAL_MONTHS[mi][1];
+    const nDays = new Date(y, m + 1, 0).getDate();
+    const off = (new Date(y, m, 1).getDay() + 6) % 7;
+    const iso = d => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const days = [];
+    for (let i = 0; i < off; i++) days.push({ n: '', bg: 'transparent', color: 'transparent', fw: 400, deco: 'none', ring: 'none' });
+    for (let d = 1; d <= nDays; d++) {
+      const di = iso(d);
+      const night = this.dayOcc(di), morn = this.dayOcc(this.shiftDate(di, -1));
+      const occ = night && morn, diag = (night || morn) && !occ;
+      const occC = 'rgba(255,255,255,0.08)', freeC = 'rgba(255,255,255,0.2)';
+      const diagBg = morn ? 'linear-gradient(135deg, ' + occC + ' 50%, ' + freeC + ' 50%)' : 'linear-gradient(135deg, ' + freeC + ' 50%, ' + occC + ' 50%)';
+      const sel = s.calStart === di || s.calEnd === di;
+      const inR = s.calStart && s.calEnd && di > s.calStart && di < s.calEnd;
+      days.push({
+        n: d,
+        bg: sel ? (diag ? diagBg : 'linear-gradient(135deg, #3fc8da 0%, #2494ac 100%)') : inR ? 'rgba(63,193,201,0.35)' : occ ? occC : diag ? diagBg : freeC,
+        color: sel ? (diag ? '#7fd6e2' : '#06222a') : occ ? 'rgba(255,255,255,0.4)' : '#ffffff',
+        fw: sel ? 800 : 500,
+        deco: occ ? 'line-through' : 'none',
+        ring: sel && diag ? 'inset 0 0 0 2.5px #3fc8da' : 'none',
+        pick: () => this.pickDay(di)
+      });
+    }
+    return days;
+  }
+  syncInputs(a, b) {
+    const ins = document.querySelectorAll('input[type=date]');
+    if (ins[0] && a) ins[0].value = a;
+    if (ins[1] && b) ins[1].value = b;
+  }
+  pickDay(di) {
+    const s = this.state, minN = this.props.minNoches ?? 2;
+    if (!s.calStart || (s.calStart && s.calEnd) || di <= s.calStart) {
+      if (this.dayOcc(di)) { this.setState({ calError: 'Esa noche ya está reservada en todas las cabañas donde cabe tu grupo. Elige otra fecha de entrada.' }); return; }
+      this.setState({ calStart: di, calEnd: null, calError: '' }); return;
+    }
+    const nights = Math.round((new Date(di) - new Date(s.calStart)) / 86400000);
+    if (nights < minN) { this.setState({ calError: 'La estadía mínima es de ' + minN + ' noches. Elige una fecha de salida más lejana.' }); return; }
+    if (!this.freeCabsRange(s.calStart, di, this.fitCabs()).length) { this.setState({ calError: 'Ese rango cruza noches ya reservadas: ninguna cabaña queda libre las ' + nights + ' noches completas. Prueba otras fechas.' }); return; }
+    this.setState({ calEnd: di, calError: '', searchIn: s.calStart, searchOut: di });
+  }
+  componentDidMount() {
+    const mi = this.monthIdx(this.todayStr());
+    if (mi > 0) this.setState({ calM: mi });
+
+    /* Ocupación real. Si la base no contesta, datos.js se queda con el ejemplo
+       y `esReal()` sigue en false, que es lo que mantiene el aviso en pantalla:
+       una página que funciona y lo advierte es mejor que una en blanco. */
+    if (window.VA_DATOS) window.VA_DATOS.cargar().then(() => this.setState({ recarga: Date.now() }));
+
+    /* Quien llega con un codigo viene de un WhatsApp de Jose, no navegando. Si
+       tuviera que abrir el pop-up, bajar y encontrar "Tienes un codigo?", la
+       mitad escribiria preguntando donde se pone. Con `?c=VA-4K7M` el enlace
+       lo deja en el formulario con el codigo ya escrito; solo pone su nombre.
+
+       El codigo en la barra de direcciones no abre nada por si solo: hace
+       falta el nombre, y eso lo comprueba Postgres. */
+    try {
+      const par = new URLSearchParams(location.search);
+      const cod = (par.get('c') || par.get('codigo') || '').trim().toUpperCase();
+      const pide = (location.hash || '').toLowerCase() === '#codigo';
+      if (cod || pide) {
+        this.setState({ cotOpen: true, cotCodigo: cod });
+        /* Y que la seccion quede a la vista: el canje vive junto al
+           calendario, a media pagina, y aterrizar arriba del todo obligaria a
+           buscarlo igual que si no hubiera enlace. */
+        setTimeout(() => {
+          const el = document.getElementById('canje');
+          if (el) el.scrollIntoView({ block: 'center' });
+        }, 260);
+      }
+    } catch (e) {}
+
+    this._onRes = () => this.setState({ vw: document.documentElement.clientWidth });
+    this._onRes();
+    window.addEventListener('resize', this._onRes);
+    const els = [...document.querySelectorAll('[data-anim]')];
+    els.forEach(el => {
+      el._base = el.style.transform || '';
+      el._baseOp = el.style.opacity || '1';
+      el._kind = el.getAttribute('data-anim');
+      el._delay = el.getAttribute('data-anim-delay') || '0';
+    });
+    const hide = el => {
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      if (el._kind !== 'fade') {
+        const off = el._kind === 'left' ? 'translateX(-40px)' : el._kind === 'right' ? 'translateX(40px)' : 'translateY(32px)';
+        el.style.transform = (el._base + ' ' + off).trim();
+      }
+    };
+    const show = el => {
+      el.style.transition = 'opacity 0.9s ease ' + el._delay + 's, transform 0.9s cubic-bezier(0.22,0.8,0.3,1) ' + el._delay + 's';
+      el.style.opacity = el._baseOp;
+      if (el._kind !== 'fade') el.style.transform = el._base;
+    };
+    els.forEach(hide);
+    this._checkAnims = () => {
+      const vh = window.innerHeight || 800;
+      els.forEach(el => {
+        const r = el.getBoundingClientRect();
+        const inV = r.top < vh * 0.92 && r.bottom > vh * 0.04;
+        if (inV && !el._shown) { el._shown = true; requestAnimationFrame(() => show(el)); }
+      });
+    };
+    this._animTimer = setInterval(this._checkAnims, 250);
+    setTimeout(this._checkAnims, 100);
+  }
+  componentWillUnmount() { if (this._animTimer) clearInterval(this._animTimer); }
+  GAL = [
+    ['IMG_2558-2.jpg', 'Living'],
+    ['IMG_2559-2.jpg', 'Living'],
+    ['IMG_2565 (1)-2.jpg', 'Living'],
+    ['IMG_2557-2.jpg', 'Cocina'],
+    ['IMG_2590-2.jpg', 'Cocina'],
+    ['IMG_2569-2.jpg', 'Habitación 1'],
+    ['IMG_2571-2.jpg', 'Habitación 1'],
+    ['IMG_2578-2.jpg', 'Habitación 2'],
+    ['IMG_2584-2.jpg', 'Habitación 2'],
+    ['IMG_2585-2.jpg', 'Habitación 3'],
+    ['PSX_20211023_160323-1 (1)-2.jpg', 'Habitación 3']
+  ];
+  renderVals() {
+    const s = this.state;
+    const yearSize = this.props.yearSize ?? 50;
+    const vwM = this.state.vw || (typeof document !== 'undefined' ? document.documentElement.clientWidth : 430);
+    const cwM = Math.min(430, vwM - 20);
+    const Lm = 26, Rm = cwM - 26;
+    const calClipM = "path('M 0 3000 L 0 54 Q 0 34 20 34 L " + (Lm - 12) + " 34 Q " + Lm + " 34 " + Lm + " 26 L " + Lm + " 14 Q " + Lm + " 0 " + (Lm + 14) + " 0 L " + (Rm - 14) + " 0 Q " + Rm + " 0 " + Rm + " 14 L " + Rm + " 26 Q " + Rm + " 34 " + (Rm + 12) + " 34 L " + (cwM - 20) + " 34 Q " + cwM + " 34 " + cwM + " 54 L " + cwM + " 3000 Z')";
+    const names = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const ym = this.CAL_MONTHS[s.calM];
+    const selCab = c => { const gg = Math.min(this.state.guests, c); this.setState({ cabin: c, guests: gg, kids: Math.min(this.state.kids, c - gg) }); };
+    const availFor = cap => { const need = Math.max(cap, this.groupSize()); return this.OCC().filter(c => c.capacidad >= need).filter(c => !(s.calStart && s.calEnd) || this.freeCabsRange(s.calStart, s.calEnd, [c]).length > 0).length; };
+    const subTxt = n => n === 0 ? ((s.calStart && s.calEnd) ? 'Sin disponibilidad en esas fechas' : 'No disponible para tu grupo') : n === 1 ? '1 cabaña disponible' : n + ' cabañas disponibles';
+    /* EL DINERO NO SE CALCULA AQUI. Sale de `cotiza()`, que pregunta a la base
+       noche por noche. El diseño traia `precioBase ?? 180000` fijo y ademas
+       contaba a los niños para el recargo; las dos cosas cobran de menos o de
+       mas segun el mes y la familia, y ninguna coincidiria con lo que cobra
+       Mercado Pago, que pregunta a la MISMA funcion de Postgres. */
+    const q = this.cotiza();
+    const nightly = q.nightly, bkNights = q.noches;
+
+    /* La noche extra de la ruleta. El porcentaje no lo decide la pagina: viene
+       de la cotizacion que Jose preparo para esta persona. Sin cotizacion no
+       hay ruleta, y por eso `premioCfg` puede ser null. */
+    const cot = s.cot;
+    const premioCfg = (cot && cot.noche_extra && cot.noche_extra.pct != null)
+      ? Number(cot.noche_extra.pct) : null;
+    const rPct = s.ruletaPct;
+    const rExtra = (rPct != null && cot && cot.noche_extra)
+      ? Number(cot.noche_extra.precio) : 0;
+
+    const bkTotal = q.total + rExtra;
+    const bkHalf = Math.round(bkTotal * (this.REGLAS().porcentaje_anticipo / 100));
+    const bkBal = bkTotal - bkHalf;
+    const g = s.gal;
+    return {
+      yearSize,
+      tourUrl: 'https://my.matterport.com/show/?m=UCuZEHFc1Xp&play=1&title=0&brand=0&help=0',
+      tourOn: !!s.tourOn,
+      tourOff: !s.tourOn,
+      tourStart: () => this.setState({ tourOn: true }),
+      tourStop: () => this.setState({ tourOn: false }),
+      calTitle: names[ym[1]] + ' ' + ym[0],
+      calSlides: this.CAL_MONTHS.map((mm, i) => ({
+        days: this.buildDays(i),
+        op: i === s.calM ? 1 : 0,
+        pe: i === s.calM ? 'auto' : 'none'
+      })),
+      calShiftX: 'translateX(calc(-' + s.calM + ' * (100% + 20px)))',
+      calPrev: () => this.setState({ calM: Math.max(0, s.calM - 1) }),
+      calNext: () => this.setState({ calM: Math.min(this.CAL_MONTHS.length - 1, s.calM + 1) }),
+      calStartTxt: s.calStart ? this.fmtDate(s.calStart) : '—',
+      calEndTxt: s.calEnd ? this.fmtDate(s.calEnd) : '—',
+      ...this.actVals(),
+      cabFotos: ['IMG_5798-2.jpg','IMG_5639.JPG (1)-2.jpg','IMG_5651.JPG-2.jpg','20221028123202_IMG_4961 (1)-2.jpg','20221028121841_IMG_4945 (1)-2-39a52ee2.jpg','IMG_7692-2.jpg','Res-2.jpg','WhatsApp Image 2026-06-13 at 2.34.39 PM-2.jpg','20211126125339_IMG_3870-2-2.jpg','20220124133723_IMG_4343-2-7a252455.jpg','20221028121416_IMG_4933 (1)-2-4ab1fe67.jpg','20221028121649_IMG_4941-2-1a78f0cf.jpg','IMG_5485 (1)-2-63961128.jpg'].map(f => ({ bgStyle: { flex: '0 0 100%', width: '100%', height: 340, scrollSnapAlign: 'start', backgroundImage: 'url("uploads/' + encodeURIComponent(f) + '")', backgroundSize: 'cover', backgroundPosition: 'center' } })),
+      searchIn: s.searchIn, searchOut: s.searchOut, todayMin: this.todayStr(),
+      setSearchIn: e => this.setState({ searchIn: e.target.value, searchError: '' }),
+      setSearchOut: e => this.setState({ searchOut: e.target.value, searchError: '' }),
+      doSearch: () => this.doSearch(),
+      calClipM,
+      searchError: s.searchError, searchMsg: s.searchMsg, calError: s.calError,
+      openBooking: () => {
+        if (!s.calStart || !s.calEnd) { this.setState({ calError: 'Selecciona tus fechas de entrada y salida en el calendario.' }); return; }
+        if (availFor(s.cabin) === 0) { this.setState({ calError: 'No queda ninguna cabaña para ' + s.cabin + ' personas libre en esas fechas para tu grupo. Cambia las fechas o el tipo de cabaña.' }); return; }
+        this.setState({ bkOpen: true, bkStep: 1, formError: '' });
+      },
+      closeBk: () => this.setState({ bkOpen: false }),
+      stopProp: e => e.stopPropagation(),
+      bkOpen: s.bkOpen, bkS1: s.bkStep === 1, bkS2: s.bkStep === 2, bkS3: s.bkStep === 3, bkS4: s.bkStep === 4,
+      bkStepTxt: s.bkStep === 4 ? 'Reserva' : 'Paso ' + s.bkStep + ' de 3',
+      bkTitle: s.bkStep === 1 ? 'Confirma tu reserva' : s.bkStep === 2 ? 'Tus datos' : s.bkStep === 3 ? 'Medio de pago' : 'Todo listo',
+      bkInTxt: s.calStart ? this.fmtDate(s.calStart) : '—', bkOutTxt: s.calEnd ? this.fmtDate(rPct != null ? this.shiftDay(s.calEnd, 1) : s.calEnd) : '—',
+      bkBreakdown: bkNights + ' × ' + this.fmt(nightly),
+      cab8Sub: subTxt(availFor(8)), cab9Sub: subTxt(availFor(9)), minNoches: this.props.minNoches ?? 2,
+      resDis: !(s.calStart && s.calEnd), resOp: (s.calStart && s.calEnd) ? '1' : '0.45', resCur: (s.calStart && s.calEnd) ? 'pointer' : 'not-allowed',
+      bkRange: (s.calStart ? this.fmtDate(s.calStart) : '—') + ' → ' + (s.calEnd ? this.fmtDate(rPct != null ? this.shiftDay(s.calEnd, 1) : s.calEnd) : '—'),
+      bkNights: rPct != null ? bkNights + ' + 1 extra' : bkNights, bkCabTxt: 'Para ' + s.cabin + ' personas',
+      bkNightlyFmt: this.fmt(nightly), bkTotalFmt: this.fmt(bkTotal), bkHalfFmt: this.fmt(bkHalf), bkBalFmt: this.fmt(bkBal),
+      bkExtraNote: extraAdults > 0 ? 'Incluye +' + this.fmt(extraP) + '/noche por cada adulto sobre el 5º (los niños −12 no suman extra)' : false,
+      bkGuestsTxt: s.guests + (s.guests === 1 ? ' adulto' : ' adultos') + (s.kids ? ' · ' + s.kids + (s.kids === 1 ? ' niño' : ' niños') : ''),
+      nombre: s.nombre, email: s.email, fono: s.fono,
+      setNombre: e => this.setState({ nombre: e.target.value }),
+      setEmail: e => this.setState({ email: e.target.value }),
+      setFono: e => this.setState({ fono: e.target.value }),
+      formError: s.formError,
+      ruletaRef: this.ruletaRef,
+      ruletaOk: rPct != null,
+      /* La ruleta SOLO existe si Jose le preparo una cotizacion con noche
+         extra a esta persona. Sin eso no hay porcentaje que revelar, y un
+         boton que promete un premio inexistente es peor que no tenerlo. */
+      ruletaHay: premioCfg != null,
+      ruletaQ: rPct != null ? '✓' : '?',
+      ruletaBtnTitle: rPct != null ? (rPct === 100 ? 'Noche extra gratis agregada' : 'Noche extra al ' + rPct + '% agregada') : 'Participa por una noche extra',
+      ruletaBtnSub: rPct != null ? 'Ya está sumada al total de tu reserva' : 'Tienes un giro disponible para esta reserva',
+      ruletaBtnAnim: rPct != null ? 'none' : 'va-ruleta-blink 1.6s ease-in-out infinite',
+      ruletaRowTxt: rPct === 100 ? 'Noche extra gratis' : 'Noche extra al ' + rPct + '%',
+      ruletaRowFmt: rPct === 100 ? 'Gratis' : this.fmt(rExtra),
+      openRuleta: () => {
+        const el = this._ruleta; if (!el) return;
+        /* El premio, el precio y QUE noche se ofrece salen de la cotizacion,
+           que ya lo calculo Postgres: puede ser la noche de despues o la de
+           antes, segun cual este libre. Aqui no se decide nada, se enseña.
+
+           El diseño calculaba el precio como `nightly * (100 - premio)/100`,
+           y eso ignora que el precio pactado no es el de la web: la noche
+           extra de una cabaña que Jose dejo en 170 sale de 170, no de 180. */
+        const cot = this.state.cot;
+        const ne = cot && cot.noche_extra;
+        if (!ne) return;
+        el.abrir({
+          nombre: (this.state.nombre || cot.nombre || '').trim().split(' ')[0],
+          premio: Number(ne.pct),
+          precio: this.fmt(Number(ne.precio)),
+          texto: ne.tipo === 'antes'
+            ? 'Llega el ' + this.fmtDate(ne.desde)
+            : 'Quédate hasta el ' + this.fmtDate(ne.hasta)
+        });
+      },
+      /* El boton dice lo que se va a cobrar DE VERDAD, con el recargo de la
+         pasarela incluido. El diseño ponia el 50% pelado, y llegar a Mercado
+         Pago y ver otra cifra es donde se cae la mitad de los pagos.
+
+         El recargo se recalcula sobre el total con noche extra: `cotiza()` no
+         sabe de la ruleta, asi que si se acepto hay que rehacerlo. */
+      mpLabel: s.paying
+        ? (window.VA_PAGOS ? 'Abriendo Mercado Pago…' : 'Abriendo WhatsApp…')
+        : (window.VA_PAGOS
+            ? 'Pagar ' + this.fmt(bkHalf + ((window.VA_DATOS && window.VA_DATOS.recargoPasarela)
+                                            ? window.VA_DATOS.recargoPasarela(bkHalf) : 0))
+            : 'Reservar por WhatsApp'),
+      bkHayRecargo: !!(window.VA_PAGOS && window.VA_DATOS && window.VA_DATOS.recargoPasarela
+                       && window.VA_DATOS.recargoPasarela(bkHalf) > 0),
+      bkRecargoFmt: (window.VA_DATOS && window.VA_DATOS.recargoPasarela)
+        ? this.fmt(window.VA_DATOS.recargoPasarela(bkHalf)) : '',
+      hayPagos: !!window.VA_PAGOS,
+      sinPagos: !window.VA_PAGOS,
+      /* Aviso si la base no contesta y se esta pintando la ocupacion de
+         ejemplo: una pagina que funciona y lo advierte es mejor que uno
+         reservando sobre fechas inventadas. */
+      notaDemo: (window.VA_DATOS && window.VA_DATOS.esReal()) ? ''
+                : 'Disponibilidad de ejemplo: escríbenos para confirmar.',
+      hayNotaDemo: !!(window.VA_DATOS && !window.VA_DATOS.esReal()),
+      bkNext: () => {
+        if (this.state.bkStep === 1) { this.setState({ bkStep: 2, formError: '' }); return; }
+        const st = this.state;
+        if (!st.nombre.trim() || !st.fono.trim() || !st.email.trim()) { this.setState({ formError: 'Completa tu nombre, teléfono y email para continuar.' }); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.email)) { this.setState({ formError: 'Revisa el formato de tu email.' }); return; }
+        this.setState({ bkStep: 3, formError: '' });
+      },
+      bkBack: () => this.setState({ bkStep: Math.max(1, this.state.bkStep - 1), formError: '' }),
+      /* ---- Canjear un codigo de cotizacion ------------------------------
+         Jose cierra un precio por WhatsApp y manda un codigo corto. Al
+         canjearlo, las fechas y la cabaña del calendario se rellenan con lo
+         que se pacto, y de ahi en adelante el flujo es el mismo de siempre.
+
+         El precio NO se toca aqui: se guarda la cotizacion en el estado y
+         `cotiza()` la usa. Lo que se cobra lo recalcula Postgres al apartar la
+         cabaña, con el codigo por delante. */
+      cotOpen: s.cotOpen,
+      cotNombre: s.cotNombre,
+      cotCodigo: s.cotCodigo,
+      cotError: s.cotError,
+      cotHayError: !!s.cotError,
+      cotCargando: !!s.cotCargando,
+      cotToggle: () => this.setState({ cotOpen: !this.state.cotOpen, cotError: '' }),
+      setCotNombre: e => this.setState({ cotNombre: e.target.value }),
+      setCotCodigo: e => this.setState({ cotCodigo: e.target.value.toUpperCase() }),
+      cotVer: () => {
+        const st = this.state;
+        const nombre = (st.cotNombre || '').trim();
+        const codigo = (st.cotCodigo || '').trim().toUpperCase();
+        if (!nombre || !codigo) {
+          this.setState({ cotError: 'Escribe tu nombre completo y el código.' });
+          return;
+        }
+        if (!window.VA_DATOS || !window.VA_DATOS.cotizacion) {
+          this.setState({ cotError: 'No pudimos conectar. Revísalo en un momento.' });
+          return;
+        }
+        this.setState({ cotCargando: true, cotError: '' });
+        window.VA_DATOS.cotizacion(codigo, nombre).then(c => {
+          if (!c) {
+            this.setState({ cotCargando: false,
+              cotError: 'No pudimos conectar. Revisa tu señal e inténtalo de nuevo.' });
+            return;
+          }
+          if (!c.ok) {
+            this.setState({ cotCargando: false,
+              cotError: window.VA_DATOS.motivoCotizacion(c.motivo) });
+            return;
+          }
+          /* Las fechas y las personas pasan a ser las pactadas. El cliente ya
+             no las elige: lo que se hablo fue para esas noches, y si las
+             cambiara el precio dejaria de ser el suyo. */
+          this.setState({
+            cot: c, cotCargando: false, cotOpen: false, cotError: '',
+            calStart: c.desde, calEnd: c.hasta,
+            guests: c.adultos, kids: c.ninos,
+            nombre: st.nombre || c.nombre,
+            searchError: '', calError: '', ruletaPct: null
+          });
+        });
+      },
+      mpPay: () => {
+        if (this.state.paying) return;
+        this.setState({ paying: true });
+
+        /* AQUI SE COBRA DE VERDAD. El diseño traia un `setTimeout` que saltaba
+           a la pantalla de "listo" sin cobrar nada: bonito de ver y ruinoso de
+           publicar.
+
+           El monto NO se manda: Postgres lo recalcula al apartar la cabaña. Lo
+           que viaja son las fechas y, si canjeo una cotizacion, su codigo. Asi
+           el precio que se cobra no puede editarse desde el navegador. */
+        if (window.VA_PAGOS && window.VA_PAGOS.iniciar) {
+          const cot = this.state.cot;
+          const datos = cot
+            ? { codigo: cot.codigo, nombre: s.nombre || cot.nombre, email: s.email,
+                fono: s.fono, noche_extra: s.ruletaPct != null }
+            : { monto: q.aPagar, nombre: s.nombre, email: s.email, fono: s.fono,
+                desde: s.calStart, hasta: s.calEnd, adultos: s.guests, ninos: s.kids };
+          window.VA_PAGOS.iniciar(datos)
+            .catch(err => this.setState({ paying: false,
+              formError: (err && err.motivo && window.VA_DATOS)
+                ? window.VA_DATOS.motivoCotizacion(err.motivo)
+                : 'No pudimos abrir el pago (' + (err && err.message) + '). Escríbenos por WhatsApp y lo cerramos por ahí.' }));
+          return;
+        }
+
+        /* Sin pasarela configurada se abre WhatsApp. NO se escribe nada en la
+           base ni se ocupa ninguna fecha: la reserva la carga José a mano si la
+           conversacion llega a algo. */
+        try { window.open(this.waReserva(bkTotal, bkHalf), '_blank', 'noopener'); } catch (e) {}
+        this.setState({ paying: false, bkStep: 4 });
+      },
+      finishBk: () => { if (this._ruleta && this._ruleta.reiniciar) this._ruleta.reiniciar(); this.setState({ ruletaPct: null, bkOpen: false, bkStep: 1, calStart: null, calEnd: null, searchIn: '', searchOut: '', searchMsg: '', nombre: '', email: '', fono: '' }); },
+      guests: s.guests,
+      guestMax: 'Máximo ' + s.cabin + ' en esta cabaña',
+      gMinus: () => this.setState({ guests: Math.max(1, s.guests - 1) }),
+      gPlus: () => this.setState({ guests: Math.min(s.cabin - s.kids, s.guests + 1) }),
+      kids: s.kids,
+      kMinus: () => this.setState({ kids: Math.max(0, s.kids - 1) }),
+      kPlus: () => this.setState({ kids: Math.min(s.cabin - s.guests, s.kids + 1) }),
+      pick8: () => selCab(8),
+      pick9: () => selCab(9),
+      cab8Bg: s.cabin === 8 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
+      cab9Bg: s.cabin === 9 ? 'rgba(63,200,218,0.28)' : 'rgba(255,255,255,0.22)',
+      cab8Border: s.cabin === 8 ? '1.5px solid #3fc8da' : '1px solid rgba(255,255,255,0.3)',
+      cab9Border: s.cabin === 9 ? '1.5px solid #3fc8da' : '1px solid rgba(255,255,255,0.3)',
+      galFotos: this.GAL.map(([f, label], i) => ({
+        src: 'uploads/' + encodeURIComponent(f), label,
+        w: i === g ? 220 : 124, h: i === g ? 140 : 90,
+        o: i < g ? 0 : 1
+      })),
+      galCount: (g + 1) + ' / ' + this.GAL.length,
+      galShift: 'translateX(-' + (g * 133) + 'px)',
+      galNext: () => this.setState({ gal: (this.state.gal + 1) % this.GAL.length }),
+      galPrev: () => this.setState({ gal: (this.state.gal - 1 + this.GAL.length) % this.GAL.length })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -121,9 +121,9 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
   <div data-screen-label="Reserva móvil" style="position:relative;z-index:6;margin-top:-24px;color:#ffffff;filter:drop-shadow(0 24px 40px rgba(0,0,0,0.5));clip-path:inset(-200px 0 0 0)">
     <div style="position:absolute;inset:0;background:#0e1c30;border-radius:20px;clip-path:{{ calClipM }}">
       <div style="position:absolute;inset:0;background:url('uploads/d512f7d7-12fc-4fd4-a8bd-865253e87348.webp') center / cover no-repeat"></div>
-      <div style="position:absolute;inset:0;background:rgba(11,24,42,0.86);pointer-events:none"></div>
+      <div style="position:absolute;inset:0;background:rgba(26,42,66,0.6);pointer-events:none"></div>
     </div>
-    <div style="position:relative;padding:148px 16px 22px">
+    <div style="position:relative;padding:204px 16px 22px">
       <sc-if value="{{ searchError }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ searchError }}</div></sc-if>
       <sc-if value="{{ searchMsg }}" hint-placeholder-val="{{ false }}"><div style="margin:0 0 12px;background:rgba(53,183,201,0.18);border:1px solid rgba(63,200,218,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#aee9f2;line-height:1.6">{{ searchMsg }}</div></sc-if>
       
@@ -167,7 +167,7 @@ window.VA_OCUPACION = window.VA_OCUPACION || {
         </div>
       </div>
       <sc-if value="{{ calError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;background:rgba(214,84,64,0.2);border:1px solid rgba(255,140,120,0.5);border-radius:10px;padding:9px 12px;font-size:11px;color:#ffc9c0">{{ calError }}</div></sc-if>
-      <div id="canje" style="margin:18px 0 14px">
+      <div id="canje" style="margin:0 0 4px">
           <sc-if value="{{ !cotOpen }}" hint-placeholder-val="{{ true }}">
             <button onClick="{{ cotToggle }}" style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin:0 0 14px;background:rgba(240,196,25,0.1);border:1px solid rgba(240,196,25,0.4);border-radius:12px;padding:11px 13px;cursor:pointer;color:#ffffff;font-family:'Manrope',sans-serif;text-align:left">
               <span style="width:32px;height:32px;flex:none;border-radius:50%;background:#f0c419;color:#22271f;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;font-weight:800;font-size:16px">?</span>
